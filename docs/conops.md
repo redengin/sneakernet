@@ -49,10 +49,11 @@ The role of a `content publisher` is to forward content toward an audience.
 Anonymity
 --------------------------------------------------------------------------------
 Content is art. Art inspires thought. The individual that produced that art
-should be protected in their expression. Too often the motivation to thought, is
-curtailed by call to action.
+should be protected in their expression. As a community, one should be focused
+on contributing. Where we fail to meet our expectations, we project upon others.
 
-Action looks for a target.
+A community leverages individual strengths and supports individual weakness. 
 
-`SneakerNet` implementation ensures anonymity of `content creator`.
+`SneakerNet` implementation ensures anonymity to create the opportunities for
+individuals to discuss their strengths and weaknesses.
 
