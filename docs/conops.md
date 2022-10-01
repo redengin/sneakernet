@@ -48,9 +48,9 @@ The role of a `content publisher` is to forward content toward an audience.
 
 Anonymity
 --------------------------------------------------------------------------------
-Content is art. Art inspires thought. The individual that produced that art
+Content is art. Art inspires thought. The individual that produced that content
 should be protected in their expression. As a community, one should be focused
-on contributing. Where we fail to meet our expectations, we project upon others.
+on contributing.
 
 A community leverages individual strengths and supports individual weakness. 
 
