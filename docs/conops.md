@@ -19,41 +19,19 @@ Ecosystem of `SneakerNet` (Roles)
 * Courier - carrier of content
     - provides `SneakerNet` content from multiple nodes
 * Librarian - determines the content of a node
-    - [content management](content_management)
+    - see [content management](content_management)
 * Distributor - deploys a physical device under the control of a librarian
 * Content Creator - creates content
-    - per [content management](content_management) there may need to be an
-        acceptance by a `Content Publisher` for the content to be available.
 * Content Publisher - 
-    - `sign` content to support [content management](content_management)
+    - authorizes content for [content management](content_management)
 
 
 Content Management<a id="content_management"></a>
 --------------------------------------------------------------------------------
 Content is either
-* uncontrolled - anything goes
-* controlled - `signed` by a `Content Publisher`
+* `uncontrolled` - anything goes
+* `controlled` - signed by a `Content Publisher`
 
 The librarian is empowered to choose
 * to allow `uncontrolled` content
-* what `controlled` content they wish to make available
-
-As `SneakerNet` is fully distributed, other librarians may provide the content
-on their own nodes.
-
-### What authority does the `Content Publisher` have?
-None.  
-The role of a `content publisher` is to forward content toward an audience.
-`Content creators` requesting `signing` simply desire a greater audience.
-
-Anonymity
---------------------------------------------------------------------------------
-Content is art. Art inspires thought. The individual that produced that content
-should be protected in their expression. As a community, one should be focused
-on contributing.
-
-A community leverages individual strengths and supports individual weakness. 
-
-`SneakerNet` implementation ensures anonymity to create the opportunities for
-individuals to discuss their strengths and weaknesses.
-
+* which `controlled` content publishers to support
