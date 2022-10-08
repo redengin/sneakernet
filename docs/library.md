@@ -58,6 +58,6 @@ Architectural Requirements
 Library Interface Requirements
 --------------------------------------------------------------------------------
 * Upon `list()`, `Library` **shall** return a listing of content.
-* Upon `get()`, `Library` **shall** send the specified ebook.
+* Upon `get()`, `Library` **shall** return the specified ebook.
 * Upon `add()`, `Library` **shall** only accept the ebook if the `Configuration`
     supports it's storage.
