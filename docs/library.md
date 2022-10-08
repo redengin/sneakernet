@@ -64,6 +64,6 @@ Library Interface Requirements
 --------------------------------------------------------------------------------
 * Upon `list()`, `Library` **shall** return a listing of content metadata.
 * Upon `get()`, `Library` **shall** return the specified ebook.
-* Upon `add()`, `Library` **shall** only accept the ebook if the `Configuration`
-    supports it's additional storage.
-    * (`used_percentage` + new addition) **must** be less than `size_percentage`
+* Upon `add()`, `Library` **shall** only accept the ebook if the matching
+    (determined by publisher) `Configuration's` `used_percentage` after
+    addition doesn't exceed `size_percentage`.
