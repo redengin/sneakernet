@@ -19,6 +19,7 @@ classDiagram
     Library --o Epub
     class Epub {
         signature ~optional~
+        age()
     }
     Epub --|> MetaEpub
     class MetaEpub {
@@ -34,6 +35,7 @@ classDiagram
     UncontrolledContentConfig --> ContentConfig
     class ContentConfig {
         size_percentage
+        age_limit
         used_percentage()
     }
     Configuration --* "*" ControlledContentConfig
@@ -67,3 +69,6 @@ Library Interface Requirements
 * Upon `add()`, `Library` **shall** only accept the ebook if the matching
     (determined by publisher) `Configuration's` `used_percentage` after
     addition doesn't exceed `size_percentage`.
+* Upon `add()`, `Libary` **shall** allow content beyond the `age_limit` to be
+    removed to make space for new content
+
