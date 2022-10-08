@@ -27,16 +27,16 @@ classDiagram
         language
     }
     Library -- Configuration
-    Configuration -- UncontrolledContentConfig
+    Configuration -- "0..1" UncontrolledContentConfig
     class UncontrolledContentConfig {
         size_percentage
     }
-    Configuration --* "0..*" ControlledContentConfig
+    Configuration --* "*" ControlledContentConfig
     class ControlledContentConfig {
         size_percentage
         publishers: list
     }
-    ControlledContentConfig "1..*" --> Publisher : unique
+    ControlledContentConfig "1..*" --> "1" Publisher : unique
 
     class Publisher {
         signature
