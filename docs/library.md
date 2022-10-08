@@ -5,23 +5,23 @@ is intentionally constrained. Applications with greater resources can leverage
 this minimal API to provide more specialized user experiences (organizing
 content, filtering content on parameters like language, etc).
 
-The `MetaEpubBook` is defined by
+The `MetaEpub` is defined by
 https://www.w3.org/publishing/epub3/epub-packages.html#sec-metadata-elem.
 
 ```mermaid
 classDiagram
     direction LR
     class Library {
-        list() list~MetaEpubBook~
-        get(id) EpubBook
-        add(EpubBook)
+        list() list~MetaEpub~
+        get(id) Epub
+        add(Epub)
     }
-    Library --o EpubBook
-    class EpubBook {
+    Library --o Epub
+    class Epub {
         signature ~optional~
     }
-    EpubBook --|> MetaEpubBook
-    class MetaEpubBook {
+    Epub --|> MetaEpub
+    class MetaEpub {
         identifier
         title
         language
@@ -44,7 +44,7 @@ classDiagram
 ```
 Architectural Requirements
 --------------------------------------------------------------------------------
-* `EpubBooks` **shall** be stored "flatly" (aka in a single common folder)
+* `Epubs` **shall** be stored "flatly" (aka in a single common folder)
     * Rationale: moving content around on storage is fragile and detracts from
         the primary objective of the `Library` to serve content.
 * The total `size_percentage` of all configurations **shall** never exceed 100%.
