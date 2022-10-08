@@ -13,10 +13,4 @@ content (epub books, music, etc.) using inexpensive hardware (less than $20 USD)
 
 For more information about the concept see [concept of operations](docs/conops.md).
 
-Supported Hardware
-================================================================================
-`Smart Phones`
-* Android - (in development)
 
-`Embedded`
-* ESP32 - (in development)
