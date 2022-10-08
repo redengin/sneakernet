@@ -27,13 +27,18 @@ classDiagram
         language
     }
     Library -- Configuration
+    class Configuration {
+        size : size_t
+    }
     Configuration -- "0..1" UncontrolledContentConfig
-    class UncontrolledContentConfig {
+    UncontrolledContentConfig --> ContentConfig
+    class ContentConfig {
         size_percentage
+        used_percentage()
     }
     Configuration --* "*" ControlledContentConfig
+    ControlledContentConfig --> ContentConfig
     class ControlledContentConfig {
-        size_percentage
         publishers: list
     }
     ControlledContentConfig "1..*" --> "1" Publisher : unique
@@ -48,8 +53,8 @@ Architectural Requirements
     * Rationale: moving content around on storage is fragile and detracts from
         the primary objective of the `Library` to serve content.
 * The total `size_percentage` of all configurations **shall** never exceed 100%.
-* Changes to `size_percentage` **shall** only be allowed if current matching
-    content doesn't exceed that limit.
+* Changes to `size_percentage` **shall** only be allowed if `used_percentage()`
+    does not exceed the new limit.
 * `ControlledContentConfig` publishers **shall** be unique (i.e. the same
     publisher can not be used within another `ControlledContentConfig`)
     * Rationale: allowing publishers to be aliased across
@@ -60,4 +65,5 @@ Library Interface Requirements
 * Upon `list()`, `Library` **shall** return a listing of content metadata.
 * Upon `get()`, `Library` **shall** return the specified ebook.
 * Upon `add()`, `Library` **shall** only accept the ebook if the `Configuration`
-    supports it's storage.
+    supports it's additional storage.
+    * (`used_percentage` + new addition) **must** be less than `size_percentage`
