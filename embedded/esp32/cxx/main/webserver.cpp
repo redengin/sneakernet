@@ -12,6 +12,4 @@ WebServer::WebServer() {
     esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
     esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
 
-    // Create event loop
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 }

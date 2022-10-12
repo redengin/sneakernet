@@ -19,46 +19,50 @@ static const char *TAG = "sneakernet";
 */
 // #define BLINK_GPIO CONFIG_BLINK_GPIO
 
-static void initialize_wifi();
+static void start_wifi_ap();
 
 extern "C"
 void app_main(void)
 {
-    // Initialize NVS
+    // Initialize NVS (required for IDF drivers)
     ESP_ERROR_CHECK(nvs_flash_init());
 
-    // Initialize wifi
-    initialize_wifi();
+    // Create default event bus (required for IDF drivers)
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    // Initialize IDF networking stack
+    ESP_ERROR_CHECK(esp_netif_init());
+
+    start_wifi_ap();
 
     static WebServer webserver;
     (void)webserver;
 }
 
-/* wifi initialization */
-/* ---------------------------------------------------------------------- */
-static void initialize_wifi() {
-    // Initialize networking stack
-    ESP_ERROR_CHECK(esp_netif_init());
-
-    // Initialize Wi-Fi including netif with default config
+static void start_wifi_ap() {
+    // Initialize Wi-Fi as access point
     esp_netif_create_default_wifi_ap();
 
-    // Initialise ESP32 in SoftAP mode
-    // TODO create SSID with MAC
-    #define EXAMPLE_ESP_WIFI_SSID "Sneakernet"
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    // configure wifi driver per kconfig
+    const wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
+    // put wifi hardware into AP mode
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+
+    // configure AP
     wifi_config_t wifi_config = {};
+    // TODO create SSID with MAC
+    #define EXAMPLE_ESP_WIFI_SSID "SneakerNet"
+
     wifi_config.ap.ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID);
     memcpy(wifi_config.ap.ssid, EXAMPLE_ESP_WIFI_SSID, wifi_config.ap.ssid_len);
     wifi_config.ap.authmode = WIFI_AUTH_OPEN;
     wifi_config.ap.max_connection = 5;
-
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
     ESP_ERROR_CHECK(esp_wifi_set_config(static_cast<wifi_interface_t>(ESP_IF_WIFI_AP), &wifi_config));
+
     ESP_ERROR_CHECK(esp_wifi_start());
 
+    // handle DNS requests upon connection
     xTaskCreate(dns_server_task, "dns_server", 4096, NULL, 5, NULL);
 }
