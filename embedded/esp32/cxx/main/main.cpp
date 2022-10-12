@@ -51,12 +51,14 @@ static void start_wifi_ap() {
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
 
     // configure AP
-    wifi_config_t wifi_config = {};
-    // TODO create SSID with MAC
-    #define EXAMPLE_ESP_WIFI_SSID "SneakerNet"
-
-    wifi_config.ap.ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID);
-    memcpy(wifi_config.ap.ssid, EXAMPLE_ESP_WIFI_SSID, wifi_config.ap.ssid_len);
+    wifi_config_t wifi_config;
+    // choose ssid string
+    uint8_t mac[6];
+    ESP_ERROR_CHECK(esp_base_mac_addr_get(mac));
+    const size_t ssid_len = sprintf(reinterpret_cast<char*>(&wifi_config.ap.ssid), "SneakerNet %x%x%x%x%x%x",
+        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
+    );
+    wifi_config.ap.ssid_len = ssid_len;
     wifi_config.ap.authmode = WIFI_AUTH_OPEN;
     wifi_config.ap.max_connection = 5;
     ESP_ERROR_CHECK(esp_wifi_set_config(static_cast<wifi_interface_t>(ESP_IF_WIFI_AP), &wifi_config));
