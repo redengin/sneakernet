@@ -1,6 +1,7 @@
 idf_component_register(
     SRCS    "main.cpp"
             "dns_server.c"
-            "webserver.cpp"
+            "WebServer.cpp"
+           
     EMBED_FILES "index.html"
 )

@@ -129,6 +129,10 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# SneakerNet
+#
+
+#
 # Compiler options
 #
 CONFIG_COMPILER_OPTIMIZATION_DEFAULT=y
