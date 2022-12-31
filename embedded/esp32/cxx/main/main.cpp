@@ -12,34 +12,27 @@
 #include "dns_server.h"
 #include "WebServer.hpp"
 
-/* Use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
-   or you can edit the following line and set a number here.
-*/
-// #define BLINK_GPIO CONFIG_BLINK_GPIO
-
-static void initialize_wifi();
+static void start_wifi();
 
 extern "C"
 void app_main(void)
 {
-    // Initialize NVS (required for IDF drivers)
-    ESP_ERROR_CHECK(nvs_flash_init());
-
     // Create default event bus (required for IDF drivers)
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    // Initialize IDF networking stack
+    // Initialize IDF networking stack w/ storage
     ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(nvs_flash_init());
 
-    initialize_wifi();
 
     static WebServer webserver;
 
     // start up the access point
-    ESP_ERROR_CHECK(esp_wifi_start());
+    start_wifi();
 }
 
-static void initialize_wifi() {
+static void start_wifi() {
+
     // Initialize Wi-Fi as access point
     esp_netif_create_default_wifi_ap();
 
@@ -65,4 +58,6 @@ static void initialize_wifi() {
 
     // handle DNS requests upon connection w/ redirect to captive portal
     xTaskCreate(dns_server_task, "dns_server", 4096, NULL, 5, NULL);
+
+    ESP_ERROR_CHECK(esp_wifi_start());
 }

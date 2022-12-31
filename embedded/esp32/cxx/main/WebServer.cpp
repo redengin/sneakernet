@@ -17,23 +17,19 @@ WebServer::WebServer() {
     esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
     esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
 
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_open_sockets = 13;
-    config.lru_purge_enable = true;
-
     // Start the httpd server
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.uri_match_fn = httpd_uri_match_wildcard;
+    // TODO max_open_sockets increase (LWIP_SOCKETS - 3)
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
-    if (httpd_start(&handle, &config) == ESP_OK) {
-        // Set URI handlers
-        ESP_LOGI(TAG, "Registering URI handlers");
+    ESP_ERROR_CHECK(httpd_start(&handle, &config));
 
-        // support GET
-        httpd_uri_t GET_hook;
-        GET_hook.method = HTTP_GET;
-        GET_hook.uri = "/";
-        GET_hook.handler = SneakerNet_Get;
-        httpd_register_uri_handler(handle, &GET_hook);
-    }
+    // support GET
+    httpd_uri_t GET_hook;
+    GET_hook.method = HTTP_GET;
+    GET_hook.uri = "*";
+    GET_hook.handler = SneakerNet_Get;
+    httpd_register_uri_handler(handle, &GET_hook);
 }
 
 /// GET handler
