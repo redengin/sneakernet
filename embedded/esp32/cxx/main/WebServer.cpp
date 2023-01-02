@@ -3,7 +3,7 @@
 #include <esp_log.h>
 #include <esp_event.h>
 
-static const char *TAG = "sneakernet";
+static const char *TAG = "www";
 
 extern "C"
 esp_err_t SneakerNet_Get(httpd_req_t*);

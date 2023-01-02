@@ -9,7 +9,9 @@
 #include <esp_wifi.h>
 #include <lwip/inet.h>
 #include <cstring>
+
 #include "dns_server.h"
+#include "SneakerNet.hpp"
 #include "WebServer.hpp"
 
 static void start_wifi();
@@ -24,6 +26,7 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(nvs_flash_init());
 
+    static SneakerNet sneakerNet;
 
     static WebServer webserver;
 
