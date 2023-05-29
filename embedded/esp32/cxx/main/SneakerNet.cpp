@@ -37,15 +37,15 @@
 
 static const char *TAG = "sneakernet";
 
-SneakerNet::SneakerNet() {
-
+SneakerNet::SneakerNet()
+{
     if(! mount_sdcard())
-        status.store(Status::SDCARD_FAILED);
+        state.store(State::SDCARD_FAILED);
 }
 
-SneakerNet::Status SneakerNet::getStatus()
+SneakerNet::State SneakerNet::getState()
 {
-    return status.load();
+    return state.load();
 }
 
 bool SneakerNet::mount_sdcard()

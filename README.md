@@ -1,18 +1,26 @@
 `SneakerNet`
 ================================================================================
-With the `SneakerNet` app, users will be aware of locally published content.
-`SneakerNet` works without use of the internet, providing a offline repository
-of information.
+Objective: **Raise awareness of locally published content.**
 
-### [The internet has diluted the sense of local community](https://en.wikipedia.org/wiki/Internet_influences_on_communities)
-Where the internet focuses on developing global platforms (facebook, nextdoor,
-wechat, etc.) the community representation is largely segmented into a bubbles of
-like-minded peers.
+How?
+--------------------------------------------------------------------------------
+An analog is the [Little Free Library](https://littlefreelibrary.org/).
 
-An analog is the [Little Free Library](https://littlefreelibrary.org/).  
-Instead of a physical cabinet full of books, `SneakerNet` nodes provide digital
-content (epub books, music, etc.) using inexpensive hardware (less than $20 USD).
+`SneakerNet` presents itself as a **wifi access point**. Users looking for
+internet connectivity stumble upon `SneakerNet` to find a library of locally
+published content.
 
-For more information about the concept see [concept of operations](docs/conops.md).
+Users looking for local content can install the `SneakerNet App` which
+automatically collects content from `SneakerNet` nodes in their vicinity.
 
+Creating your own SneakerNet node
+--------------------------------------------------------------------------------
+`SneakerNet` nodes use inexpensive hardware (less than $20 USD).
 
+*As the project matures, simplified guidance for creating nodes will be added*
+
+Why does the world need SneakerNet?
+--------------------------------------------------------------------------------
+### [The internet has diluted the sense of local community.](https://en.wikipedia.org/wiki/Internet_influences_on_communities)
+`SneakerNet` raises up the voices of the local community to the user - breaking
+the user out of platform curated content.

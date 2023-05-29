@@ -6,18 +6,17 @@ class SneakerNet {
 public:
     SneakerNet();
 
-    enum class Status {
+    enum class State {
         INIT,
         SDCARD_FAILED,
         UNINITIALIZED,  /* passwordless admin access */
         OK
     };
-    Status getStatus();
+    State getState();
 
 private:
-    std::atomic<Status> status{Status::INIT};
+    std::atomic<State> state{State::INIT};
 
     sdmmc_card_t *card;
     bool mount_sdcard();
-
 };

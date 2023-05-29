@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "bierner.markdown-mermaid"
+        "bierner.markdown-mermaid",
+        "42Crunch.vscode-openapi"
     ]
 }

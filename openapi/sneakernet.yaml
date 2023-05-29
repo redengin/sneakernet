@@ -1,0 +1,64 @@
+openapi: 3.0.0
+info:
+  title: SneakerNet
+  description: REST API for SneakerNet
+  version: 0.0.0
+
+paths:
+  /catalog:
+    get:
+      summary: Catalog of UIDs [Publisher][Content]
+      responses:
+        '200':
+          description: OK
+          content:
+            applicaction/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    platform_uid:
+                      description: public key of publisher
+                      type: integer
+                    content_uids:
+                      type: array
+                      items:
+                        description: checksum of content
+                        type: integer
+  /catalog/{publisher}/{content}:
+    parameters:
+      - name: publisher
+        description: publisher's UID
+        required: true
+        in: path
+        schema:
+          type: integer
+      - name: content
+        description: content's UID
+        required: true
+        in: path
+        schema:
+          type: integer
+    get:
+      summary: Download content
+      responses:
+        '200':
+          description: content
+          content:
+            applicaction/octet-stream: {}
+    put:
+      summary: Add content
+      requestBody:
+        required: true
+        content:
+          applicaction/octet-stream: {}
+      responses:
+        '403':
+          description: Librarian doesn't accept Publisher UID
+        '406':
+          description: content UID doesn't match content
+        '415':
+          description: upload format not supported
+        '507':
+          description: no more storage available on node
