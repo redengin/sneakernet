@@ -7,40 +7,34 @@ info:
 paths:
   /catalog:
     get:
-      summary: Catalog of UIDs [Publisher][Content]
+      summary: Catalog of UUIDs [Publisher UUID][Content UUID]
       responses:
         '200':
           description: OK
           content:
             applicaction/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    platform_uid:
-                      description: public key of publisher
-                      type: integer
-                    content_uids:
-                      type: array
-                      items:
-                        description: checksum of content
-                        type: integer
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+
 
   /catalog/{publisher}/{content}:
     parameters:
       - name: publisher
-        description: publisher's UID
+        description: publisher's UUID
         in: path
         required: true
         schema:
-          type: integer
+          type: string
       - name: content
-        description: content's UID
+        description: content's UUID
         in: path
         required: true
         schema:
-          type: integer
+          type: string
 
     get:
       summary: Download EPUB3 ebook
@@ -58,7 +52,7 @@ paths:
           application/epub+zip: {}
       responses:
         '403':
-          description: Librarian doesn't accept Publisher UID
+          description: Librarian doesn't accept Publisher
         '406':
           description: epub book failed checks
         '415':
@@ -66,14 +60,13 @@ paths:
         '507':
           description: no more storage available on node
 
-  /catalog/{publisher}:
+  /publishers/{publisher}:
     parameters:
       - name: publisher
-        description: publisher's UID
         in: path
         required: true
         schema:
-          type: integer
+          type: string
     get:
       summary: Publisher Info
       responses:

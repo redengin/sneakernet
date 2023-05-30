@@ -40,12 +40,11 @@ static const char *TAG = "sneakernet";
 SneakerNet::SneakerNet()
 {
     if(! mount_sdcard())
-        state.store(State::SDCARD_FAILED);
-}
+        state = State::SDCARD_FAILED;
 
-SneakerNet::State SneakerNet::getState()
-{
-    return state.load();
+    // TODO check for password
+
+    state = State::OK;
 }
 
 bool SneakerNet::mount_sdcard()
@@ -95,4 +94,10 @@ bool SneakerNet::mount_sdcard()
     sdmmc_card_print_info(stdout, card);
 
     return false;
+}
+
+const SneakerNet::Catalog SneakerNet::catalog() {
+    ESP_LOGE(TAG, "catalog not implemented");
+    const SneakerNet::Catalog catalog;
+    return catalog;
 }

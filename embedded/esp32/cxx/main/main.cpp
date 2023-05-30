@@ -28,7 +28,7 @@ void app_main(void)
 
     static SneakerNet sneakerNet;
 
-    static WebServer webserver;
+    static WebServer webserver(sneakerNet);
 
     // start up the access point
     start_wifi();

@@ -1,4 +1,7 @@
+#pragma once
 #include <atomic>
+#include <string>
+#include <map>
 
 #include <esp_vfs_fat.h>
 
@@ -9,13 +12,19 @@ public:
     enum class State {
         INIT,
         SDCARD_FAILED,
-        UNINITIALIZED,  /* passwordless admin access */
+        PASSWORDLESS,   /* passwordless admin access */
         OK
     };
-    State getState();
+    State getState() { return state; }
+
+    typedef std::string PublisherUuid;
+    typedef std::string ContentUuid;
+    typedef std::map<PublisherUuid, ContentUuid> Catalog;
+    /// listing of content
+    const Catalog catalog();
 
 private:
-    std::atomic<State> state{State::INIT};
+    State state;
 
     sdmmc_card_t *card;
     bool mount_sdcard();
