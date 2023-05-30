@@ -26,39 +26,61 @@ paths:
                       items:
                         description: checksum of content
                         type: integer
+
   /catalog/{publisher}/{content}:
     parameters:
       - name: publisher
         description: publisher's UID
-        required: true
         in: path
+        required: true
         schema:
           type: integer
       - name: content
         description: content's UID
-        required: true
         in: path
+        required: true
         schema:
           type: integer
+
     get:
-      summary: Download content
+      summary: Download EPUB3 ebook
       responses:
         '200':
           description: content
           content:
-            applicaction/octet-stream: {}
+            application/epub+zip: {}
+
     put:
       summary: Add content
       requestBody:
         required: true
         content:
-          applicaction/octet-stream: {}
+          application/epub+zip: {}
       responses:
         '403':
           description: Librarian doesn't accept Publisher UID
         '406':
-          description: content UID doesn't match content
+          description: epub book failed checks
         '415':
-          description: upload format not supported
+          description: epub format not supported
         '507':
           description: no more storage available on node
+
+  /catalog/{publisher}:
+    parameters:
+      - name: publisher
+        description: publisher's UID
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Publisher Info
+      responses:
+        '200':
+          description: content
+          content:
+            application/xml:
+              schema:
+                $ref: 'http://www.w3.org/2000/09/xmldsig'
+

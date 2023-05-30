@@ -23,12 +23,20 @@ paths:
   /publisher/{publisher}:
     parameters:
       - name: publisher
-        required: true
+        description: publisher UID
         in: path
+        required: true
         schema:
           type: integer
     put:
       summary: Add Publisher
+      requestBody:
+        description: Publisher info
+        required: true
+        content:
+          application/xml:
+            schema:
+              $ref: 'http://www.w3.org/2000/09/xmldsig'
       responses:
         '507':
           description: no more storage available on node
@@ -37,6 +45,28 @@ paths:
       responses:
         '200':
           description: OK
+
+  /catalog/{publisher}/{content}:
+    parameters:
+      - name: publisher
+        description: publisher's UID
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: content
+        description: content's UID
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    delete:
+      summary: Remove EPUB3 ebook
+      responses:
+        '200':
+          description: ebook was removed
+
 
 # TODO change password
 # TODO transfer ownership
