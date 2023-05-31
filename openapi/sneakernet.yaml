@@ -4,10 +4,13 @@ info:
   description: REST API for SneakerNet
   version: 0.0.0
 
+servers:
+  - url: http://192.168.1.1
+
 paths:
   /catalog:
     get:
-      summary: Catalog of UUIDs [Publisher UUID][Content UUID]
+      summary: Catalog of {PublisherUUID:[ContentUUID]}
       responses:
         '200':
           description: OK
@@ -15,21 +18,17 @@ paths:
             applicaction/json:
               schema:
                 type: object
-                additionalProperties:
-                  type: array
-                  items:
-                    type: string
 
 
-  /catalog/{publisher}/{content}:
+  /ebooks/{publisherUuid}/{contentUuid}:
     parameters:
-      - name: publisher
+      - name: publisherUuid
         description: publisher's UUID
         in: path
         required: true
         schema:
           type: string
-      - name: content
+      - name: contentUuid
         description: content's UUID
         in: path
         required: true
@@ -74,6 +73,6 @@ paths:
           description: content
           content:
             application/xml:
-              schema:
-                $ref: 'http://www.w3.org/2000/09/xmldsig'
+              # schema:
+              #   $ref: 'http://www.w3.org/2000/09/xmldsig'
 

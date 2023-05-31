@@ -1,7 +1,8 @@
 #pragma once
-#include <atomic>
 #include <string>
 #include <map>
+#include <vector>
+#include <fstream>
 
 #include <esp_vfs_fat.h>
 
@@ -19,9 +20,10 @@ public:
 
     typedef std::string PublisherUuid;
     typedef std::string ContentUuid;
-    typedef std::map<PublisherUuid, ContentUuid> Catalog;
+    typedef std::map<PublisherUuid, std::vector<ContentUuid>> Catalog;
     /// listing of content
     const Catalog catalog();
+    std::ifstream readEbook(const std::string uri /** [IN] ebooks/<pub uuid>/<content uuid>**/);
 
 private:
     State state;

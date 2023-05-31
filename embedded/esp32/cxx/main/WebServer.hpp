@@ -10,4 +10,5 @@ public:
     SneakerNet sneakerNet;
 private:
     httpd_handle_t handle;
+    std::string password;
 };

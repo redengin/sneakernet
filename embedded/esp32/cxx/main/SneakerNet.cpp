@@ -4,6 +4,7 @@
 #include <esp_event.h>
 
 #include <sdmmc_cmd.h>
+#include <http_parser.h>
 
 // FIXME promote to Kconfig.projbuild 
 //--------------------------------------------------------------------------------
@@ -100,4 +101,10 @@ const SneakerNet::Catalog SneakerNet::catalog() {
     ESP_LOGE(TAG, "catalog not implemented");
     const SneakerNet::Catalog catalog;
     return catalog;
+}
+
+
+std::ifstream SneakerNet::readEbook(const std::string uri)
+{
+    return std::ifstream(uri);
 }

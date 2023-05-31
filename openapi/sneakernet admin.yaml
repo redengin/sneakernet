@@ -4,6 +4,9 @@ info:
   description: REST API for SneakerNet Librarian
   version: 0.0.0
 
+servers:
+  - url: http://192.168.1.1
+
 components:
   securitySchemes:
     BasicAuth:
