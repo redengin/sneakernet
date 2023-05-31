@@ -8,9 +8,9 @@ servers:
   - url: http://192.168.1.1
 
 paths:
-  /catalog:
+  /ebooks:
     get:
-      summary: Catalog of {PublisherUUID:[ContentUUID]}
+      summary: Catalog of EPUB3 ebooks {PublisherUUID:[ContentUUID]}
       responses:
         '200':
           description: OK
@@ -43,8 +43,9 @@ paths:
           content:
             application/epub+zip: {}
 
+  /ebook:
     put:
-      summary: Add content
+      summary: Add EPUB3 ebook
       requestBody:
         required: true
         content:
@@ -76,3 +77,32 @@ paths:
               # schema:
               #   $ref: 'http://www.w3.org/2000/09/xmldsig'
 
+  /files:
+    get:
+      summary: Listing of stored files
+      responses:
+        '200':
+          description: OK
+          content:
+            applicaction/json:
+              schema:
+                type: array
+
+  /files/{filename}:
+    put:
+      summary: Add/Replace file
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/octet-stream: {}
+      responses:
+        '403':
+          description: Librarian doesn't allow uncontrolled files
+        '507':
+          description: no more storage available on node

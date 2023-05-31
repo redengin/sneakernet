@@ -9,8 +9,9 @@ static const char *TAG = "www";
 
 extern "C" esp_err_t INDEX(httpd_req_t*);
 extern "C" esp_err_t http_error_handler(httpd_req_t *req, httpd_err_code_t err);
-extern "C" esp_err_t CATALOG_LIST(httpd_req_t* req);
+extern "C" esp_err_t CATALOG(httpd_req_t* req);
 extern "C" esp_err_t GET_EBOOK(httpd_req_t* req);
+extern "C" esp_err_t PUT_EBOOK(httpd_req_t* req);
 
 const size_t CHUNK_SZ = 1048;
 
@@ -37,29 +38,37 @@ WebServer::WebServer(SneakerNet& _sneakerNet) {
     ESP_ERROR_CHECK(httpd_start(&handle, &config));
 
     // support index homepage
-    httpd_uri_t INDEX_hook;
-    INDEX_hook.method = HTTP_GET;
-    INDEX_hook.uri = "/";
-    INDEX_hook.handler = INDEX;
-    httpd_register_uri_handler(handle, &INDEX_hook);
-    httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_error_handler);
+    {   httpd_uri_t hook;
+        hook.method = HTTP_GET;
+        hook.uri = "/";
+        hook.handler = INDEX;
+        httpd_register_uri_handler(handle, &hook);
+        httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_error_handler);
+    }
 
     // support catalog listing
-    httpd_uri_t CATALOG_LIST_hook;
-    CATALOG_LIST_hook.method = HTTP_GET;
-    CATALOG_LIST_hook.uri = "/catalog";
-    CATALOG_LIST_hook.handler = CATALOG_LIST;
-    httpd_register_uri_handler(handle, &CATALOG_LIST_hook);
+    {   httpd_uri_t hook;
+        hook.method = HTTP_GET;
+        hook.uri = "/catalog";
+        hook.handler = CATALOG;
+        httpd_register_uri_handler(handle, &hook);
+    }
 
     // support ebook download
-    httpd_uri_t GET_EBOOK_hook;
-    GET_EBOOK_hook.method = HTTP_GET;
-    GET_EBOOK_hook.uri = "/ebook/*";
-    GET_EBOOK_hook.handler = GET_EBOOK;
-    httpd_register_uri_handler(handle, &GET_EBOOK_hook);
+    {   httpd_uri_t hook;
+        hook.method = HTTP_GET;
+        hook.uri = "/ebook/*";
+        hook.handler = GET_EBOOK;
+        httpd_register_uri_handler(handle, &hook);
+    }
 
-    // support basic auth
-    // TODO
+    // support ebook upload
+    {   httpd_uri_t hook;
+        hook.method = HTTP_PUT;
+        hook.uri = "/ebook/*";
+        hook.handler = PUT_EBOOK;
+        httpd_register_uri_handler(handle, &hook);
+    }
 }
 
 /// INDEX handler
@@ -82,7 +91,7 @@ esp_err_t http_error_handler(httpd_req_t *req, httpd_err_code_t err)
 /// Listing of content JSON [Publisher UID][Content UID]
 /// @param req 
 /// @return 
-esp_err_t CATALOG_LIST(httpd_req_t* req)
+esp_err_t CATALOG(httpd_req_t* req)
 {
     SneakerNet::Catalog catalog = self->sneakerNet.catalog();
     cJSON* const object = cJSON_CreateObject();
@@ -121,4 +130,8 @@ esp_err_t GET_EBOOK(httpd_req_t* req)
         if(chunk_sz == 0) break;
     }
     return ESP_OK;
+}
+
+esp_err_t PUT_EBOOK(httpd_req_t* req) {
+    return ESP_CMD_NOT_IMPLEMENTED;
 }

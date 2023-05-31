@@ -21,9 +21,11 @@ public:
     typedef std::string PublisherUuid;
     typedef std::string ContentUuid;
     typedef std::map<PublisherUuid, std::vector<ContentUuid>> Catalog;
-    /// listing of content
+    /// listing of epub content
     const Catalog catalog();
-    std::ifstream readEbook(const std::string uri /** [IN] ebooks/<pub uuid>/<content uuid>**/);
+    /// read an eBook
+    std::ifstream readEbook(const std::string uri /**< [IN] ebooks/<pub uuid>/<content uuid>**/);
+    
 
 private:
     State state;
