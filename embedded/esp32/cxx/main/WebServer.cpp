@@ -4,6 +4,7 @@
 #include <esp_event.h>
 
 #include <cJSON.h>
+#include "sdkconfig.h"
 
 static const char *TAG = "www";
 
@@ -12,6 +13,13 @@ extern "C" esp_err_t http_error_handler(httpd_req_t *req, httpd_err_code_t err);
 extern "C" esp_err_t CATALOG(httpd_req_t* req);
 extern "C" esp_err_t GET_EBOOK(httpd_req_t* req);
 extern "C" esp_err_t PUT_EBOOK(httpd_req_t* req);
+#ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
+    extern "C" esp_err_t LIST_FILES(httpd_req_t* req);
+    extern "C" esp_err_t GET_FILE(httpd_req_t* req);
+    extern "C" esp_err_t PUT_FILE(httpd_req_t* req);
+    extern "C" esp_err_t DELETE_FILE(httpd_req_t* req);
+#endif
+
 
 const size_t CHUNK_SZ = 1048;
 
@@ -69,6 +77,40 @@ WebServer::WebServer(SneakerNet& _sneakerNet) {
         hook.handler = PUT_EBOOK;
         httpd_register_uri_handler(handle, &hook);
     }
+
+#ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
+    // support files listing
+    {   httpd_uri_t hook;
+        hook.method = HTTP_GET;
+        hook.uri = "/files";
+        hook.handler = LIST_FILES;
+        httpd_register_uri_handler(handle, &hook);
+    }
+
+    // support file download
+    {   httpd_uri_t hook;
+        hook.method = HTTP_GET;
+        hook.uri = "/files/*";
+        hook.handler = GET_FILE;
+        httpd_register_uri_handler(handle, &hook);
+    }
+
+    // support file upload
+    {   httpd_uri_t hook;
+        hook.method = HTTP_PUT;
+        hook.uri = "/files/*";
+        hook.handler = PUT_FILE;
+        httpd_register_uri_handler(handle, &hook);
+    }
+
+    // support file delete
+    {   httpd_uri_t hook;
+        hook.method = HTTP_DELETE;
+        hook.uri = "/files/*";
+        hook.handler = DELETE_FILE;
+        httpd_register_uri_handler(handle, &hook);
+    }
+#endif
 }
 
 /// INDEX handler
@@ -88,29 +130,29 @@ esp_err_t http_error_handler(httpd_req_t *req, httpd_err_code_t err)
     return httpd_resp_send_err(req, err, indexHtml_start);
 }
 
+
 /// Listing of content JSON [Publisher UID][Content UID]
 /// @param req 
 /// @return 
 esp_err_t CATALOG(httpd_req_t* req)
 {
     SneakerNet::Catalog catalog = self->sneakerNet.catalog();
-    cJSON* const object = cJSON_CreateObject();
+    cJSON* const catalog_object = cJSON_CreateObject();
     for(const auto &pair : catalog) {
         cJSON* const contentUuids = cJSON_CreateArray();
         for(const auto &contentUuid : pair.second) {
             cJSON* const item = cJSON_CreateString(contentUuid.c_str());
             cJSON_AddItemToArray(contentUuids, item);
         }
-        cJSON_AddItemToObject(object, pair.first.c_str(), contentUuids);
+        cJSON_AddItemToObject(catalog_object, pair.first.c_str(), contentUuids);
     }
-    const char* const ret = cJSON_PrintUnformatted(object);
+    const char* const ret = cJSON_PrintUnformatted(catalog_object);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, ret, strlen(ret));
     delete ret;
-    cJSON_Delete(object);
+    cJSON_Delete(catalog_object);
     return ESP_OK;
 }
-
 
 esp_err_t GET_EBOOK(httpd_req_t* req)
 {
@@ -133,5 +175,46 @@ esp_err_t GET_EBOOK(httpd_req_t* req)
 }
 
 esp_err_t PUT_EBOOK(httpd_req_t* req) {
-    return ESP_CMD_NOT_IMPLEMENTED;
+    // TODO
+    return ESP_FAIL;
 }
+
+
+
+#ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
+//-------------------------------------------------------------------------------
+extern "C" esp_err_t LIST_FILES(httpd_req_t* req)
+{
+    SneakerNet::FilesList files = self->sneakerNet.files();
+    cJSON* const files_array = cJSON_CreateArray();
+    for(const auto &file : files) {
+        cJSON* const item = cJSON_CreateString(file.c_str());
+        cJSON_AddItemToArray(files_array, item);
+    }
+    const char* const ret = cJSON_PrintUnformatted(files_array);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, ret, strlen(ret));
+    delete ret;
+    cJSON_Delete(files_array);
+    return ESP_OK;
+}
+
+extern "C" esp_err_t GET_FILE(httpd_req_t* req)
+{
+    // TODO
+    return ESP_FAIL;
+}
+
+extern "C" esp_err_t PUT_FILE(httpd_req_t* req) 
+{
+    // TODO
+    return ESP_FAIL;
+}
+
+extern "C" esp_err_t DELETE_FILE(httpd_req_t* req)
+{
+    // TODO
+    return ESP_FAIL;
+}
+//-------------------------------------------------------------------------------
+#endif

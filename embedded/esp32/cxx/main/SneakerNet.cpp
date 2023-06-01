@@ -5,6 +5,7 @@
 
 #include <sdmmc_cmd.h>
 #include <http_parser.h>
+#include <filesystem>
 
 // FIXME promote to Kconfig.projbuild 
 //--------------------------------------------------------------------------------
@@ -108,3 +109,20 @@ std::ifstream SneakerNet::readEbook(const std::string uri)
 {
     return std::ifstream(uri);
 }
+
+
+#ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
+//------------------------------------------------------------------------------
+const std::string FILES_PATH = "/files";
+const SneakerNet::FilesList SneakerNet::files()
+{
+    SneakerNet::FilesList ret;
+    for(const auto& entry : std::filesystem::directory_iterator(FILES_PATH)) {
+        if(entry.is_regular_file())
+            ret.push_back(entry.path());
+    }
+
+    return ret;
+}
+//------------------------------------------------------------------------------
+#endif

@@ -1,3 +1,13 @@
 menu "SneakerNet"
+    config SNEAKERNET_FILES_SUPPORT
+        bool "Allow uncontrolled files"
+        default n
+        help
+            Allow users to share files via the SneakerNet node.
+            As these aren't ebooks their is no way to control this content.
 
+    config SNEAKERNET_FILES_MAX_SIZE
+        depends on SNEAKERNET_FILES_SUPPORT
+        int "size in kilobytes for the files folder"
+        default 1024
 endmenu

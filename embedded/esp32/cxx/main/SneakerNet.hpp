@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include <esp_vfs_fat.h>
+#include "sdkconfig.h"
 
 class SneakerNet {
 public:
@@ -25,7 +26,12 @@ public:
     const Catalog catalog();
     /// read an eBook
     std::ifstream readEbook(const std::string uri /**< [IN] ebooks/<pub uuid>/<content uuid>**/);
-    
+#ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
+    typedef std::string Filename;
+    typedef std::vector<Filename> FilesList;
+    /// listing of files
+    const FilesList files();
+#endif    
 
 private:
     State state;

@@ -74,9 +74,10 @@ paths:
           description: content
           content:
             application/xml:
-              # schema:
-              #   $ref: 'http://www.w3.org/2000/09/xmldsig'
+              schema:
+                $ref: 'http://www.w3.org/2000/09/xmldsig'
 
+# [OPTIONAL] for SneakerNet nodes compiled with SNEAKERNET_FILES_SUPPORT
   /files:
     get:
       summary: Listing of stored files
@@ -106,3 +107,14 @@ paths:
           description: Librarian doesn't allow uncontrolled files
         '507':
           description: no more storage available on node
+    delete:
+      summary: Remove file
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File removed

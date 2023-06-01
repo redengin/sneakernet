@@ -37,7 +37,7 @@ void app_main(void)
 static void start_wifi() {
 
     // Initialize Wi-Fi as access point
-    esp_netif_create_default_wifi_ap();
+    esp_netif_t* network_h = esp_netif_create_default_wifi_ap();
 
     // configure wifi driver per kconfig
     const wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -50,7 +50,7 @@ static void start_wifi() {
     wifi_config_t wifi_config;
     // create ssid string w/ MAC
     uint8_t mac[6];
-    ESP_ERROR_CHECK(esp_base_mac_addr_get(mac));
+    ESP_ERROR_CHECK(esp_netif_get_mac(network_h, mac));
     const size_t ssid_len = sprintf(reinterpret_cast<char*>(&wifi_config.ap.ssid), "SneakerNet %x%x%x%x%x%x",
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
     );
