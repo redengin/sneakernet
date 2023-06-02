@@ -6,7 +6,7 @@ menu "SneakerNet"
             Allow users to share files via the SneakerNet node.
             As these aren't ebooks their is no way to control this content.
 
-    config SNEAKERNET_FILES_MAX_SIZE
+    config SNEAKERNET_FILES_MAX_SIZE_KB
         depends on SNEAKERNET_FILES_SUPPORT
         int "size in kilobytes for the files folder"
         default 1024
