@@ -37,7 +37,8 @@ void app_main(void)
 static void start_wifi() {
 
     // Initialize Wi-Fi as access point
-    esp_netif_t* network_h = esp_netif_create_default_wifi_ap();
+    // esp_netif_t* network_h = esp_netif_create_default_wifi_ap();
+    esp_netif_create_default_wifi_ap();
 
     // configure wifi driver per kconfig
     const wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();

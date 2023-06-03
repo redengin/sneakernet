@@ -45,8 +45,9 @@ private:
 
 
 
-WebServer::WebServer(SneakerNet& _sneakerNet) {
-    sneakerNet = _sneakerNet;
+WebServer::WebServer(SneakerNet& _sneakerNet)
+:   sneakerNet(_sneakerNet)
+{
     /*
         Turn of warnings from HTTP server as redirecting traffic will yield
         lots of invalid requests

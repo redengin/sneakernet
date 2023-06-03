@@ -28,6 +28,7 @@ public:
     /// read an eBook
     std::ifstream readEbook(const std::string uri /**< [IN] "<pub uuid>/<content uuid>" */);
 #ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
+    const std::string FILES_PATH = "/files";
     typedef std::string Filename;
     typedef std::vector<Filename> FilesList;
     /// listing of files
@@ -45,4 +46,5 @@ private:
 
     sdmmc_card_t *card;
     bool mount_sdcard();
+
 };

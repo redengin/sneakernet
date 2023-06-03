@@ -46,6 +46,10 @@ SneakerNet::SneakerNet()
 
     // TODO check for password
 
+#ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
+    std::filesystem::create_directory(FILES_PATH);
+#endif
+
     state = State::OK;
 }
 
@@ -115,7 +119,6 @@ std::ifstream SneakerNet::readEbook(const std::string uri)
 
 #ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
 //------------------------------------------------------------------------------
-const std::string FILES_PATH = "/files";
 const SneakerNet::FilesList SneakerNet::files()
 {
     SneakerNet::FilesList ret;
