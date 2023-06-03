@@ -49,12 +49,13 @@ static void start_wifi() {
     // configure AP
     wifi_config_t wifi_config;
     // create ssid string w/ MAC
-    uint8_t mac[6];
-    ESP_ERROR_CHECK(esp_netif_get_mac(network_h, mac));
-    const size_t ssid_len = sprintf(reinterpret_cast<char*>(&wifi_config.ap.ssid), "SneakerNet %x%x%x%x%x%x",
-        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
-    );
-    wifi_config.ap.ssid_len = ssid_len;
+    // FIXME can only read MAC if netif is up
+    // uint8_t mac[6];
+    // ESP_ERROR_CHECK(esp_netif_get_mac(network_h, mac));
+    // const size_t ssid_len = sprintf(reinterpret_cast<char*>(&wifi_config.ap.ssid), "SneakerNet %x%x%x%x%x%x",
+    //     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
+    // );
+    wifi_config.ap.ssid_len = sprintf(reinterpret_cast<char*>(wifi_config.ap.ssid), "SneakerNet %x", rand());
     wifi_config.ap.authmode = WIFI_AUTH_OPEN;
     wifi_config.ap.max_connection = ESP_WIFI_MAX_CONN_NUM;
     ESP_ERROR_CHECK(esp_wifi_set_config(static_cast<wifi_interface_t>(ESP_IF_WIFI_AP), &wifi_config));

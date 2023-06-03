@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <fstream>
+#include <istream>
 
 #include <esp_vfs_fat.h>
 #include "sdkconfig.h"
@@ -25,12 +26,18 @@ public:
     /// listing of epub content
     const Catalog catalog();
     /// read an eBook
-    std::ifstream readEbook(const std::string uri /**< [IN] ebooks/<pub uuid>/<content uuid>**/);
+    std::ifstream readEbook(const std::string uri /**< [IN] "<pub uuid>/<content uuid>" */);
 #ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
     typedef std::string Filename;
     typedef std::vector<Filename> FilesList;
     /// listing of files
     const FilesList files();
+    /// read a file
+    std::ifstream readFile(const std::string fileName);
+    // add a file
+    bool addFile(std::string fileName, std::istream&, size_t fileSize=0);
+    /// delete a file
+    bool deleteFile(const std::string fileName);
 #endif    
 
 private:

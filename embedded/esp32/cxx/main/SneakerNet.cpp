@@ -55,7 +55,8 @@ bool SneakerNet::mount_sdcard()
     const esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = true,
         .max_files = 5,
-        .allocation_unit_size = 16 * 1024
+        .allocation_unit_size = 16 * 1024,
+        .disk_status_check_enable = false
     };
     const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     constexpr int UNUSED = -1;
@@ -107,6 +108,7 @@ const SneakerNet::Catalog SneakerNet::catalog() {
 
 std::ifstream SneakerNet::readEbook(const std::string uri)
 {
+    // FIXME validate uri
     return std::ifstream(uri);
 }
 
@@ -123,6 +125,41 @@ const SneakerNet::FilesList SneakerNet::files()
     }
 
     return ret;
+}
+
+std::ifstream SneakerNet::readFile(const std::string fileName)
+{
+    // validate uri (must not contain path separator)
+    if(fileName.find(std::filesystem::path::preferred_separator) != std::string::npos)
+        return std::ifstream();
+
+    std::filesystem::path filePath(FILES_PATH);
+    filePath.append(fileName);
+    return std::ifstream(filePath);
+}
+
+bool SneakerNet::addFile(std::string fileName, std::istream& is, size_t fileSize)
+{
+    // TODO validate fileSize per SNEAKERNET_FILES_MAX_SIZE_KB
+
+    std::filesystem::path filePath(FILES_PATH);
+    filePath.append(fileName);
+    std::ofstream ofs(filePath);
+    ofs << is.rdbuf();
+    return true;
+}
+
+bool SneakerNet::deleteFile(const std::string fileName)
+{
+    // validate uri (must not contain path separator)
+    if(fileName.find(std::filesystem::path::preferred_separator) != std::string::npos)
+        return false;
+
+    std::filesystem::path filePath(FILES_PATH);
+    filePath.append(fileName);
+    if(std::filesystem::remove(filePath))
+        return true;
+    return false;
 }
 //------------------------------------------------------------------------------
 #endif

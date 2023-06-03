@@ -9,4 +9,4 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(esp32-sneakernet)
 
 # minimize binary size
-add_compile_options("-Os -fdata-sections -ffunction-sections  -Wl,--gc-sections")
+add_compile_options("-Os -fnortti -fdata-sections -ffunction-sections  -Wl,--gc-sections")
