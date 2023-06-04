@@ -5,7 +5,8 @@ info:
   version: 0.0.0
 
 servers:
-  - url: http://sneakernet/
+#  - url: http://sneakernet/
+  - url: http://192.168.4.1
 
 paths:
   /ebooks:
@@ -99,9 +100,11 @@ paths:
           schema:
             type: string
       requestBody:
-        required: true
         content:
-          application/octet-stream: {}
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
       responses:
         '403':
           description: Librarian doesn't allow uncontrolled files
