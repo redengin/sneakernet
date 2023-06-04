@@ -111,7 +111,6 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
 
 #ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
     ESP_LOGI(TAG, "Adding FILES support");
-    ESP_LOGD(TAG, "Adding FILES support");
     // support files listing
     {   httpd_uri_t hook = {
             .uri = FILES_URI.c_str(),
@@ -119,7 +118,6 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
             .handler = LIST_FILES,
             .user_ctx = self,
         };
-        ESP_LOGD(TAG, "LIST_FILES uri: %s", hook.uri);
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
 
@@ -140,7 +138,6 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
             .handler = PUT_FILE,
             .user_ctx = self,
         };
-        ESP_LOGD(TAG, "PUT_FILE uri: %s", hook.uri);
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
 

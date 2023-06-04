@@ -62,8 +62,11 @@ static void start_wifi() {
         .ftm_responder = false,
         .pmf_cfg { .capable = true, .required = true }
     }};
+
     // create unique SSID
     // FIXME can't read MAC if netif isn't up
+    // instead use rand seeded by compile time
+    srand(CONFIG_APP_COMPILE_TIME_DATE);
     wifi_config.ap.ssid_len = sprintf(reinterpret_cast<char*>(&wifi_config.ap.ssid), "SneakerNet %x", rand());
 
     // use a random channel
