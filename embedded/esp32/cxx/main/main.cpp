@@ -48,17 +48,29 @@ static void start_wifi() {
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
 
     // configure AP
-    wifi_config_t wifi_config;
-    // create ssid string w/ MAC
-    // FIXME can only read MAC if netif is up
-    // uint8_t mac[6];
-    // ESP_ERROR_CHECK(esp_netif_get_mac(network_h, mac));
-    // const size_t ssid_len = sprintf(reinterpret_cast<char*>(&wifi_config.ap.ssid), "SneakerNet %x%x%x%x%x%x",
-    //     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
-    // );
-    wifi_config.ap.ssid_len = sprintf(reinterpret_cast<char*>(wifi_config.ap.ssid), "SneakerNet %x", rand());
-    wifi_config.ap.authmode = WIFI_AUTH_OPEN;
-    wifi_config.ap.max_connection = ESP_WIFI_MAX_CONN_NUM;
+    const std::string SSID = "SneakerNet";
+    wifi_config_t wifi_config = { .ap {
+        .ssid = {0},        // will set later
+        .password = {0},    // not used for WIFI_AUTH_OPEN
+        .ssid_len = 0,      // will set later
+        .channel = 0,       // will set later
+        .authmode = WIFI_AUTH_OPEN,
+        .ssid_hidden = 0,
+        .max_connection = ESP_WIFI_MAX_CONN_NUM,
+        .beacon_interval = 100,
+        .pairwise_cipher = WIFI_CIPHER_TYPE_TKIP_CCMP,
+        .ftm_responder = false,
+        .pmf_cfg { .capable = true, .required = true }
+    }};
+    // create unique SSID
+    // FIXME can't read MAC if netif isn't up
+    wifi_config.ap.ssid_len = sprintf(reinterpret_cast<char*>(&wifi_config.ap.ssid), "SneakerNet %x", rand());
+
+    // use a random channel
+    // WIFI channels https://en.wikipedia.org/wiki/List_of_WLAN_channels
+    constexpr int WIFI_CHANNEL_MAX = 11;
+    wifi_config.ap.channel = (rand() % WIFI_CHANNEL_MAX) + 1;
+
     ESP_ERROR_CHECK(esp_wifi_set_config(static_cast<wifi_interface_t>(ESP_IF_WIFI_AP), &wifi_config));
 
     // handle DNS requests upon connection w/ redirect to captive portal

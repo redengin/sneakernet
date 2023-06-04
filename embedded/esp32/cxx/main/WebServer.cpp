@@ -48,6 +48,9 @@ private:
 WebServer::WebServer(SneakerNet& _sneakerNet)
 :   sneakerNet(_sneakerNet)
 {
+    // FIXME debug use only
+    esp_log_level_set(TAG, ESP_LOG_DEBUG);
+
     /*
         Turn of warnings from HTTP server as redirecting traffic will yield
         lots of invalid requests
@@ -72,8 +75,8 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
             .handler = INDEX,
             .user_ctx = self,
         };
-        httpd_register_uri_handler(handle, &hook);
-        httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_redirect);
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
+        ESP_ERROR_CHECK(httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_redirect));
     }
 
     // support catalog listing
@@ -83,7 +86,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
             .handler = CATALOG,
             .user_ctx = self,
         };
-        httpd_register_uri_handler(handle, &hook);
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
 
     // support ebook download
@@ -93,7 +96,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
             .handler = GET_EBOOK,
             .user_ctx = self,
         };
-        httpd_register_uri_handler(handle, &hook);
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
 
     // support ebook upload
@@ -103,10 +106,12 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
             .handler = PUT_EBOOK,
             .user_ctx = self,
         };
-        httpd_register_uri_handler(handle, &hook);
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
 
 #ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
+    ESP_LOGI(TAG, "Adding FILES support");
+    ESP_LOGD(TAG, "Adding FILES support");
     // support files listing
     {   httpd_uri_t hook = {
             .uri = FILES_URI.c_str(),
@@ -114,27 +119,29 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
             .handler = LIST_FILES,
             .user_ctx = self,
         };
-        httpd_register_uri_handler(handle, &hook);
+        ESP_LOGD(TAG, "LIST_FILES uri: %s", hook.uri);
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
 
     // support file download
     {   httpd_uri_t hook = {
-            .uri = (FILE_URI).c_str(),
+            .uri = FILE_URI.c_str(),
             .method = HTTP_GET,
             .handler = GET_FILE,
             .user_ctx = self,
         };
-        httpd_register_uri_handler(handle, &hook);
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
 
     // support file upload
     {   httpd_uri_t hook = {
-            .uri = (FILE_URI).c_str(),
+            .uri = FILE_URI.c_str(),
             .method = HTTP_PUT,
             .handler = PUT_FILE,
             .user_ctx = self,
         };
-        httpd_register_uri_handler(handle, &hook);
+        ESP_LOGD(TAG, "PUT_FILE uri: %s", hook.uri);
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
 
     // support file delete
@@ -144,7 +151,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
             .handler = DELETE_FILE,
             .user_ctx = self,
         };
-        httpd_register_uri_handler(handle, &hook);
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
 #endif
 }
@@ -154,8 +161,8 @@ extern "C" const char indexHtml_start[] asm("_binary_index_html_start");
 extern "C" const char indexHtml_end[] asm("_binary_index_html_end");
 esp_err_t INDEX(httpd_req_t* req)
 {
-    const size_t indexHtml_sz = indexHtml_end - indexHtml_start;
     ESP_LOGI(TAG, "Serving index.html");
+    const size_t indexHtml_sz = indexHtml_end - indexHtml_start;
     httpd_resp_set_type(req, "text/html");
     return httpd_resp_send(req, indexHtml_start, indexHtml_sz);
 }
@@ -178,6 +185,7 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 /// @return 
 esp_err_t CATALOG(httpd_req_t* req)
 {
+    ESP_LOGI(TAG, "Serving ebook catalog");
     WebServer* const self = static_cast<WebServer*>(req->user_ctx);
     SneakerNet::Catalog catalog = self->sneakerNet.catalog();
     cJSON* const catalog_object = cJSON_CreateObject();
@@ -220,6 +228,7 @@ esp_err_t PUT_EBOOK(httpd_req_t* req) {
 //-------------------------------------------------------------------------------
 extern "C" esp_err_t LIST_FILES(httpd_req_t* req)
 {
+    ESP_LOGI(TAG, "Serving file list");
     WebServer* const self = static_cast<WebServer*>(req->user_ctx);
     SneakerNet::FilesList files = self->sneakerNet.files();
     cJSON* const files_array = cJSON_CreateArray();
@@ -237,6 +246,7 @@ extern "C" esp_err_t LIST_FILES(httpd_req_t* req)
 
 extern "C" esp_err_t GET_FILE(httpd_req_t* req)
 {
+    ESP_LOGI(TAG, "Sending file");
     WebServer* const self = static_cast<WebServer*>(req->user_ctx);
     const char* const fileName = req->uri + self->FILES_URI.length() + sizeof('/');
     std::ifstream fis = self->sneakerNet.readFile(fileName);
@@ -249,6 +259,7 @@ extern "C" esp_err_t GET_FILE(httpd_req_t* req)
 
 extern "C" esp_err_t PUT_FILE(httpd_req_t* req) 
 {
+    ESP_LOGI(TAG, "Receiving file");
     WebServer* const self = static_cast<WebServer*>(req->user_ctx);
     const char* const fileName = req->uri + self->FILES_URI.length() + sizeof('/');
     HttpInputStreamBuf hsb(req);
@@ -260,6 +271,7 @@ extern "C" esp_err_t PUT_FILE(httpd_req_t* req)
 
 extern "C" esp_err_t DELETE_FILE(httpd_req_t* req)
 {
+    ESP_LOGI(TAG, "Deleting file");
     WebServer* const self = static_cast<WebServer*>(req->user_ctx);
     const char* const fileName = req->uri + self->FILES_URI.length() + sizeof('/');
     if(self->sneakerNet.deleteFile(fileName))
