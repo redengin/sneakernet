@@ -165,19 +165,16 @@ static int parse_dns_request(char *req, size_t req_len, char *dns_reply, size_t 
 */
 void dns_server_task(void *pvParameters)
 {
-    char rx_buffer[128];
-    char addr_str[128];
-    int addr_family;
-    int ip_protocol;
+    esp_log_level_set(TAG, ESP_LOG_ERROR);
 
     while (1) {
-
         struct sockaddr_in dest_addr;
         dest_addr.sin_addr.s_addr = htonl(INADDR_ANY);
         dest_addr.sin_family = AF_INET;
         dest_addr.sin_port = htons(DNS_PORT);
-        addr_family = AF_INET;
-        ip_protocol = IPPROTO_IP;
+        const int addr_family = AF_INET;
+        const int ip_protocol = IPPROTO_IP;
+        char addr_str[128];
         inet_ntoa_r(dest_addr.sin_addr, addr_str, sizeof(addr_str) - 1);
 
         int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
@@ -197,6 +194,7 @@ void dns_server_task(void *pvParameters)
             ESP_LOGI(TAG, "Waiting for data");
             struct sockaddr_in6 source_addr; // Large enough for both IPv4 or IPv6
             socklen_t socklen = sizeof(source_addr);
+            char rx_buffer[128];
             int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
 
             // Error occurred during receiving
