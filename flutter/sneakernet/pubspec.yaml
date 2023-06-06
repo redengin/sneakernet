@@ -47,6 +47,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   flutter_launcher_icons: "^0.13.1"
+  wifi_scan: ^0.4.0+1
+  settings_ui: ^2.0.2
 
 flutter_launcher_icons:
   android: "launcher_icon"
