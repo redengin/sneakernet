@@ -26,16 +26,18 @@ public:
     {}
 
 protected:
+    char chunk[CHUNK_SZ];
     int underflow() override
     {
-        char chunk[CHUNK_SZ];
+        ESP_LOGI(TAG, "adding chunk to streambuf");
         const size_t chunk_sz = httpd_req_recv(req, chunk, sizeof(chunk));
-        if(chunk_sz == 0)
+        if(chunk_sz <= 0) {
+            ESP_LOGI(TAG, "chunk stream ended chunk_sz: %d", chunk_sz);
             return traits_type::eof();
+        }
+        ESP_LOGI(TAG, "added chunk_sz: %d chunk to stream", chunk_sz);
 
-        const std::streamsize accepted_sz = xsputn(chunk, chunk_sz);
-        assert(accepted_sz == chunk_sz);
-
+        setg(chunk, chunk, (chunk+chunk_sz));
         return chunk[0];
     }
 
@@ -61,6 +63,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
 
     // Start the httpd server
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.stack_size = 6*1024;
     config.uri_match_fn = httpd_uri_match_wildcard;
     // TODO max_open_sockets increase (LWIP_SOCKETS - 3)
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);

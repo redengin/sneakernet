@@ -93,7 +93,7 @@ bool SneakerNet::mount_sdcard()
     slot_config.host_id = static_cast<spi_host_device_t>(host.slot);
 
     ESP_LOGI(TAG, "Mounting filesystem");
-    ret = esp_vfs_fat_sdspi_mount("", &host, &slot_config, &mount_config, &card);
+    ret = esp_vfs_fat_sdspi_mount(MOUNT_PATH.c_str(), &host, &slot_config, &mount_config, &card);
 
     if (ret != ESP_OK)
         return false;
@@ -151,10 +151,17 @@ bool SneakerNet::addFile(std::string fileName, std::istream& is, size_t fileSize
 {
     // TODO validate fileSize per SNEAKERNET_FILES_MAX_SIZE_KB
 
-    std::filesystem::path filePath(FILES_PATH);
-    filePath.append(fileName);
-    std::ofstream ofs(filePath);
-    ofs << is.rdbuf();
+    try {
+        std::filesystem::path filePath(FILES_PATH);
+        filePath.append(fileName);
+        std::ofstream ofs(filePath);
+        ofs << is.rdbuf();
+    }
+    catch(std::exception &e) {
+        ESP_LOGE(TAG, "%s", e.what());
+        return false;
+    }
+
     return true;
 }
 
