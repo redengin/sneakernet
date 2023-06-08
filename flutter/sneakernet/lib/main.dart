@@ -4,6 +4,7 @@ import 'package:auto_start_flutter/auto_start_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'pages/root.dart';
 
 void main() async {
@@ -12,13 +13,35 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   getAutoStartPermission();
 
+  // initialize notification service
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('app_icon');
+  // final DarwinInitializationSettings initializationSettingsDarwin =
+  // DarwinInitializationSettings(
+  //     onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+  final LinuxInitializationSettings initializationSettingsLinux =
+    LinuxInitializationSettings(defaultActionName: 'Open notification');
+  final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      // iOS: initializationSettingsDarwin,
+      // macOS: initializationSettingsDarwin,
+      linux: initializationSettingsLinux);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+      // onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+
   // setup background wifi scan for sneakernet nodes
   if(await Permission.locationWhenInUse.request().isGranted) {
     await Permission.locationAlways.request().isGranted;
   }
-  final scanSubscription = WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+  final void scanSubscription = WiFiScan.instance.onScannedResultsAvailable.listen((results) {
     const SNEAKER_NET_SSID = "SneakerNet";
     sneakerNets = results.where((_) => _.ssid.startsWith(SNEAKER_NET_SSID)).toList(growable: false);
+
+    flutterLocalNotificationsPlugin.show(1, 'SneakerNets found',
+      'hello',
+      NotificationDetails()
+    );
   });
   Workmanager().initialize(
       callbackDispatcher, // The top level function, aka callbackDispatcher
@@ -71,5 +94,4 @@ void callbackDispatcher() {
     }
   });
 }
-
 

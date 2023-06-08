@@ -1,11 +1,11 @@
 <component name="libraryTable">
   <library name="Flutter Plugins" type="FlutterPluginsLibraryType">
     <CLASSES>
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-14.1.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/wifi_scan-0.4.0+1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/workmanager-0.5.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/permission_handler-10.3.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/auto_start_flutter-0.1.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-14.1.1" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
