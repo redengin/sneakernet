@@ -1,24 +1,32 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:location_permissions/location_permissions.dart';
+import 'package:flutter/material.dart';
+import 'package:auto_start_flutter/auto_start_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 import 'package:workmanager/workmanager.dart';
 import 'pages/root.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  var sneakerNets;
 
+  WidgetsFlutterBinding.ensureInitialized();
+  getAutoStartPermission();
 
   // setup background wifi scan for sneakernet nodes
-  PermissionStatus permission = await LocationPermissions().requestPermissions(permissionLevel: LocationPermissionLevel.locationAlways);
-  StreamSubscription<List<WiFiAccessPoint>> subscription = WiFiScan.instance.onScannedResultsAvailable.listen((results) => _handleScanResults(results));
+  if(await Permission.locationWhenInUse.request().isGranted) {
+    await Permission.locationAlways.request().isGranted;
+  }
+  final scanSubscription = WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+    const SNEAKER_NET_SSID = "SneakerNet";
+    sneakerNets = results.where((_) => _.ssid.startsWith(SNEAKER_NET_SSID)).toList(growable: false);
+  });
   Workmanager().initialize(
       callbackDispatcher, // The top level function, aka callbackDispatcher
-      isInDebugMode: true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+      isInDebugMode: false // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
   );
   int taskId = 0;
   Workmanager().registerPeriodicTask((++taskId).toString(), scanTask_name,
-    backoffPolicy: BackoffPolicy.exponential, backoffPolicyDelay: Duration(seconds: 10));
+    frequency: const Duration(minutes: 1));
 
   runApp(const MyApp());
 }
@@ -44,6 +52,7 @@ class MyApp extends StatelessWidget {
 Background Tasks
 ------------------------------------------------------------------------------*/
 const scanTask_name = "sneakernet-wifi-scan";
+
 @pragma('vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
 void callbackDispatcher() {
   Workmanager().executeTask((task_name, inputData) async {
@@ -54,7 +63,8 @@ void callbackDispatcher() {
           case CanStartScan.yes:
             return WiFiScan.instance.startScan();
           default:
-            return Future.error("unable to scan wifi");
+            // keep on trying no matter what
+            return Future.value(true);
         }
       default:
         return Future.error("unknown task");
@@ -62,8 +72,4 @@ void callbackDispatcher() {
   });
 }
 
-const SNEAKER_NET_SSID = "SneakerNet";
-_handleScanResults(results) {
-  results.removeWhere((wifiNode) => ! wifiNode.ssid.startsWith(SNEAKER_NET_SSID));
-}
 
