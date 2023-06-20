@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import '../main.dart';
+import 'package:wifi_scan/wifi_scan.dart';
 import 'SettingsPage.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,23 +22,29 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _linuxIconPathController =
-      TextEditingController();
+  TextEditingController();
 
   bool _notificationsEnabled = false;
+  bool _wifiScanEnabled = false;
 
   @override
   void initState() {
     super.initState();
-    _isAndroidPermissionGranted();
-    _requestPermissions();
+    _isAndroidNotificationPermissionGranted();
+    _requestNotificationPermissions();
+    _isWifiScanPermissionGranted();
     // _configureDidReceiveLocalNotificationSubject();
     // _configureSelectNotificationSubject();
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) =>
+      Scaffold(
         appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            backgroundColor: Theme
+                .of(context)
+                .colorScheme
+                .inversePrimary,
             title: const Text('SneakerNet'),
             actions: [
               IconButton(
@@ -78,12 +85,12 @@ class _HomePageState extends State<HomePage> {
         // ), // This trailing comma makes auto-formatting nicer for build methods.
       );
 
-  Future<void> _isAndroidPermissionGranted() async {
+  Future<void> _isAndroidNotificationPermissionGranted() async {
     if (Platform.isAndroid) {
       final bool granted = await flutterLocalNotificationsPlugin
-              .resolvePlatformSpecificImplementation<
-                  AndroidFlutterLocalNotificationsPlugin>()
-              ?.areNotificationsEnabled() ??
+          .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+          ?.areNotificationsEnabled() ??
           false;
 
       setState(() {
@@ -92,28 +99,28 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _requestPermissions() async {
+  Future<void> _requestNotificationPermissions() async {
     if (Platform.isIOS || Platform.isMacOS) {
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
+          IOSFlutterLocalNotificationsPlugin>()
           ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
+        alert: true,
+        badge: true,
+        sound: true,
+      );
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              MacOSFlutterLocalNotificationsPlugin>()
+          MacOSFlutterLocalNotificationsPlugin>()
           ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
+        alert: true,
+        badge: true,
+        sound: true,
+      );
     } else if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+      flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
 
       final bool? granted = await androidImplementation?.requestPermission();
       setState(() {
@@ -168,11 +175,23 @@ class _HomePageState extends State<HomePage> {
 //   selectNotificationStream.close();
 //   super.dispose();
 // }
+
+  Future<void> _isWifiScanPermissionGranted() async {
+    // https://pub.dev/documentation/wifi_scan/latest/wifi_scan/CanStartScan.html
+    final bool granted = await WiFiScan.instance.canStartScan(
+        askPermissions: true)
+        == CanStartScan.yes;
+
+    setState(() {
+      _wifiScanEnabled = granted;
+    });
+  }
 }
 
 // FIXME test use only
 //------------------------------------------------------------------------------
 int id = 1;
+
 class PaddedElevatedButton extends StatelessWidget {
   const PaddedElevatedButton({
     required this.buttonText,
@@ -184,14 +203,16 @@ class PaddedElevatedButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-    child: ElevatedButton(
-      onPressed: onPressed,
-      child: Text(buttonText),
-    ),
-  );
+  Widget build(BuildContext context) =>
+      Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          child: Text(buttonText),
+        ),
+      );
 }
+
 Future<void> _showNotification() async {
   const AndroidNotificationDetails androidNotificationDetails =
   AndroidNotificationDetails('your channel id', 'your channel name',

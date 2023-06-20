@@ -10,7 +10,7 @@ import 'pages/HomePage.dart';
 import 'pages/SettingsPage.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ Future<void> main() async {
 
   // subscribe to wifi scans
   final scanSubscription =
-  WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+      WiFiScan.instance.onScannedResultsAvailable.listen((results) {
     const SNEAKER_NET_SSID = "SneakerNet";
     var sneakerNets = results
         .where((_) => _.ssid.startsWith(SNEAKER_NET_SSID))
@@ -28,23 +28,23 @@ Future<void> main() async {
 
     if (sneakerNets.isNotEmpty) {
       var ssids = sneakerNets.map((_) => _.ssid).toList();
-      // await flutterLocalNotificationsPlugin.show(
-      //     1, 'SneakerNets found', ssids.join(','), notificationDetails);
+      flutterLocalNotificationsPlugin.show(
+          1, 'SneakerNets found', ssids.join(','), notificationDetails);
     }
   });
 
   // setup background tasks
   Workmanager().initialize(
       callbackDispatcher, // The top level function, aka callbackDispatcher
-      isInDebugMode: true // If enabled it will post a notification
-  );
+      // isInDebugMode: true // If enabled it will post a notification
+      );
   int taskId = 0;
   // for Android, the minimum period is 15 minutes
   Workmanager().registerPeriodicTask((++taskId).toString(), scanTask_name);
 
   // decide which page to start based upon how we were launched
   final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
-      Platform.isLinux
+          Platform.isLinux
       ? null
       : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
   String initialRoute = HomePage.routeName;
@@ -161,28 +161,17 @@ Future<void> main() async {
 /*------------------------------------------------------------------------------
 WorkManager Helpers
 ------------------------------------------------------------------------------*/
-  const scanTask_name = "sneakernet-wifi-scan";
+const scanTask_name = "sneakernet-wifi-scan";
 
-  Future<bool> do_scanTask() async {
-    final can = await WiFiScan.instance.canStartScan(askPermissions: true);
-    switch (can) {
-      case CanStartScan.yes:
+@pragma(
+    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
+void callbackDispatcher() {
+  Workmanager().executeTask((taskName, inputData) async {
+    switch (taskName) {
+      case scanTask_name:
         return WiFiScan.instance.startScan();
       default:
-      // keep on trying no matter what
-        return Future.value(true);
+        return Future.error("unknown task");
     }
-  }
-
-  @pragma(
-      'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-  void callbackDispatcher() {
-    Workmanager().executeTask((taskName, inputData) async {
-      switch (taskName) {
-        case scanTask_name:
-          return do_scanTask();
-        default:
-          return Future.error("unknown task");
-      }
-    });
-  }
+  });
+}

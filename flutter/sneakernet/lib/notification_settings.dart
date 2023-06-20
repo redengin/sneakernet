@@ -7,6 +7,14 @@ final InitializationSettings initializationSettings = InitializationSettings(
   macOS: _initializationSettingsDarwin,
 );
 
+// default notification details
+const NotificationDetails notificationDetails = NotificationDetails(
+  android: _androidNotificationDetails,
+  iOS: _iosNotificationDetails,
+  macOS: _macOSNotificationDetails,
+  linux: _linuxNotificationDetails,
+);
+
 const AndroidInitializationSettings _initializationSettingsAndroid =
     AndroidInitializationSettings('@mipmap/launcher_icon');
 
@@ -18,8 +26,10 @@ final LinuxInitializationSettings _initializationSettingsLinux =
 
 /// A notification action which triggers a App navigation event
 const String navigationActionId = 'id_3';
+
 /// Defines a iOS/MacOS notification category for text input actions.
 const String darwinNotificationCategoryText = 'textCategory';
+
 /// Defines a iOS/MacOS notification category for plain actions.
 const String darwinNotificationCategoryPlain = 'plainCategory';
 final List<DarwinNotificationCategory> _darwinNotificationCategories =
@@ -72,6 +82,7 @@ final DarwinInitializationSettings _initializationSettingsDarwin =
   requestAlertPermission: false,
   requestBadgePermission: false,
   requestSoundPermission: false,
+  // FIXME
   // onDidReceiveLocalNotification:
   //     (int id, String? title, String? body, String? payload) async {
   //   didReceiveLocalNotificationStream.add(
@@ -86,3 +97,61 @@ final DarwinInitializationSettings _initializationSettingsDarwin =
   notificationCategories: _darwinNotificationCategories,
 );
 
+const AndroidNotificationDetails _androidNotificationDetails =
+    AndroidNotificationDetails(
+  'your channel id',
+  'your channel name',
+  channelDescription: 'your channel description',
+  importance: Importance.max,
+  priority: Priority.high,
+  ticker: 'ticker',
+  // FIXME provide actions
+  // actions: <AndroidNotificationAction>[
+  //   AndroidNotificationAction(
+  //     urlLaunchActionId,
+  //     'Action 1',
+  //     icon: DrawableResourceAndroidBitmap('food'),
+  //     contextual: true,
+  //   ),
+  //   AndroidNotificationAction(
+  //     'id_2',
+  //     'Action 2',
+  //     titleColor: Color.fromARGB(255, 255, 0, 0),
+  //     icon: DrawableResourceAndroidBitmap('secondary_icon'),
+  //   ),
+  //   AndroidNotificationAction(
+  //     navigationActionId,
+  //     'Action 3',
+  //     icon: DrawableResourceAndroidBitmap('secondary_icon'),
+  //     showsUserInterface: true,
+  //     // By default, Android plugin will dismiss the notification when the
+  //     // user tapped on a action (this mimics the behavior on iOS).
+  //     cancelNotification: false,
+  //   ),
+  // ],
+);
+
+const LinuxNotificationDetails _linuxNotificationDetails =
+LinuxNotificationDetails(
+  actions: <LinuxNotificationAction>[
+    // FIXME provide actions
+    // LinuxNotificationAction(
+    //   key: urlLaunchActionId,
+    //   label: 'Action 1',
+    // ),
+    // LinuxNotificationAction(
+    //   key: navigationActionId,
+    //   label: 'Action 2',
+    // ),
+  ],
+);
+
+const DarwinNotificationDetails _iosNotificationDetails =
+DarwinNotificationDetails(
+  categoryIdentifier: darwinNotificationCategoryPlain,
+);
+
+const DarwinNotificationDetails _macOSNotificationDetails =
+DarwinNotificationDetails(
+  categoryIdentifier: darwinNotificationCategoryPlain,
+);
