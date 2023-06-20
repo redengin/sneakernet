@@ -35,9 +35,10 @@ Future<void> main() async {
 
   // setup background tasks
   Workmanager().initialize(
-      callbackDispatcher, // The top level function, aka callbackDispatcher
-      // isInDebugMode: true // If enabled it will post a notification
-      );
+    callbackDispatcher,
+    // If enabled it will post a notification upon each event
+    // isInDebugMode: true
+  );
   int taskId = 0;
   // for Android, the minimum period is 15 minutes
   Workmanager().registerPeriodicTask((++taskId).toString(), scanTask_name);
