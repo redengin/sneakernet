@@ -58,8 +58,7 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Settings'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SettingsPage()));
+                  Navigator.pushNamed(context, SettingsPage.routeName);
                 })
           ]),
         ),
