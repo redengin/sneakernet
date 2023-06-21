@@ -22,7 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _linuxIconPathController =
-  TextEditingController();
+      TextEditingController();
 
   bool _notificationsEnabled = false;
   bool _wifiScanEnabled = false;
@@ -38,24 +38,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      Scaffold(
+  Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-            backgroundColor: Theme
-                .of(context)
-                .colorScheme
-                .inversePrimary,
-            title: const Text('SneakerNet'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.settings),
-                tooltip: 'settings',
-                onPressed: () {
+          centerTitle: true,
+          title: const Text('SneakerNet'),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+        ),
+        drawer: Drawer(
+          child: ListView(padding: EdgeInsets.zero, children: [
+            SizedBox(
+              height: 100,
+              child: const DrawerHeader(
+                decoration: BoxDecoration(color: Colors.blue),
+                child: Text('SneakerNet', style: TextStyle(fontSize: 30, color: Colors.white)),
+              ),
+            ),
+            ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Settings'),
+                onTap: () {
+                  Navigator.pop(context);
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => SettingsPage()));
-                },
-              )
-            ]),
+                })
+          ]),
+        ),
         body: Center(
           // Center is a layout widget. It takes a single child and positions it
           // in the middle of the parent.
@@ -78,19 +85,14 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        // floatingActionButton: FloatingActionButton(
-        //   // onPressed: _incrementCounter,
-        //   // tooltip: 'Increment',
-        //   // child: const Icon(Icons.add),
-        // ), // This trailing comma makes auto-formatting nicer for build methods.
       );
 
   Future<void> _isAndroidNotificationPermissionGranted() async {
     if (Platform.isAndroid) {
       final bool granted = await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-          ?.areNotificationsEnabled() ??
+              .resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin>()
+              ?.areNotificationsEnabled() ??
           false;
 
       setState(() {
@@ -103,24 +105,24 @@ class _HomePageState extends State<HomePage> {
     if (Platform.isIOS || Platform.isMacOS) {
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin>()
+              IOSFlutterLocalNotificationsPlugin>()
           ?.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+            alert: true,
+            badge: true,
+            sound: true,
+          );
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-          MacOSFlutterLocalNotificationsPlugin>()
+              MacOSFlutterLocalNotificationsPlugin>()
           ?.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+            alert: true,
+            badge: true,
+            sound: true,
+          );
     } else if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-      flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
 
       final bool? granted = await androidImplementation?.requestPermission();
       setState(() {
@@ -178,9 +180,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _isWifiScanPermissionGranted() async {
     // https://pub.dev/documentation/wifi_scan/latest/wifi_scan/CanStartScan.html
-    final bool granted = await WiFiScan.instance.canStartScan(
-        askPermissions: true)
-        == CanStartScan.yes;
+    final bool granted =
+        await WiFiScan.instance.canStartScan(askPermissions: true) ==
+            CanStartScan.yes;
 
     setState(() {
       _wifiScanEnabled = granted;
@@ -203,8 +205,7 @@ class PaddedElevatedButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) =>
-      Padding(
+  Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
         child: ElevatedButton(
           onPressed: onPressed,
@@ -215,13 +216,13 @@ class PaddedElevatedButton extends StatelessWidget {
 
 Future<void> _showNotification() async {
   const AndroidNotificationDetails androidNotificationDetails =
-  AndroidNotificationDetails('your channel id', 'your channel name',
-      channelDescription: 'your channel description',
-      importance: Importance.max,
-      priority: Priority.high,
-      ticker: 'ticker');
+      AndroidNotificationDetails('your channel id', 'your channel name',
+          channelDescription: 'your channel description',
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: 'ticker');
   const NotificationDetails notificationDetails =
-  NotificationDetails(android: androidNotificationDetails);
+      NotificationDetails(android: androidNotificationDetails);
   await flutterLocalNotificationsPlugin.show(
       id++, 'plain title', 'plain body', notificationDetails,
       payload: 'item x');
