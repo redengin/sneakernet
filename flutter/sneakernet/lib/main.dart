@@ -31,16 +31,15 @@ Future<void> main() async {
         .toList(growable: false);
 
     if (sneakerNets.isNotEmpty) {
-      if(settings.getDoNotify()) {
+      if (settings.getDoNotify()) {
         var ssids = sneakerNets.map((_) => _.ssid).toList();
-        flutterLocalNotificationsPlugin.show(
-            SNEAKERNETS_FOUND_ID, 'SneakerNets found', ssids.join(','), notificationDetails);
+        flutterLocalNotificationsPlugin.show(SNEAKERNETS_FOUND_ID,
+            'SneakerNets found', ssids.join(','), notificationDetails);
       }
-      if(settings.getAutoSync()) {
+      if (settings.getAutoSync()) {
         localSneakerNets.addAll(sneakerNets);
-        // var ssids = sneakerNets.map((_) => _.ssid).toList();
-        // flutterLocalNotificationsPlugin.show(
-        //     SNEAKERNET_SYNC_ID, 'SneakerNets syncing...', ssids.join(','), notificationDetails);
+        Workmanager()
+            .registerOneOffTask(SNEAKERNET_SYNC_ID.toString(), SYNC_TASK_NAME);
       }
     }
   });
@@ -53,7 +52,7 @@ Future<void> main() async {
   );
   int taskId = 0;
   // for Android, the minimum period is 15 minutes
-  Workmanager().registerPeriodicTask((++taskId).toString(), scanTask_name);
+  Workmanager().registerPeriodicTask((++taskId).toString(), SCAN_TASK_NAME);
 
   // decide which page to start based upon how we were launched
   final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
@@ -81,15 +80,29 @@ Future<void> main() async {
 /*------------------------------------------------------------------------------
 WorkManager Helpers
 ------------------------------------------------------------------------------*/
-const scanTask_name = "sneakernet-wifi-scan";
+const SCAN_TASK_NAME = "sneakernet-wifi-scan";
+const SYNC_TASK_NAME = "sneakernet-sync";
 
 @pragma(
     'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
 void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
     switch (taskName) {
-      case scanTask_name:
+      case SCAN_TASK_NAME:
         return WiFiScan.instance.startScan();
+      case SYNC_TASK_NAME:
+        if (localSneakerNets.isEmpty) {
+          flutterLocalNotificationsPlugin.show(SNEAKERNET_SYNC_ID,
+              'SneakerNets Sync Completed', '', notificationDetails);
+          return Future(() => true);
+        }
+        var sneakerNet = localSneakerNets.first;
+        localSneakerNets.remove(localSneakerNets.first);
+        SneakerNet.sync(sneakerNet);
+        // keep working through the queue
+        Workmanager()
+            .registerOneOffTask(SNEAKERNET_SYNC_ID.toString(), SYNC_TASK_NAME);
+        return Future(() => true);
       default:
         return Future.error("unknown task");
     }
