@@ -1,11 +1,8 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-final InitializationSettings initializationSettings = InitializationSettings(
-  android: _initializationSettingsAndroid,
-  linux: _initializationSettingsLinux,
-  iOS: _initializationSettingsDarwin,
-  macOS: _initializationSettingsDarwin,
-);
+// unique notification ids
+const SNEAKERNETS_FOUND_ID = 1;
+const SNEAKERNET_SYNC_ID = 2;
 
 // default notification details
 const NotificationDetails notificationDetails = NotificationDetails(
@@ -13,6 +10,13 @@ const NotificationDetails notificationDetails = NotificationDetails(
   iOS: _iosNotificationDetails,
   macOS: _macOSNotificationDetails,
   linux: _linuxNotificationDetails,
+);
+
+final InitializationSettings initializationSettings = InitializationSettings(
+  android: _initializationSettingsAndroid,
+  linux: _initializationSettingsLinux,
+  iOS: _initializationSettingsDarwin,
+  macOS: _initializationSettingsDarwin,
 );
 
 const AndroidInitializationSettings _initializationSettingsAndroid =

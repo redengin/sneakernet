@@ -6,7 +6,7 @@ class SettingsPage extends StatefulWidget {
   static const String routeName = '/settings';
 
   final Settings settings;
-  const SettingsPage({super.key, required this.settings});
+  const SettingsPage(this.settings, {super.key});
 
   @override
   createState() => _SettingsPageState();

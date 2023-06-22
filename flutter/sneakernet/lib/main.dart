@@ -7,13 +7,12 @@ import 'package:wifi_scan/wifi_scan.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'settings.dart';
-import 'pages/HomePage.dart';
-import 'pages/SettingsPage.dart';
+import 'package:sneakernet/settings.dart';
+import 'package:sneakernet/pages/HomePage.dart';
+import 'package:sneakernet/pages/SettingsPage.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,19 +32,18 @@ Future<void> main() async {
         .where((_) => _.ssid.startsWith(SNEAKER_NET_SSID))
         .toList(growable: false);
 
-    // if (sneakerNets.isNotEmpty) {
-    //   SettingsPageState settingsState = SettingsPage().createState();
-    //   if(settingsState.doNotify) {
-    //     var ssids = sneakerNets.map((_) => _.ssid).toList();
-    //     flutterLocalNotificationsPlugin.show(
-    //         1, 'SneakerNets found', ssids.join(','), notificationDetails);
-    //   }
-    //   if(settingsState.autoSync) {
-    //     var ssids = sneakerNets.map((_) => _.ssid).toList();
-    //     flutterLocalNotificationsPlugin.show(
-    //         1, 'SneakerNets syncing...', ssids.join(','), notificationDetails);
-    //   }
-    // }
+    if (sneakerNets.isNotEmpty) {
+      if(settings.getDoNotify()) {
+        var ssids = sneakerNets.map((_) => _.ssid).toList();
+        flutterLocalNotificationsPlugin.show(
+            SNEAKERNETS_FOUND_ID, 'SneakerNets found', ssids.join(','), notificationDetails);
+      }
+      if(settings.getAutoSync()) {
+        var ssids = sneakerNets.map((_) => _.ssid).toList();
+        flutterLocalNotificationsPlugin.show(
+            SNEAKERNET_SYNC_ID, 'SneakerNets syncing...', ssids.join(','), notificationDetails);
+      }
+    }
   });
 
   // setup background tasks
@@ -75,7 +73,7 @@ Future<void> main() async {
       initialRoute: initialRoute,
       routes: <String, WidgetBuilder>{
         HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
-        SettingsPage.routeName: (_) => SettingsPage(settings:settings),
+        SettingsPage.routeName: (_) => SettingsPage(settings),
       },
     ),
   );

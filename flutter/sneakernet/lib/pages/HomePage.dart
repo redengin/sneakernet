@@ -1,17 +1,15 @@
 import 'dart:io';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
-import '../main.dart';
+import 'package:sneakernet/main.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:wifi_scan/wifi_scan.dart';
-import 'SettingsPage.dart';
+import 'package:sneakernet/pages/SettingsPage.dart';
 
 class HomePage extends StatefulWidget {
   static const String routeName = '/';
 
-  const HomePage(this.notificationAppLaunchDetails, {Key? key})
-      : super(key: key);
-
   final NotificationAppLaunchDetails? notificationAppLaunchDetails;
+  const HomePage(this.notificationAppLaunchDetails, {super.key});
 
   bool get didNotificationLaunchApp =>
       notificationAppLaunchDetails?.didNotificationLaunchApp ?? false;
@@ -50,7 +48,8 @@ class _HomePageState extends State<HomePage> {
               height: 100,
               child: const DrawerHeader(
                 decoration: BoxDecoration(color: Colors.blue),
-                child: Text('SneakerNet', style: TextStyle(fontSize: 30, color: Colors.white)),
+                child: Text('SneakerNet',
+                    style: TextStyle(fontSize: 30, color: Colors.white)),
               ),
             ),
             ListTile(
@@ -74,13 +73,6 @@ class _HomePageState extends State<HomePage> {
                   await _showNotification();
                 },
               ),
-              // const Text(
-              //   'You have pushed the button this many times:',
-              // ),
-              // Text(
-              //   '$_counter',
-              //   style: Theme.of(context).textTheme.headlineMedium,
-              // ),
             ],
           ),
         ),
@@ -129,53 +121,6 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-
-// void _configureDidReceiveLocalNotificationSubject() {
-//   didReceiveLocalNotificationStream.stream
-//       .listen((ReceivedNotification receivedNotification) async {
-//     await showDialog(
-//       context: context,
-//       builder: (BuildContext context) => CupertinoAlertDialog(
-//         title: receivedNotification.title != null
-//             ? Text(receivedNotification.title!)
-//             : null,
-//         content: receivedNotification.body != null
-//             ? Text(receivedNotification.body!)
-//             : null,
-//         actions: <Widget>[
-//           CupertinoDialogAction(
-//             isDefaultAction: true,
-//             onPressed: () async {
-//               Navigator.of(context, rootNavigator: true).pop();
-//               await Navigator.of(context).push(
-//                 MaterialPageRoute<void>(
-//                   builder: (BuildContext context) =>
-//                       SecondPage(receivedNotification.payload),
-//                 ),
-//               );
-//             },
-//             child: const Text('Ok'),
-//           )
-//         ],
-//       ),
-//     );
-//   });
-// }
-//
-// void _configureSelectNotificationSubject() {
-//   selectNotificationStream.stream.listen((String? payload) async {
-//     await Navigator.of(context).push(MaterialPageRoute<void>(
-//       builder: (BuildContext context) => SecondPage(payload),
-//     ));
-//   });
-// }
-//
-// @override
-// void dispose() {
-//   didReceiveLocalNotificationStream.close();
-//   selectNotificationStream.close();
-//   super.dispose();
-// }
 
   Future<void> _isWifiScanPermissionGranted() async {
     // https://pub.dev/documentation/wifi_scan/latest/wifi_scan/CanStartScan.html
