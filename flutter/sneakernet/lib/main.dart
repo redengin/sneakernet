@@ -6,14 +6,21 @@ import 'package:sneakernet/notification_settings.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'settings.dart';
 import 'pages/HomePage.dart';
 import 'pages/SettingsPage.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // initialize persistent settings
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  final Settings settings = Settings(preferences: preferences);
 
   // initialize local notifications
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -26,17 +33,25 @@ Future<void> main() async {
         .where((_) => _.ssid.startsWith(SNEAKER_NET_SSID))
         .toList(growable: false);
 
-    if (sneakerNets.isNotEmpty) {
-      var ssids = sneakerNets.map((_) => _.ssid).toList();
-      flutterLocalNotificationsPlugin.show(
-          1, 'SneakerNets found', ssids.join(','), notificationDetails);
-    }
+    // if (sneakerNets.isNotEmpty) {
+    //   SettingsPageState settingsState = SettingsPage().createState();
+    //   if(settingsState.doNotify) {
+    //     var ssids = sneakerNets.map((_) => _.ssid).toList();
+    //     flutterLocalNotificationsPlugin.show(
+    //         1, 'SneakerNets found', ssids.join(','), notificationDetails);
+    //   }
+    //   if(settingsState.autoSync) {
+    //     var ssids = sneakerNets.map((_) => _.ssid).toList();
+    //     flutterLocalNotificationsPlugin.show(
+    //         1, 'SneakerNets syncing...', ssids.join(','), notificationDetails);
+    //   }
+    // }
   });
 
   // setup background tasks
   Workmanager().initialize(
     callbackDispatcher,
-    // If enabled it will post a notification upon each event
+    // If enabled it will post a notification upon each callback event
     // isInDebugMode: true
   );
   int taskId = 0;
@@ -60,7 +75,7 @@ Future<void> main() async {
       initialRoute: initialRoute,
       routes: <String, WidgetBuilder>{
         HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
-        SettingsPage.routeName: (_) => SettingsPage(),
+        SettingsPage.routeName: (_) => SettingsPage(settings:settings),
       },
     ),
   );

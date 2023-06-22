@@ -1,25 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:sneakernet/settings.dart';
 
 class SettingsPage extends StatefulWidget {
   static const String routeName = '/settings';
-  final String title = 'Settings Page';
 
-  const SettingsPage({super.key});
+  final Settings settings;
+  const SettingsPage({super.key, required this.settings});
 
   @override
   createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _doNotify = true;
-  bool _autoSync = false;
+  late bool _doNotify;
+  late bool _autoSync;
+
+  @override void initState() {
+    // TODO: implement initState
+    super.initState();
+    _doNotify = widget.settings.getDoNotify();
+    _autoSync = widget.settings.getAutoSync();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: Text('SneakerNet Settings'),
         ),
         body: SettingsList(
           sections: [
@@ -31,6 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   initialValue: _doNotify,
                   onToggle: (_) => setState(() {
                     _doNotify = _;
+                    widget.settings.setDoNotify(_);
                   }),
                 ),
                 SettingsTile.switchTile(
@@ -43,6 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   initialValue: _autoSync,
                   onToggle: (_) => setState(() {
                     _autoSync = _;
+                    widget.settings.setAutoSync(_);
                   }),
                 ),
               ],
