@@ -5,8 +5,7 @@ import 'package:sneakernet/settings.dart';
 class SettingsPage extends StatefulWidget {
   static const String routeName = '/settings';
 
-  final Settings settings;
-  const SettingsPage(this.settings, {super.key});
+  const SettingsPage({super.key});
 
   @override
   createState() => _SettingsPageState();
@@ -19,8 +18,8 @@ class _SettingsPageState extends State<SettingsPage> {
   @override void initState() {
     // TODO: implement initState
     super.initState();
-    _doNotify = widget.settings.getDoNotify();
-    _autoSync = widget.settings.getAutoSync();
+    _doNotify = settings.getDoNotify();
+    _autoSync = settings.getAutoSync();
   }
 
   @override
@@ -39,7 +38,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   initialValue: _doNotify,
                   onToggle: (_) => setState(() {
                     _doNotify = _;
-                    widget.settings.setDoNotify(_);
+                    settings.setDoNotify(_);
                   }),
                 ),
                 SettingsTile.switchTile(
@@ -52,7 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   initialValue: _autoSync,
                   onToggle: (_) => setState(() {
                     _autoSync = _;
-                    widget.settings.setAutoSync(_);
+                    settings.setAutoSync(_);
                   }),
                 ),
               ],

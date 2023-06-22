@@ -12,6 +12,9 @@ const NotificationDetails notificationDetails = NotificationDetails(
   linux: _linuxNotificationDetails,
 );
 
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
+
 final InitializationSettings initializationSettings = InitializationSettings(
   android: _initializationSettingsAndroid,
   linux: _initializationSettingsLinux,

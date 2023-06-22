@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+late final Settings settings;
+
 class Settings {
   final SharedPreferences preferences;
   const Settings({required this.preferences});
