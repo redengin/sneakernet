@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:sneakernet/notification_settings.dart';
+import 'package:sneakernet/notifications.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -11,6 +11,7 @@ import 'package:sneakernet/settings.dart';
 import 'package:sneakernet/pages/HomePage.dart';
 import 'package:sneakernet/pages/SettingsPage.dart';
 
+late final Settings settings;
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -19,7 +20,7 @@ Future<void> main() async {
 
   // initialize persistent settings
   SharedPreferences preferences = await SharedPreferences.getInstance();
-  final Settings settings = Settings(preferences: preferences);
+  settings = Settings(preferences: preferences);
 
   // initialize local notifications
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
