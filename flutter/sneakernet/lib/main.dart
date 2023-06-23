@@ -9,8 +9,8 @@ import 'package:workmanager/workmanager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sneakernet/settings.dart';
-import 'package:sneakernet/pages/HomePage.dart';
-import 'package:sneakernet/pages/SettingsPage.dart';
+import 'package:sneakernet/pages/home.dart';
+import 'package:sneakernet/pages/settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

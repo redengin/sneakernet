@@ -52,10 +52,9 @@ android {
 
     defaultConfig {
         applicationId "monster.sneakernet"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
 //        minSdkVersion flutter.minSdkVersion
-        minSdkVersion 16 // min required for wifi-scan
+//        minSdkVersion 16 // min required for wifi-scan
+        minSdkVersion 19 // min required for flutter_file_dialog
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

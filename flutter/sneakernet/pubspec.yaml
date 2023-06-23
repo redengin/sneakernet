@@ -30,11 +30,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+
+  permission_handler: ^10.3.0
+  auto_start_flutter: ^0.1.1
+  wifi_scan: ^0.4.0
+  workmanager: ^0.5.1
+  flutter_local_notifications: ^14.1.1
+  settings_ui: ^2.0.2
+  shared_preferences: ^2.1.2
+  plugin_wifi_connect: # ^1.0.2 FIXME published version doesn't match repos
+    git:
+      #      url: https://github.com/CadisRaziel/plugin_wifi_connect.git
+      url: https://github.com/redengin/plugin_wifi_connect.git
+      ref: redengin-patch-1
+  flutter_file_dialog: ^3.0.1
+#  vocsy_epub_viewer: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -45,13 +58,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
-  permission_handler: ^10.3.0
-  auto_start_flutter: ^0.1.1
-  wifi_scan: ^0.4.0
-  workmanager: ^0.5.1
-  flutter_local_notifications: ^14.1.1
-  settings_ui: ^2.0.2
-  shared_preferences: ^2.1.2
 
 flutter_launcher_icons:
   android: "launcher_icon"

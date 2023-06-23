@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // unique notification ids
 const SNEAKERNETS_FOUND_ID = 1;
 const SNEAKERNET_SYNC_ID = 2;
+const SNEAKERNET_WIFI_ERROR_ID = 3;
 
 // default notification details
 const NotificationDetails notificationDetails = NotificationDetails(
