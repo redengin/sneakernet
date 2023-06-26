@@ -47,7 +47,14 @@ dependencies:
       url: https://github.com/redengin/plugin_wifi_connect.git
       ref: redengin-patch-1
   flutter_file_dialog: ^3.0.1
-#  vocsy_epub_viewer: ^2.0.0
+  path_provider: ^2.0.15
+  path: ^1.8.3
+  vocsy_epub_viewer: ^2.0.0
+#  epubx: ^3.0.0
+
+dependency_overrides:
+  # override xml to support epubx which is stuck on xml ^5.3.1
+#  xml: ^6.1.0
 
 dev_dependencies:
   flutter_test:

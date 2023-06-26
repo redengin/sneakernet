@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sneakernet/settings.dart';
 import 'package:sneakernet/pages/home.dart';
 import 'package:sneakernet/pages/settings.dart';
+import 'package:sneakernet/pages/library.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +73,7 @@ Future<void> main() async {
       routes: <String, WidgetBuilder>{
         HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
         SettingsPage.routeName: (_) => const SettingsPage(),
+        LibraryPage.routeName: (_) => const LibraryPage(),
       },
     ),
   );

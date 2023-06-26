@@ -54,7 +54,8 @@ android {
         applicationId "monster.sneakernet"
 //        minSdkVersion flutter.minSdkVersion
 //        minSdkVersion 16 // min required for wifi-scan
-        minSdkVersion 19 // min required for flutter_file_dialog
+//        minSdkVersion 19 // min required for flutter_file_dialog
+        minSdkVersion 21 // min required for vocsy_epub_viewer
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

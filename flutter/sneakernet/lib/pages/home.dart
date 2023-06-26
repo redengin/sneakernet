@@ -5,6 +5,7 @@ import 'package:sneakernet/notifications.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:sneakernet/pages/settings.dart';
+import 'package:sneakernet/pages/library.dart';
 import 'package:sneakernet/library.dart';
 
 class HomePage extends StatefulWidget {
@@ -78,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                       TextButton(
                         child: Text('Browse'),
                         onPressed: () {
-                          // FIXME navigate to LibraryPage
+                          Navigator.pushNamed(context, LibraryPage.routeName);
                         },
                       ),
                       TextButton(
@@ -90,7 +91,7 @@ class _HomePageState extends State<HomePage> {
                           );
                           final path = FlutterFileDialog.pickFile(params: params);
                           if(path != null)
-                            Library.add(path);
+                            Library.import(path);
                         },
                       ),
                     ],
