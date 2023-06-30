@@ -50,11 +50,13 @@ dependencies:
   path_provider: ^2.0.15
   path: ^1.8.3
   vocsy_epub_viewer: ^2.0.0
-#  epubx: ^3.0.0
+  epubx: ^3.0.0
 
 dependency_overrides:
   # override xml to support epubx which is stuck on xml ^5.3.1
-#  xml: ^6.1.0
+  xml: ^6.1.0
+  # override image to support epubx which is stuck on image ^3.0.8
+  image: ^4.0.15
 
 dev_dependencies:
   flutter_test:
@@ -65,7 +67,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  flutter_launcher_icons: ^0.13.1
 
+# To generate icons use:
+# dart run flutter_launcher_icons
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
