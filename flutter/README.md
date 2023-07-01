@@ -1,11 +1,20 @@
-# sneakernet
+SneakerNet App
+================================================================================
+Leverages [Flutter](https://flutter.dev/) to allow the app to run anywhere.
 
-snearknet app
+Getting Started
+--------------------------------------------------------------------------------
+### To start development under `Android Studio`
+* clone the full repos using your favorite git tool
+  * if you are using `Android Studio` (*Project from Version Control*)
+    * close the project and follow the following steps
+* In `Android Studio Welcome` *Open* 'sneakernet/flutter'
+  * initialize `Flutter` via *Tools>Flutter>Flutter Doctor*
+    * set the *Flutter SDK path*
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
-
+Flutter Guidance
+--------------------------------------------------------------------------------
 A few resources to get you started if this is your first Flutter project:
 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
