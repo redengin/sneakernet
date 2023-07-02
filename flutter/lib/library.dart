@@ -4,27 +4,28 @@ import 'package:path/path.dart' as Path;
 
 class Library {
   // import an epub book from downloads
-  static import(downloadsPath) async {
-    File from = File(downloadsPath);
+  static import(Future<String?> from) async {
+    final String? fromPath = await from;
+    if (fromPath == null) return;
 
     // TODO validate ebook (need a better ebook package)
 
     // copy the ebook into the app storage
-    await File(downloadsPath)
-        .copy(Path.join(_getStoragePath(), Path.basename(downloadsPath)));
+    final storageDir = await _getStorageDirectory();
+    await File(fromPath)
+        .copy(Path.join(storageDir.path, Path.basename(fromPath)));
   }
 
   // turn each stored ebook file into an EbookRef
-  static List catalog() {
-    return [];
-    // return _getStoragePath()
-    //     .list()
-    //     .map((_) => EpubReader.readBook(File(_).readAsBytes()));
+  static Future<List<FileSystemEntity>> files() async {
+    final storageDir = await _getStorageDirectory();
+    return storageDir.listSync(followLinks: false);
   }
 
-  static _getStoragePath() {
-    return Directory(
-            Path.join(getApplicationSupportDirectory().toString(), 'library'))
-        .create();
+  static Future<Directory> _getStorageDirectory() async {
+    // temporary directory : not backed up
+    Directory dir = await getTemporaryDirectory();
+    final path = Path.join(dir.path, 'library');
+    return Directory(path).create(recursive: true);
   }
 }

@@ -12,6 +12,11 @@ Getting Started
   * initialize `Flutter` via *Tools>Flutter>Flutter Doctor*
     * set the *Flutter SDK path*
 
+If `Flutter Doctor` fails to find the `jre`, you may have to
+```sh
+# in your android-studio directory
+ln -s jbr jre
+```
 
 Flutter Guidance
 --------------------------------------------------------------------------------

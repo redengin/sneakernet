@@ -92,7 +92,6 @@ class _HomePageState extends State<HomePage> {
                             mimeTypesFilter: ['application/epub+zip'],
                           );
                           final path = FlutterFileDialog.pickFile(params: params);
-                          if(path != null)
                             Library.import(path);
                         },
                       ),

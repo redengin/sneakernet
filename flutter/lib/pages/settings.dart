@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
-import 'package:sneakernet/settings.dart';
+import '../settings.dart';
 
 class SettingsPage extends StatefulWidget {
   static const String routeName = '/settings';
