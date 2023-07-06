@@ -1,5 +1,5 @@
-import 'package:epubx/src/ref_entities/epub_book_ref.dart';
 import 'package:flutter/material.dart';
+import 'package:ebook/ebook.dart';
 
 import '../library.dart';
 import '../widgets/book_card.dart';
@@ -14,7 +14,7 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage> {
-  final Future<List<Future<EpubBookRef>>> catalog = Library.catalog();
+  final Future<List<EBook>> catalog = Library.catalog();
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class _LibraryPageState extends State<LibraryPage> {
         appBar: AppBar(
           title: Text('SneakerNet Library'),
         ),
-        body: FutureBuilder<List<Future<EpubBookRef>>>(
+        body: FutureBuilder<List<EBook>>(
           future: catalog,
           builder: _bodyBuilder,
         )
@@ -30,17 +30,15 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   Widget _bodyBuilder(BuildContext context,
-      AsyncSnapshot<List<Future<EpubBookRef>>> snapshot) {
+      AsyncSnapshot<List<EBook>> snapshot) {
     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
       final ebookRefs = snapshot.data!;
       return ListView.builder(
-          itemExtent: 120,
           itemCount: ebookRefs.length,
           itemBuilder: (context, index) {
             return BookCard(ebookRefs.elementAt(index));
           });
     }
-
     return const Center(child: Text('SneakerNet library is empty'));
   }
 }

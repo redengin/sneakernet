@@ -97,14 +97,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.8"
-  epubx:
+  ebook:
     dependency: "direct main"
     description:
-      name: epubx
-      sha256: "641bf7b96fdb9f0b7a28e4075b4c3e6bd3685911366aa823ee328f5b3fe30e57"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
+      path: "."
+      ref: HEAD
+      resolved-ref: "964a54e811b2e015a30e6e1b3cb68b66ec6f0166"
+      url: "https://github.com/redengin/dart-ebook.git"
+    source: git
+    version: "0.0.1"
   fake_async:
     dependency: transitive
     description:
@@ -188,10 +189,10 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: "8e9d133755c3e84c73288363e6343157c383a0c6c56fc51afcc5d4d7180306d6"
+      sha256: a72242c9a0ffb65d03de1b7113bc4e189686fc07c7147b8b41811d0dd0e0d9bf
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "4.0.17"
   js:
     dependency: transitive
     description:
@@ -377,14 +378,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.4"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.2.1"
   settings_ui:
     dependency: "direct main"
     description:
@@ -567,7 +560,7 @@ packages:
     source: hosted
     version: "1.0.0"
   xml:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: xml
       sha256: "5bc72e1e45e941d825fd7468b9b4cc3b9327942649aeb6fc5cdbf135f0a86e84"
@@ -575,5 +568,5 @@ packages:
     source: hosted
     version: "6.3.0"
 sdks:
-  dart: ">=3.0.2 <4.0.0"
+  dart: ">=3.0.5 <4.0.0"
   flutter: ">=3.3.0"
