@@ -37,7 +37,7 @@ class _BookCardState extends State<BookCard> {
         children: [
           ListTile(
             leading: (_coverImage != null)
-                ? Image.memory(_coverImage!)
+                ? Image.memory(_coverImage!, fit: BoxFit.fitHeight)
                 : const Icon(Icons.note),
             title: Text(_title),
             // subtitle: _getSubtitle(),
