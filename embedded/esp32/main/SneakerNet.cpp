@@ -4,7 +4,8 @@
 #include <esp_event.h>
 
 #include <sdmmc_cmd.h>
-#include <http_parser.h>
+#include <esp_vfs_fat.h>
+// #include <http_parser.h>
 #include <filesystem>
 #include <exception>
 
@@ -42,27 +43,18 @@ static const char *TAG = "sneakernet";
 
 SneakerNet::SneakerNet()
 {
-    if(! mount_sdcard())
-        state = State::SDCARD_FAILED;
+    state = mount_sdcard() ? State::OK : State::SDCARD_FAILED;
 
-    // TODO check for password
+// FIXME 
+// #ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
+//     std::filesystem::create_directory(FILES_PATH);
+// #endif
 
-#ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
-    std::filesystem::create_directory(FILES_PATH);
-#endif
-
-    state = State::OK;
 }
 
 bool SneakerNet::mount_sdcard()
 {
-    ESP_LOGI(TAG, "Initializing SD card");
-    const esp_vfs_fat_sdmmc_mount_config_t mount_config = {
-        .format_if_mount_failed = true,
-        .max_files = 5,
-        .allocation_unit_size = 16 * 1024,
-        .disk_status_check_enable = false
-    };
+    ESP_LOGI(TAG, "Initializing sdcard");
     const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     constexpr int UNUSED = -1;
     const spi_bus_config_t bus_cfg = {
@@ -75,33 +67,45 @@ bool SneakerNet::mount_sdcard()
         .data5_io_num = UNUSED,
         .data6_io_num = UNUSED,
         .data7_io_num = UNUSED,
-        .max_transfer_sz = 4000,
-        .flags = 0, /* UNSUPPORTED */
-        .intr_flags = 0, /* UNSUPPORTED */
+        .max_transfer_sz = 0,   // use full dma buffer support
+        .flags = 0, /* not used */
+        .intr_flags = 0, /* not used */
     };
-    esp_err_t ret;
-    ret = spi_bus_initialize(static_cast<spi_host_device_t>(host.slot), &bus_cfg, SPI_DMA_CHAN);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize bus.");
-        return false;
+    switch(spi_bus_initialize(static_cast<spi_host_device_t>(host.slot), &bus_cfg, SPI_DMA_CHAN))
+    {
+        case ESP_OK: {
+            ESP_LOGI(TAG, "sdcard spi connection created");
+            break;
+        }
+        default: {
+            ESP_LOGE(TAG, "failed to initialized sdcard spi connection");
+            return false;
+        }
     }
 
-    // This initializes the slot without card detect (CD) and write protect (WP) signals.
-    // Modify slot_config.gpio_cd and slot_config.gpio_wp if your board has these signals.
+    ESP_LOGI(TAG, "Mounting filesystem");
+    // no support for hardware CARD_DETECT or WRITE_PROTECT
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs = static_cast<gpio_num_t>(PIN_NUM_CS);
     slot_config.host_id = static_cast<spi_host_device_t>(host.slot);
-
-    ESP_LOGI(TAG, "Mounting filesystem");
-    ret = esp_vfs_fat_sdspi_mount(MOUNT_PATH.c_str(), &host, &slot_config, &mount_config, &card);
-
-    if (ret != ESP_OK)
-        return false;
-
-    // Card has been initialized, print its properties
-    sdmmc_card_print_info(stdout, card);
-
-    return false;
+    const esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+        .format_if_mount_failed = true,
+        .max_files = 100,
+        .allocation_unit_size = 200 * 1024,
+        .disk_status_check_enable = false
+    };
+    switch(esp_vfs_fat_sdspi_mount(MOUNT_PATH.c_str(), &host, &slot_config, &mount_config, &card))
+    {
+        case ESP_OK: {
+            ESP_LOGI(TAG, "sdcard mounted");
+            sdmmc_card_print_info(stdout, card);
+            return true;
+        }
+        default: {
+            ESP_LOGE(TAG, "failed to mount sdcard");
+            return false;
+        }
+    }
 }
 
 const SneakerNet::Catalog SneakerNet::catalog() {
