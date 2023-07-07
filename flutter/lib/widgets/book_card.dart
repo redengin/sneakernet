@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:image/image.dart' as DartImage;
 import 'package:flutter/material.dart';
 import 'package:ebook/ebook.dart';
 
