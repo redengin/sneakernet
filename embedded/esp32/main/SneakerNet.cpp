@@ -42,6 +42,7 @@ SneakerNet::SneakerNet()
 
 bool SneakerNet::mount_sdcard()
 {
+    esp_log_level_set("vfs_fat_sdmmc", ESP_LOG_DEBUG);
     ESP_LOGI(TAG, "Initializing sdcard");
     const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     constexpr int UNUSED = -1;
@@ -78,7 +79,7 @@ bool SneakerNet::mount_sdcard()
     slot_config.host_id = static_cast<spi_host_device_t>(host.slot);
     const esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = true,
-        .max_files = 100,
+        .max_files = 10,
         .allocation_unit_size = 200 * 1024,
         .disk_status_check_enable = false
     };
