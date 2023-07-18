@@ -1,33 +1,21 @@
 #include "SneakerNet.hpp"
 
-#include <esp_log.h>
 #include <esp_event.h>
-
 #include <sdmmc_cmd.h>
 #include <esp_vfs_fat.h>
 // #include <http_parser.h>
 #include <filesystem>
 #include <exception>
+#include <esp_log.h>
+static const char *TAG = "sneakernet";
 
-// FIXME promote to Kconfig.projbuild 
-//--------------------------------------------------------------------------------
 // Pin mapping - avoiding JTAG pins (12, 13, 14, 15)
+//--------------------------------------------------------------------------------
 #define PIN_NUM_MISO 2
 #define PIN_NUM_MOSI 4
 #define PIN_NUM_CLK  5
 #define PIN_NUM_CS   18
-
-#if CONFIG_IDF_TARGET_ESP32S2
-    #define SPI_DMA_CHAN    host.slot
-#elif CONFIG_IDF_TARGET_ESP32C3
-    #define SPI_DMA_CHAN    SPI_DMA_CH_AUTO
-#else
-    #define SPI_DMA_CHAN    1
-#endif
 //--------------------------------------------------------------------------------
-
-
-static const char *TAG = "sneakernet";
 
 SneakerNet::SneakerNet()
 {
@@ -60,7 +48,7 @@ bool SneakerNet::mount_sdcard()
         .flags = 0, /* not used */
         .intr_flags = 0, /* not used */
     };
-    switch(spi_bus_initialize(static_cast<spi_host_device_t>(host.slot), &bus_cfg, SPI_DMA_CHAN))
+    switch(spi_bus_initialize(static_cast<spi_host_device_t>(host.slot), &bus_cfg, SDSPI_DEFAULT_DMA))
     {
         case ESP_OK: {
             ESP_LOGI(TAG, "sdcard spi connection created");
@@ -103,13 +91,11 @@ const SneakerNet::Catalog SneakerNet::catalog() {
     return catalog;
 }
 
-
 std::ifstream SneakerNet::readEbook(const std::string uri)
 {
     // FIXME validate uri
     return std::ifstream(uri);
 }
-
 
 #ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
 //------------------------------------------------------------------------------
