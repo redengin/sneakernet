@@ -74,13 +74,13 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
             .user_ctx = self,
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
-        // TODO do we want this redirect?
-        // ESP_ERROR_CHECK(httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_redirect));
+        // provide 404 redirect to support captive portal
+        ESP_ERROR_CHECK(httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_redirect));
     }
 
     // support catalog listing
     {   httpd_uri_t hook = {
-            .uri = "/catalog",
+            .uri = CATALOG_URI.c_str(),
             .method = HTTP_GET,
             .handler = CATALOG,
             .user_ctx = self,
@@ -90,7 +90,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
 
     // support serving files
     {   httpd_uri_t hook = {
-            .uri = "/ebook/*",
+            .uri = (CATALOG_URI + "/*").c_str(),
             .method = HTTP_GET,
             .handler = GET_CATALOG_FILE,
             .user_ctx = self,
@@ -100,7 +100,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
 
     // support receiving files
     {   httpd_uri_t hook = {
-            .uri = "/ebook/*",
+            .uri = (CATALOG_URI + "/*").c_str(),
             .method = HTTP_PUT,
             .handler = PUT_CATALOG_FILE,
             .user_ctx = self,
