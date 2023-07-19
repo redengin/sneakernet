@@ -7,116 +7,73 @@ info:
 servers:
   - url: http://sneakernet.monster/
 
+# security: []
+# components:
+#   securitySchemes: {}
+
 paths:
-  /ebooks:
+  /catalog:
     get:
-      summary: Catalog of EPUB3 ebooks {PublisherUUID:[ContentUUID]}
+      description: Returns a list of content objects
+      security: []
       responses:
         '200':
-          description: OK
+          description: Successfully returned a list of artists
           content:
-            applicaction/json:
-              schema:
-                type: object
-
-
-  /ebooks/{publisherUuid}/{contentUuid}:
-    parameters:
-      - name: publisherUuid
-        description: publisher's UUID
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: contentUuid
-        description: content's UUID
-        in: path
-        required: true
-        schema:
-          type: string
-
-    get:
-      summary: Download EPUB3 ebook
-      responses:
-        '200':
-          description: content
-          content:
-            application/epub+zip: {}
-
-  /ebook:
-    put:
-      summary: Add EPUB3 ebook
-      requestBody:
-        required: true
-        content:
-          application/epub+zip: {}
-      responses:
-        '403':
-          description: Librarian doesn't accept Publisher
-        '406':
-          description: epub book failed checks
-        '415':
-          description: epub format not supported
-        '507':
-          description: no more storage available on node
-
-  /publishers/{publisher}:
-    parameters:
-      - name: publisher
-        in: path
-        required: true
-        schema:
-          type: string
-    get:
-      summary: Publisher Info
-      responses:
-        '200':
-          description: content
-          content:
-            application/xml:
-              schema:
-                $ref: 'http://www.w3.org/2000/09/xmldsig'
-
-# [OPTIONAL] for SneakerNet nodes compiled with SNEAKERNET_FILES_SUPPORT
-  /files:
-    get:
-      summary: Listing of stored files
-      responses:
-        '200':
-          description: OK
-          content:
-            applicaction/json:
+            application/json:
               schema:
                 type: array
+                items:
+                  type: object
+                  required:
+                    - filename
+                    - identifiers
+                  properties:
+                    filename:
+                      type: string
+                    identifiers:
+                      type: array
+                      items:
+                        type: string
+                    sneakernetSigned:
+                      type: boolean
+        '404':
+          description: catalog not ready
+        '429':
+          description: Too Many Requests
 
-  /files/{filename}:
-    put:
-      summary: Add/Replace file
-      parameters:
-        - name: filename
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: string
-              format: binary
-      responses:
-        '403':
-          description: Librarian doesn't allow uncontrolled files
-        '507':
-          description: no more storage available on node
-    delete:
-      summary: Remove file
-      parameters:
-        - name: filename
-          in: path
-          required: true
-          schema:
-            type: string
+  /catalog/{filename}:
+    parameters:
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      description: receive the file
+      security: []
       responses:
         '200':
-          description: File removed
+          description: transferring file
+          content:
+             application/octet-stream: {}
+        '404':
+          description: Not Found
+        '429':
+          description: Too Many Requests
+    put:
+      description: add file to catalog
+      security: []
+      responses:
+        '200':
+          description: accepted file
+        '403':
+          description: file not acceptable per Librarian's settings
+          content:
+            text/plain:
+              schema:
+                description: "reason for rejection"
+                type: string
+        '429':
+          description: Too Many Requests
+
