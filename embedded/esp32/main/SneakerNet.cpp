@@ -85,6 +85,7 @@ const SneakerNet::Catalog SneakerNet::catalog() {
     return catalog;
 }
 
+std::string SneakerNet::CATALOG_DIR = "/catalog";
 std::ifstream SneakerNet::readCatalogItem(const std::string filename)
 {
     // FIXME

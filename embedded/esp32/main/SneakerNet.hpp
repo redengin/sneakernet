@@ -23,6 +23,7 @@ public:
     typedef std::string PublisherUuid;
     typedef std::string ContentUuid;
     typedef std::map<PublisherUuid, std::vector<ContentUuid>> Catalog;
+    static std::string CATALOG_DIR;
     /// listing of content
     const Catalog catalog();
     /// read an eBook

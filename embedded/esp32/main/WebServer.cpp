@@ -66,7 +66,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
 
     // link our hooks back to our instance
     void* const self = this;
-    // support index homepage
+    // support index homepage (and captive portal)
     {   httpd_uri_t hook = {
             .uri = "/",
             .method = HTTP_GET,
@@ -90,7 +90,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
 
     // support serving files
     {   httpd_uri_t hook = {
-            .uri = (CATALOG_URI + "/*").c_str(),
+            .uri = CATALOG_FILE_URI.c_str(),
             .method = HTTP_GET,
             .handler = GET_CATALOG_FILE,
             .user_ctx = self,
@@ -100,7 +100,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
 
     // support receiving files
     {   httpd_uri_t hook = {
-            .uri = (CATALOG_URI + "/*").c_str(),
+            .uri = CATALOG_FILE_URI.c_str(),
             .method = HTTP_PUT,
             .handler = PUT_CATALOG_FILE,
             .user_ctx = self,
@@ -120,6 +120,7 @@ esp_err_t INDEX(httpd_req_t* req)
     return httpd_resp_send(req, indexHtml_start, indexHtml_sz);
 }
 
+/// provides captive portal redirect
 esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 {
     ESP_LOGI(TAG, "Redirecting to root");
@@ -136,7 +137,7 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 /// Listing of content
 esp_err_t CATALOG(httpd_req_t* req)
 {
-    ESP_LOGI(TAG, "Serving ebook catalog");
+    ESP_LOGI(TAG, "Serving catalog");
     WebServer* const self = static_cast<WebServer*>(req->user_ctx);
     SneakerNet::Catalog catalog = self->sneakerNet.catalog();
     cJSON* const catalog_object = cJSON_CreateObject();
@@ -159,11 +160,11 @@ esp_err_t CATALOG(httpd_req_t* req)
 esp_err_t GET_CATALOG_FILE(httpd_req_t* req)
 {
     WebServer* const self = static_cast<WebServer*>(req->user_ctx);
-    std::ifstream fis = self->sneakerNet.readCatalogItem(req->uri);
+    std::string filename = req->uri;
+    std::ifstream fis = self->sneakerNet.readCatalogItem(filename);
     if(fis.bad())
         return httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "");
 
-    httpd_resp_set_type(req, "application/epub+zip");
     return send_file(req, fis);
 }
 
@@ -175,6 +176,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t* req) {
 
 static esp_err_t send_file(httpd_req_t* const req, std::ifstream& fis)
 {
+    httpd_resp_set_type(req, "application/octet-stream");
     char chunk[CHUNK_SZ];
     while(true) {
         const size_t chunk_sz = fis.readsome(chunk, sizeof(chunk));

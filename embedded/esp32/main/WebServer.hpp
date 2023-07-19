@@ -4,9 +4,8 @@
 
 class WebServer {
 public:
-    const std::string CATALOG_URI = "/catalog";
-    const std::string FILES_URI = "/files";
-    const std::string FILE_URI = (FILES_URI + "/*");
+    const std::string CATALOG_URI = SneakerNet::CATALOG_DIR;
+    const std::string CATALOG_FILE_URI = CATALOG_URI + "/*";
 
     WebServer(SneakerNet&);
 
@@ -14,5 +13,4 @@ public:
     SneakerNet sneakerNet;
 private:
     httpd_handle_t handle;
-
 };
