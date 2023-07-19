@@ -20,12 +20,6 @@ static const char *TAG = "sneakernet";
 SneakerNet::SneakerNet()
 {
     state = mount_sdcard() ? State::OK : State::SDCARD_FAILED;
-
-// FIXME 
-// #ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
-//     std::filesystem::create_directory(FILES_PATH);
-// #endif
-
 }
 
 bool SneakerNet::mount_sdcard()
@@ -91,70 +85,8 @@ const SneakerNet::Catalog SneakerNet::catalog() {
     return catalog;
 }
 
-std::ifstream SneakerNet::readEbook(const std::string uri)
+std::ifstream SneakerNet::readCatalogItem(const std::string filename)
 {
-    // FIXME validate uri
-    return std::ifstream(uri);
+    // FIXME
+    return std::ifstream(filename);
 }
-
-#ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
-//------------------------------------------------------------------------------
-const SneakerNet::FilesList SneakerNet::files()
-{
-    SneakerNet::FilesList ret;
-    try {
-        for(const auto& entry : std::filesystem::directory_iterator(FILES_PATH)) {
-            if(entry.is_regular_file())
-                ret.push_back(entry.path());
-        }
-    }
-    catch(std::exception &e) {
-        ESP_LOGE(TAG, "%s", e.what());
-    }
-
-    return ret;
-}
-
-std::ifstream SneakerNet::readFile(const std::string fileName)
-{
-    // validate uri (must not contain path separator)
-    if(fileName.find(std::filesystem::path::preferred_separator) != std::string::npos)
-        return std::ifstream();
-
-    std::filesystem::path filePath(FILES_PATH);
-    filePath.append(fileName);
-    return std::ifstream(filePath);
-}
-
-bool SneakerNet::addFile(std::string fileName, std::istream& is, size_t fileSize)
-{
-    // TODO validate fileSize per SNEAKERNET_FILES_MAX_SIZE_KB
-
-    try {
-        std::filesystem::path filePath(FILES_PATH);
-        filePath.append(fileName);
-        std::ofstream ofs(filePath);
-        ofs << is.rdbuf();
-    }
-    catch(std::exception &e) {
-        ESP_LOGE(TAG, "%s", e.what());
-        return false;
-    }
-
-    return true;
-}
-
-bool SneakerNet::deleteFile(const std::string fileName)
-{
-    // validate uri (must not contain path separator)
-    if(fileName.find(std::filesystem::path::preferred_separator) != std::string::npos)
-        return false;
-
-    std::filesystem::path filePath(FILES_PATH);
-    filePath.append(fileName);
-    if(std::filesystem::remove(filePath))
-        return true;
-    return false;
-}
-//------------------------------------------------------------------------------
-#endif

@@ -23,29 +23,15 @@ public:
     typedef std::string PublisherUuid;
     typedef std::string ContentUuid;
     typedef std::map<PublisherUuid, std::vector<ContentUuid>> Catalog;
-    /// listing of epub content
+    /// listing of content
     const Catalog catalog();
     /// read an eBook
-    std::ifstream readEbook(const std::string uri /**< [IN] "<pub uuid>/<content uuid>" */);
-#ifdef CONFIG_SNEAKERNET_FILES_SUPPORT
-    const std::string MOUNT_PATH = "/sdcard";
-    const std::string FILES_PATH = (MOUNT_PATH + "/files");
-    typedef std::string Filename;
-    typedef std::vector<Filename> FilesList;
-    /// listing of files
-    const FilesList files();
-    /// read a file
-    std::ifstream readFile(const std::string fileName);
-    // add a file
-    bool addFile(std::string fileName, std::istream&, size_t fileSize=0);
-    /// delete a file
-    bool deleteFile(const std::string fileName);
-#endif    
+    std::ifstream readCatalogItem(const std::string filename);
 
 private:
     State state;
 
     sdmmc_card_t *card;
+    const std::string MOUNT_PATH = "/sdcard";
     bool mount_sdcard();
-
 };
