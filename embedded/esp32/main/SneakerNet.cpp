@@ -22,6 +22,7 @@ SneakerNet::SneakerNet()
     state = mount_sdcard() ? State::OK : State::SDCARD_FAILED;
 }
 
+const std::string SneakerNet::MOUNT_PATH = "/sdcard";
 bool SneakerNet::mount_sdcard()
 {
     esp_log_level_set("vfs_fat_sdmmc", ESP_LOG_DEBUG);
@@ -79,15 +80,80 @@ bool SneakerNet::mount_sdcard()
     }
 }
 
+const std::string SneakerNet::CATALOG_DIR = "/catalog";
 const SneakerNet::Catalog SneakerNet::catalog() {
     ESP_LOGE(TAG, "catalog not implemented");
     const SneakerNet::Catalog catalog;
     return catalog;
 }
 
-std::string SneakerNet::CATALOG_DIR = "/catalog";
-std::ifstream SneakerNet::readCatalogItem(const std::string filename)
+bool SneakerNet::isValidContentPath(const std::string& path) const {
+    return (std::string::npos == path.find(CATALOG_DIR.size()));
+}
+
+std::ifstream SneakerNet::readCatalogItem(const std::string& path)
 {
-    // FIXME
-    return std::ifstream(filename);
+    // validate path
+    if(!SneakerNet::isValidContentPath(path)) {
+        // invalid path return disconnected stream
+        ESP_LOGI(TAG, "readCatalogItem: invalid path '%s'", path.c_str());
+        return std::ifstream();
+    }
+
+    return std::ifstream(MOUNT_PATH + "/" + path);
+}
+
+
+const std::string SneakerNet::CATALOG_NEW_ITEM_SUFFIX = ".inwork";
+std::string SneakerNet::NewItem::getInworkPath() const {
+    return (MOUNT_PATH + "/" + path + CATALOG_NEW_ITEM_SUFFIX);
+}
+
+std::ofstream SneakerNet::NewItem::getOfstream() {
+    if(isBad())
+        return std::ofstream();
+    
+    return std::ofstream(getInworkPath());
+}
+
+SneakerNet::NewItem SneakerNet::createNewCatalogItem(const std::string& path, const size_t size) {
+    // validate path
+    if(!SneakerNet::isValidContentPath(path)) {
+        // invalid path return disconnected stream
+        ESP_LOGI(TAG, "addCatalogItem: invalid path '%s'", path.c_str());
+        return SneakerNet::NewItem();
+    }
+
+    // TODO clean up oldest files to make room for new item
+
+    return SneakerNet::NewItem(path);
+}
+
+
+SneakerNet::AddNewCatalogItemStatus SneakerNet::addNewCatalogItem(const NewItem& item) {
+
+    SneakerNet::AddNewCatalogItemStatus status = validateNewCatalogItem(item);
+    switch(status) {
+        case OK: {
+            // remove the suffix
+            const std::string inwork = item.getInworkPath();
+            const std::string actual = inwork.substr(0, (inwork.size() - CATALOG_NEW_ITEM_SUFFIX.size()));
+            rename(inwork.c_str(), actual.c_str());
+
+            // TODO add the item to the catalog
+            break;
+        }
+        default: {
+            // delete the inwork item
+            remove(item.getInworkPath().c_str());
+        }
+    }
+    return status;    
+}
+
+SneakerNet::AddNewCatalogItemStatus SneakerNet::validateNewCatalogItem(const NewItem&) {
+
+    // TODO validate per librarian preferences
+
+    return OK;
 }

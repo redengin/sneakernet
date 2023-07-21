@@ -12,7 +12,6 @@ extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t* req);
 extern "C" esp_err_t PUT_CATALOG_FILE(httpd_req_t* req);
 
 static constexpr size_t CHUNK_SZ = 1048;
-static esp_err_t send_file(httpd_req_t* const req, std::ifstream& fis);
 class HttpInputStreamBuf : public std::streambuf
 {
 public:
@@ -53,7 +52,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
         lots of invalid requests
     */
     esp_log_level_set("httpd_uri", ESP_LOG_ERROR);
-    esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_txrx", ESP_LOG_WARN);
     esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
 
     // Start the httpd server
@@ -159,33 +158,70 @@ esp_err_t CATALOG(httpd_req_t* req)
 
 esp_err_t GET_CATALOG_FILE(httpd_req_t* req)
 {
+    char* buf = new char[CHUNK_SZ];
+    if(buf == NULL) {
+        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
+        return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
+    }
+
     WebServer* const self = static_cast<WebServer*>(req->user_ctx);
     std::string filename = req->uri;
     std::ifstream fis = self->sneakerNet.readCatalogItem(filename);
     if(fis.bad())
-        return httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "");
+        return httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, NULL);
 
-    return send_file(req, fis);
-}
-
-esp_err_t PUT_CATALOG_FILE(httpd_req_t* req) {
-    // WebServer* const self = static_cast<WebServer*>(req->user_ctx);
-    // TODO
-    return ESP_FAIL;
-}
-
-static esp_err_t send_file(httpd_req_t* const req, std::ifstream& fis)
-{
     httpd_resp_set_type(req, "application/octet-stream");
-    char chunk[CHUNK_SZ];
     while(true) {
-        const size_t chunk_sz = fis.readsome(chunk, sizeof(chunk));
-        esp_err_t status = httpd_resp_send_chunk(req, chunk, chunk_sz);
+        const size_t chunk_sz = fis.readsome(buf, CHUNK_SZ);
+        esp_err_t status = httpd_resp_send_chunk(req, buf, chunk_sz);
         if(status != ESP_OK) {
             ESP_LOGW(TAG, "failed to send file [esp_err=%d]", status);
             return status;
         }
         if(chunk_sz == 0) break;
     }
+
+    // cleanup and return
+    delete buf;
     return ESP_OK;
+}
+
+esp_err_t PUT_CATALOG_FILE(httpd_req_t* req) {
+    char* buf = new char[CHUNK_SZ];
+    if(buf == NULL) {
+        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
+        return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
+    }
+
+    WebServer* const self = static_cast<WebServer*>(req->user_ctx);
+    SneakerNet::NewItem item = self->sneakerNet.createNewCatalogItem(req->uri, req->content_len);
+    // is the uri valid?
+    if(item.isBad()) {
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Illegal path"); 
+    }
+    // can we get an output stream?
+    std::ofstream ofs = item.getOfstream();
+    if(!ofs.is_open()) {
+        ESP_LOGW(TAG, "PUT_CATALOG_FILE, unable to open filestream");
+        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
+        return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
+    }
+    esp_err_t ret = ESP_OK;
+    for(size_t remaining = req->content_len; remaining > 0;) {
+        int received = httpd_req_recv(req, buf, MIN(remaining, CHUNK_SZ));
+        if(received < 0) {
+            ret = ESP_FAIL;
+            break;
+        }
+        ofs.write(buf, received);
+        remaining -= received;
+    }
+    ofs.close();
+
+    // add the item to the catalog
+    self->sneakerNet.addNewCatalogItem(item);
+
+    // cleanup and return
+    delete buf;
+    return ret;
 }
