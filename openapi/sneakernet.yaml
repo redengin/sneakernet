@@ -64,6 +64,12 @@ paths:
     put:
       description: add file to catalog
       security: []
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
       responses:
         '200':
           description: accepted file

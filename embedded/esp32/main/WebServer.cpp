@@ -187,12 +187,19 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t* req)
 }
 
 esp_err_t PUT_CATALOG_FILE(httpd_req_t* req) {
+    // validate there is data
+    if(req->content_len <= 0) {
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "No data"); 
+    }
+
+    // create a buffer
     char* buf = new char[CHUNK_SZ];
     if(buf == NULL) {
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
         return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
     }
 
+    // create a new catalog item
     WebServer* const self = static_cast<WebServer*>(req->user_ctx);
     SneakerNet::NewItem item = self->sneakerNet.createNewCatalogItem(req->uri, req->content_len);
     // is the uri valid?
@@ -206,6 +213,8 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t* req) {
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
         return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
     }
+
+    // receive the data
     esp_err_t ret = ESP_OK;
     for(size_t remaining = req->content_len; remaining > 0;) {
         int received = httpd_req_recv(req, buf, MIN(remaining, CHUNK_SZ));

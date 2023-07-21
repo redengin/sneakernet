@@ -112,7 +112,8 @@ std::string SneakerNet::NewItem::getInworkPath() const {
 std::ofstream SneakerNet::NewItem::getOfstream() {
     if(isBad())
         return std::ofstream();
-    
+
+    ESP_LOGI(TAG, "NewItem::getOfstream path:'%s'", getInworkPath().c_str());
     return std::ofstream(getInworkPath());
 }
 
