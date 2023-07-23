@@ -1,6 +1,9 @@
 # Required for connection redirect
 CONFIG_HTTPD_MAX_REQ_HDR_LEN=1024
 
+# Manage Power (TODO power is unstable when using SDCARD and WIFI)
+
+
 CONFIG_COMPILER_CXX_EXCEPTIONS=y
 
 # support full logging

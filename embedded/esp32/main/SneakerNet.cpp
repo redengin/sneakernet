@@ -20,6 +20,25 @@ static const char *TAG = "sneakernet";
 SneakerNet::SneakerNet()
 {
     state = mount_sdcard() ? State::OK : State::SDCARD_FAILED;
+
+    // ensure sdcard directory structure
+    if(state != State::SDCARD_FAILED) {
+        const std::string MOUNTED_CATALOG_DIR = MOUNT_PATH + CATALOG_DIR;
+        if(!std::filesystem::exists(MOUNTED_CATALOG_DIR))
+            if(!std::filesystem::create_directory(MOUNTED_CATALOG_DIR))
+                ESP_LOGE(TAG, "failed to create catalog directory");
+    }
+
+    // /// TEST USE ONLY    
+    // {
+    // // create a catalog file
+    //     auto ofs = std::ofstream(MOUNT_PATH + CATALOG_DIR + "/areallylongfilenametest.txt", std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+    //     if(!ofs.is_open())
+    //         ESP_LOGE(TAG, "file not OPEN !!!!!!!!!!!!!!!!!!!");
+    //     const char buf[] = "HELLO WORLD";
+    //     ofs.write(buf, sizeof(buf));
+    //     ofs.close();
+    // }
 }
 
 const std::string SneakerNet::MOUNT_PATH = "/sdcard";
@@ -100,13 +119,13 @@ std::ifstream SneakerNet::readCatalogItem(const std::string& path)
         return std::ifstream();
     }
 
-    return std::ifstream(MOUNT_PATH + "/" + path);
+    return std::ifstream(MOUNT_PATH + path, std::ios_base::in | std::ios_base::binary);
 }
 
 
 const std::string SneakerNet::CATALOG_NEW_ITEM_SUFFIX = ".inwork";
 std::string SneakerNet::NewItem::getInworkPath() const {
-    return (MOUNT_PATH + "/" + path + CATALOG_NEW_ITEM_SUFFIX);
+    return (MOUNT_PATH + path + CATALOG_NEW_ITEM_SUFFIX);
 }
 
 std::ofstream SneakerNet::NewItem::getOfstream() {
@@ -114,7 +133,7 @@ std::ofstream SneakerNet::NewItem::getOfstream() {
         return std::ofstream();
 
     ESP_LOGI(TAG, "NewItem::getOfstream path:'%s'", getInworkPath().c_str());
-    return std::ofstream(getInworkPath());
+    return std::ofstream(getInworkPath(), std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
 }
 
 SneakerNet::NewItem SneakerNet::createNewCatalogItem(const std::string& path, const size_t size) {
