@@ -73,6 +73,8 @@ paths:
       responses:
         '200':
           description: accepted file
+        '411':
+          description: length required
         '403':
           description: file not acceptable per Librarian's settings
           content:

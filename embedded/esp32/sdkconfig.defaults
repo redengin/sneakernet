@@ -1,6 +1,14 @@
 # Required for connection redirect
 CONFIG_HTTPD_MAX_REQ_HDR_LEN=1024
 
+# Configure FATFS
+CONFIG_FATFS_VOLUME_COUNT=1
+CONFIG_FATFS_FAT16=y
+# support long filenames
+CONFIG_FATFS_LFN_HEAP=y
+CONFIG_FATFS_MAX_LFN=255
+CONFIG_FATFS_API_ENCODING_UTF_8=y
+
 # Manage Power (TODO power is unstable when using SDCARD and WIFI)
 
 

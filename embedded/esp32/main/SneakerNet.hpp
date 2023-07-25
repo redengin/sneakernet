@@ -51,6 +51,7 @@ public:
     );
     enum AddNewCatalogItemStatus {
         OK,
+        FAILED, ///< internal server error
     };
     /// add the new catalog item
     /// @pre the ofstream must be closed

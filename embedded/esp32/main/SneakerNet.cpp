@@ -5,6 +5,7 @@
 #include <esp_vfs_fat.h>
 // #include <http_parser.h>
 #include <filesystem>
+#include <string.h>
 #include <exception>
 #include <esp_log.h>
 static const char *TAG = "sneakernet";
@@ -28,17 +29,6 @@ SneakerNet::SneakerNet()
             if(!std::filesystem::create_directory(MOUNTED_CATALOG_DIR))
                 ESP_LOGE(TAG, "failed to create catalog directory");
     }
-
-    // /// TEST USE ONLY    
-    // {
-    // // create a catalog file
-    //     auto ofs = std::ofstream(MOUNT_PATH + CATALOG_DIR + "/areallylongfilenametest.txt", std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
-    //     if(!ofs.is_open())
-    //         ESP_LOGE(TAG, "file not OPEN !!!!!!!!!!!!!!!!!!!");
-    //     const char buf[] = "HELLO WORLD";
-    //     ofs.write(buf, sizeof(buf));
-    //     ofs.close();
-    // }
 }
 
 const std::string SneakerNet::MOUNT_PATH = "/sdcard";
@@ -149,25 +139,44 @@ SneakerNet::NewItem SneakerNet::createNewCatalogItem(const std::string& path, co
     return SneakerNet::NewItem(path);
 }
 
-
 SneakerNet::AddNewCatalogItemStatus SneakerNet::addNewCatalogItem(const NewItem& item) {
 
     SneakerNet::AddNewCatalogItemStatus status = validateNewCatalogItem(item);
+
+    // cleanup the inwork file
+    const std::string inworkPath = item.getInworkPath();
+    std::error_code err;
     switch(status) {
         case OK: {
-            // remove the suffix
-            const std::string inwork = item.getInworkPath();
-            const std::string actual = inwork.substr(0, (inwork.size() - CATALOG_NEW_ITEM_SUFFIX.size()));
-            rename(inwork.c_str(), actual.c_str());
+            // remove the inwork suffix
+            const std::string actual = inworkPath.substr(0, (inworkPath.size() - CATALOG_NEW_ITEM_SUFFIX.size()));
 
-            // TODO add the item to the catalog
-            break;
+            // remove file about to be replaced
+            if(std::filesystem::exists(actual))
+                if(false == std::filesystem::remove(actual, err))
+                    ESP_LOGE(TAG, "failed to remove overwritten entry [error: %s]", err.message().c_str());
+
+            // rename without the inwork suffix
+            std::filesystem::rename(inworkPath.c_str(), actual.c_str(), err);
+            if(err) {
+                ESP_LOGE(TAG, "failed to rename %s to %s [error: %s]", inworkPath.c_str(), actual.c_str(), err.message().c_str());
+                // fail and fallthrough to default
+                status = FAILED;
+                [[fallthrough]];
+            }
+            else break;    
         }
         default: {
             // delete the inwork item
-            remove(item.getInworkPath().c_str());
+            if(false == std::filesystem::remove(inworkPath.c_str(), err))
+                ESP_LOGE(TAG, "failed to remove %s [error: %s]", inworkPath.c_str(), err.message().c_str());
         }
     }
+
+    if(status == OK) {
+        // TODO add file to catalog
+    }
+
     return status;    
 }
 

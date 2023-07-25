@@ -171,25 +171,26 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t* req)
         return httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, NULL);
 
     httpd_resp_set_type(req, "application/octet-stream");
+    esp_err_t ret = ESP_OK;
     while(true) {
         const size_t chunk_sz = fis.readsome(buf, CHUNK_SZ);
         esp_err_t status = httpd_resp_send_chunk(req, buf, chunk_sz);
         if(status != ESP_OK) {
             ESP_LOGW(TAG, "failed to send file [esp_err=%d]", status);
-            return status;
+            ret = ESP_FAIL;
+            break;
         }
         if(chunk_sz == 0) break;
     }
-
-    // cleanup and return
     delete buf;
-    return ESP_OK;
+
+    return ret;
 }
 
 esp_err_t PUT_CATALOG_FILE(httpd_req_t* req) {
     // validate there is data
     if(req->content_len <= 0) {
-        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "No data"); 
+        return httpd_resp_send_err(req, HTTPD_411_LENGTH_REQUIRED, "Length required"); 
     }
 
     // create a buffer
@@ -219,6 +220,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t* req) {
     for(size_t remaining = req->content_len; remaining > 0;) {
         int received = httpd_req_recv(req, buf, MIN(remaining, CHUNK_SZ));
         if(received < 0) {
+            ESP_LOGW(TAG, "download incomplete: %s", req->uri);
             ret = ESP_FAIL;
             break;
         }
@@ -226,11 +228,24 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t* req) {
         remaining -= received;
     }
     ofs.close();
+    delete buf;
+
+    if(ret != ESP_OK)
+        return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Item not received"); 
 
     // add the item to the catalog
-    self->sneakerNet.addNewCatalogItem(item);
+    switch(self->sneakerNet.addNewCatalogItem(item))
+    {
+        case SneakerNet::AddNewCatalogItemStatus::OK : {
+            ESP_LOGI(TAG, "item accepted: %s", req->uri);
+            break;
+        }
+        // TODO return error strings for rejection reason
+        default: {
+            ESP_LOGW(TAG, "item rejected: %s", req->uri);
+            return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Item rejected"); 
+        }
+    }
 
-    // cleanup and return
-    delete buf;
-    return ret;
+    return ESP_OK;
 }
