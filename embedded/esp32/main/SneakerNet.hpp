@@ -8,6 +8,8 @@
 #include <esp_vfs_fat.h>
 #include "sdkconfig.h"
 
+#include "sneakernet/Catalog.hpp"
+
 class SneakerNet {
 public:
     SneakerNet();
@@ -20,18 +22,13 @@ public:
     };
     State getState() { return state; }
 
-    typedef std::string PublisherUuid;
-    typedef std::string ContentUuid;
-    typedef std::map<PublisherUuid, std::vector<ContentUuid>> Catalog;
     static const std::string CATALOG_DIR;
-    /// listing of content
-    const Catalog catalog();
+
     /// read an catalog item
     std::ifstream readCatalogItem(
         const std::string& path  ///< CATALOG_DIR/<filename>
     );
 
-    static const std::string CATALOG_NEW_ITEM_SUFFIX;
     class NewItem {
     public:
         NewItem() :path() {};
@@ -59,11 +56,13 @@ public:
 
 private:
     State state;
+    Catalog catalog;
 
     sdmmc_card_t *card;
     static const std::string MOUNT_PATH;
     bool mount_sdcard();
 
     bool isValidContentPath(const std::string& path) const;
+    static const std::string CATALOG_NEW_ITEM_SUFFIX;
     AddNewCatalogItemStatus validateNewCatalogItem(const NewItem&);
 };

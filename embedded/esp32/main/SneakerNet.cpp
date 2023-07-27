@@ -17,21 +17,27 @@ static const char *TAG = "sneakernet";
 #define PIN_NUM_CLK  5
 #define PIN_NUM_CS   18
 //--------------------------------------------------------------------------------
+const std::string SneakerNet::MOUNT_PATH = "/sdcard";
+const std::string SneakerNet::CATALOG_DIR = "/catalog";
 
 SneakerNet::SneakerNet()
+    : catalog(MOUNT_PATH + CATALOG_DIR)
 {
+    // mount the sd card
     state = mount_sdcard() ? State::OK : State::SDCARD_FAILED;
 
-    // ensure sdcard directory structure
+    // initialize the catalog
     if(state != State::SDCARD_FAILED) {
-        const std::string MOUNTED_CATALOG_DIR = MOUNT_PATH + CATALOG_DIR;
-        if(!std::filesystem::exists(MOUNTED_CATALOG_DIR))
-            if(!std::filesystem::create_directory(MOUNTED_CATALOG_DIR))
+        if(std::filesystem::exists(catalog.path))
+            catalog.init();
+        else {
+            // ensure sdcard catalog directory
+            if(false == std::filesystem::create_directory(catalog.path))
                 ESP_LOGE(TAG, "failed to create catalog directory");
+        }
     }
 }
 
-const std::string SneakerNet::MOUNT_PATH = "/sdcard";
 bool SneakerNet::mount_sdcard()
 {
     esp_log_level_set("vfs_fat_sdmmc", ESP_LOG_DEBUG);
@@ -87,13 +93,6 @@ bool SneakerNet::mount_sdcard()
             return false;
         }
     }
-}
-
-const std::string SneakerNet::CATALOG_DIR = "/catalog";
-const SneakerNet::Catalog SneakerNet::catalog() {
-    ESP_LOGE(TAG, "catalog not implemented");
-    const SneakerNet::Catalog catalog;
-    return catalog;
 }
 
 bool SneakerNet::isValidContentPath(const std::string& path) const {

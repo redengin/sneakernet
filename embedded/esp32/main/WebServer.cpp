@@ -136,24 +136,25 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 /// Listing of content
 esp_err_t CATALOG(httpd_req_t* req)
 {
-    ESP_LOGI(TAG, "Serving catalog");
-    WebServer* const self = static_cast<WebServer*>(req->user_ctx);
-    SneakerNet::Catalog catalog = self->sneakerNet.catalog();
-    cJSON* const catalog_object = cJSON_CreateObject();
-    for(const auto &pair : catalog) {
-        cJSON* const contentUuids = cJSON_CreateArray();
-        for(const auto &contentUuid : pair.second) {
-            cJSON* const item = cJSON_CreateString(contentUuid.c_str());
-            cJSON_AddItemToArray(contentUuids, item);
-        }
-        cJSON_AddItemToObject(catalog_object, pair.first.c_str(), contentUuids);
-    }
-    const char* const ret = cJSON_PrintUnformatted(catalog_object);
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, ret, strlen(ret));
-    delete ret;
-    cJSON_Delete(catalog_object);
-    return ESP_OK;
+    return httpd_resp_send_err(req, HTTPD_405_METHOD_NOT_ALLOWED, "not implemented"); 
+    // ESP_LOGI(TAG, "Serving catalog");
+    // WebServer* const self = static_cast<WebServer*>(req->user_ctx);
+    // SneakerNet::Catalog catalog = self->sneakerNet.catalog();
+    // cJSON* const catalog_object = cJSON_CreateObject();
+    // for(const auto &pair : catalog) {
+    //     cJSON* const contentUuids = cJSON_CreateArray();
+    //     for(const auto &contentUuid : pair.second) {
+    //         cJSON* const item = cJSON_CreateString(contentUuid.c_str());
+    //         cJSON_AddItemToArray(contentUuids, item);
+    //     }
+    //     cJSON_AddItemToObject(catalog_object, pair.first.c_str(), contentUuids);
+    // }
+    // const char* const ret = cJSON_PrintUnformatted(catalog_object);
+    // httpd_resp_set_type(req, "application/json");
+    // httpd_resp_send(req, ret, strlen(ret));
+    // delete ret;
+    // cJSON_Delete(catalog_object);
+    // return ESP_OK;
 }
 
 esp_err_t GET_CATALOG_FILE(httpd_req_t* req)

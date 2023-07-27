@@ -8,6 +8,7 @@
 #include <esp_netif.h>
 #include <esp_wifi.h>
 #include <lwip/inet.h>
+#include <hal/efuse_hal.h>
 #include <cstring>
 
 #include "dns_server.h"
@@ -63,15 +64,17 @@ static void start_wifi() {
         .pmf_cfg { .capable = true, .required = true }
     }};
 
-    // create unique SSID
-    // FIXME can't read MAC if netif isn't up
-    // instead use rand seeded by compile time
-    srand(CONFIG_APP_COMPILE_TIME_DATE);
-    wifi_config.ap.ssid_len = sprintf(reinterpret_cast<char*>(&wifi_config.ap.ssid), "SneakerNet %x", rand());
+    // create unique SSID using MAC
+    uint8_t mac[6];
+    efuse_hal_get_mac(mac);
+    wifi_config.ap.ssid_len = sprintf(reinterpret_cast<char*>(&wifi_config.ap.ssid),
+                                      "SneakerNet %X%X%X%X%X%X",
+                                      mac[5], mac[4], mac[3], mac[2], mac[1], mac[0]);
 
     // use a random channel
     // WIFI channels https://en.wikipedia.org/wiki/List_of_WLAN_channels
     constexpr int WIFI_CHANNEL_MAX = 11;
+    srand(*reinterpret_cast<int*>(mac));
     wifi_config.ap.channel = (rand() % WIFI_CHANNEL_MAX) + 1;
 
     ESP_ERROR_CHECK(esp_wifi_set_config(static_cast<wifi_interface_t>(ESP_IF_WIFI_AP), &wifi_config));
