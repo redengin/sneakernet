@@ -4,6 +4,7 @@
 #include <esp_log.h>
 static const char *TAG = "sneakernet-catalog";
 #include <mbedtls/sha256.h>
+#include <cstring>
 
 void Catalog::init()
 {
@@ -48,26 +49,53 @@ bool Catalog::add(const std::string& filename)
     return ret;
 }
 
+const Catalog::sha256_t sha256(const std::filesystem::path& path)
+{
+    Catalog::sha256_t ret;
 
-bool Catalog::addEpub(const std::string& filename) {
-    // TODO validate per librarian settings
+    auto ifs = std::ifstream(path, std::ios_base::in | std::ios_base::binary);
+    if(ifs.bad()) {
+        ESP_LOGE(TAG, "sha256() unable to open file '%s' [%s]", path.c_str(), strerror(errno));
+        return ret;
+    }
 
-    // remove an entry that will be replaced
-    catalog.erase(filename);
+    int err = 0;
+    mbedtls_sha256_context ctx;
+    mbedtls_sha256_init(&ctx);
+    err = mbedtls_sha256_starts(&ctx, false /* use sha256 rather than sha224 */);
+    if(err != 0)
+        ESP_LOGE(TAG, "sha256 unable to mbedtls_sha256_starts() [error: %X]", err);
 
-    // FIXME not implemented
+    char buffer[64];
+    while(false == ifs.eof()) {
+        ifs.read(buffer, sizeof(buffer));
+        err = mbedtls_sha256_update(&ctx, reinterpret_cast<unsigned char*>(buffer), ifs.gcount());
+        if(err != 0) {
+            ESP_LOGE(TAG, "sha256 unable to mbedtls_sha256_update() [error: %X]", err);
+            break;    
+        }
+    }
+    ifs.close();
+    if(err == 0) {
+        uint8_t sha256[32];
+        err = mbedtls_sha256_finish(&ctx, sha256);
+        if(err == 0)
+            for(size_t i=0; i < sizeof(sha256); ++i) {
+                char s[3];
+                std::snprintf(s, sizeof(s), "%X", sha256[i]);
+                ret += s;
+            }
+    }
 
-    return false;
+    return ret;
 }
 
 bool Catalog::addFile(const std::string& filename) {
     // remove an entry that will be replaced
     catalog.erase(filename);
 
-    Sha256 sha256 = Sha256(path/filename);
-
-    Catalog::CatalogEntry entry = {
-        .sha256 = sha256,
+    Catalog::Entry entry = {
+        .sha256 = sha256(path/filename),
         .sneakernetSigned = false,
     };
 
@@ -75,26 +103,23 @@ bool Catalog::addFile(const std::string& filename) {
     return catalog.emplace(filename, entry).second;
 }
 
-Catalog::Sha256::Sha256(const std::filesystem::path& path) {
-    auto ifs = std::ifstream(path, std::ios_base::in | std::ios_base::binary);
-    if(ifs.bad()) {
-        ESP_LOGE(TAG, "sha256() unable to open file '%s'", path.c_str());
-        return;
-    }
+bool Catalog::addEpub(const std::string& filename) {
+    // TODO validate per librarian settings
 
-    mbedtls_sha256_context ctx;
-    mbedtls_sha256_init(&ctx);
-    mbedtls_sha256_starts(&ctx, false /* use sha256 rather than sha224 */);
+    // remove an entry that will be replaced
+    catalog.erase(filename);
 
-    char buffer[64];
-    while(false == ifs.read(buffer, sizeof(buffer)).eof())
-        // FIXME ilen should be equal to actual fill of buffer
-        mbedtls_sha256_update(&ctx, reinterpret_cast<unsigned char*>(buffer), sizeof(buffer));
+    // FIXME get identifiers
 
-    // while( ifs.read(buffer, sizeofBuffer)
-    // unsigned char data[1];
-    // size_t data_sz = 1;
+    // FIXME get sneakernet signature
+    // FIXME validate sneakernet signature
 
-    ifs.close();
-    mbedtls_sha256_finish(&ctx, sha256);
+    Catalog::Entry entry = {
+        .sha256 = sha256(path/filename),
+        .sneakernetSigned = false,
+    };
+
+    // emplace().second is true if added
+    return catalog.emplace(filename, entry).second;
 }
+

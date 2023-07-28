@@ -12,34 +12,6 @@ extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t* req);
 extern "C" esp_err_t PUT_CATALOG_FILE(httpd_req_t* req);
 
 static constexpr size_t CHUNK_SZ = 1048;
-class HttpInputStreamBuf : public std::streambuf
-{
-public:
-    explicit HttpInputStreamBuf(httpd_req_t* const _req)
-    : req(_req)
-    {}
-
-protected:
-    char chunk[CHUNK_SZ];
-    int underflow() override
-    {
-        ESP_LOGI(TAG, "adding chunk to streambuf");
-        const size_t chunk_sz = httpd_req_recv(req, chunk, sizeof(chunk));
-        if(chunk_sz <= 0) {
-            ESP_LOGI(TAG, "chunk stream ended chunk_sz: %d", chunk_sz);
-            return traits_type::eof();
-        }
-        ESP_LOGI(TAG, "added chunk_sz: %d chunk to stream", chunk_sz);
-
-        setg(chunk, chunk, (chunk+chunk_sz));
-        return chunk[0];
-    }
-
-private:
-    httpd_req_t* const req;
-};
-
-
 
 WebServer::WebServer(SneakerNet& _sneakerNet)
 :   sneakerNet(_sneakerNet)
@@ -137,9 +109,17 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 esp_err_t CATALOG(httpd_req_t* req)
 {
     return httpd_resp_send_err(req, HTTPD_405_METHOD_NOT_ALLOWED, "not implemented"); 
-    // ESP_LOGI(TAG, "Serving catalog");
-    // WebServer* const self = static_cast<WebServer*>(req->user_ctx);
-    // SneakerNet::Catalog catalog = self->sneakerNet.catalog();
+    ESP_LOGI(TAG, "Serving catalog");
+    WebServer* const self = static_cast<WebServer*>(req->user_ctx);
+    const std::map<Catalog::Filename, Catalog::Entry> catalog = self->sneakerNet.getCatalog();
+    cJSON* const items = cJSON_CreateArray();
+    for(const auto& [filename, entry] : catalog) {
+        cJSON* const catalogItem = cJSON_CreateObject();
+        cJSON_AddStringToObject(catalogItem, "filename", filename.c_str());
+        cJSON_AddStringToObject(catalogItem, "sha256", entry.sha256.c_str());
+    }
+    cJSON_Delete(items);
+
     // cJSON* const catalog_object = cJSON_CreateObject();
     // for(const auto &pair : catalog) {
     //     cJSON* const contentUuids = cJSON_CreateArray();

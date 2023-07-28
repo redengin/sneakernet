@@ -24,6 +24,8 @@ public:
 
     static const std::string CATALOG_DIR;
 
+    const std::map<Catalog::Filename, Catalog::Entry> getCatalog() { return catalog.getCatalog(); }
+
     /// read an catalog item
     std::ifstream readCatalogItem(
         const std::string& path  ///< CATALOG_DIR/<filename>
@@ -31,14 +33,14 @@ public:
 
     class NewItem {
     public:
-        NewItem() :path() {};
-        NewItem(const std::string& path) :path(path) {}
-        bool isBad() const { return path.empty(); }
+        NewItem() :filename() {};
+        NewItem(const std::string& filename) :filename(filename) {}
+        bool isBad() const { return filename.empty(); }
 
         std::ofstream getOfstream();
-        std::string getInworkPath() const;
-    private:
-        const std::string path;
+        const std::filesystem::path getInworkPath() const;
+
+        const std::string filename;
     };
     /// create a new catalog item
     /// @post call addCatalogItem to validate/add the item

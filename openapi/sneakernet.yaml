@@ -27,9 +27,11 @@ paths:
                   type: object
                   required:
                     - filename
-                    - identifiers
+                    - sha256
                   properties:
                     filename:
+                      type: string
+                    sha256:
                       type: string
                     identifiers:
                       type: array

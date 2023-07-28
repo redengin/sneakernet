@@ -113,8 +113,8 @@ std::ifstream SneakerNet::readCatalogItem(const std::string& path)
 
 
 const std::string SneakerNet::CATALOG_NEW_ITEM_SUFFIX = ".inwork";
-std::string SneakerNet::NewItem::getInworkPath() const {
-    return (MOUNT_PATH + path + CATALOG_NEW_ITEM_SUFFIX);
+const std::filesystem::path SneakerNet::NewItem::getInworkPath() const {
+    return std::filesystem::path(MOUNT_PATH)/CATALOG_DIR/(filename + CATALOG_NEW_ITEM_SUFFIX);
 }
 
 std::ofstream SneakerNet::NewItem::getOfstream() {
@@ -135,30 +135,28 @@ SneakerNet::NewItem SneakerNet::createNewCatalogItem(const std::string& path, co
 
     // TODO clean up oldest files to make room for new item
 
-    return SneakerNet::NewItem(path);
+    return SneakerNet::NewItem(std::filesystem::path(path).filename());
 }
 
 SneakerNet::AddNewCatalogItemStatus SneakerNet::addNewCatalogItem(const NewItem& item) {
 
     SneakerNet::AddNewCatalogItemStatus status = validateNewCatalogItem(item);
 
-    // cleanup the inwork file
-    const std::string inworkPath = item.getInworkPath();
     std::error_code err;
     switch(status) {
         case OK: {
-            // remove the inwork suffix
-            const std::string actual = inworkPath.substr(0, (inworkPath.size() - CATALOG_NEW_ITEM_SUFFIX.size()));
+            std::filesystem::path actualPath = item.getInworkPath();
+            actualPath.replace_filename(item.filename);
 
             // remove file about to be replaced
-            if(std::filesystem::exists(actual))
-                if(false == std::filesystem::remove(actual, err))
+            if(std::filesystem::exists(actualPath))
+                if(false == std::filesystem::remove(actualPath, err))
                     ESP_LOGE(TAG, "failed to remove overwritten entry [error: %s]", err.message().c_str());
 
             // rename without the inwork suffix
-            std::filesystem::rename(inworkPath.c_str(), actual.c_str(), err);
+            std::filesystem::rename(item.getInworkPath(), actualPath, err);
             if(err) {
-                ESP_LOGE(TAG, "failed to rename %s to %s [error: %s]", inworkPath.c_str(), actual.c_str(), err.message().c_str());
+                ESP_LOGE(TAG, "failed to rename %s to %s [error: %s]", item.getInworkPath().c_str(), actualPath.c_str(), err.message().c_str());
                 // fail and fallthrough to default
                 status = FAILED;
                 [[fallthrough]];
@@ -167,14 +165,14 @@ SneakerNet::AddNewCatalogItemStatus SneakerNet::addNewCatalogItem(const NewItem&
         }
         default: {
             // delete the inwork item
-            if(false == std::filesystem::remove(inworkPath.c_str(), err))
-                ESP_LOGE(TAG, "failed to remove %s [error: %s]", inworkPath.c_str(), err.message().c_str());
+            if(false == std::filesystem::remove(item.getInworkPath(), err))
+                ESP_LOGE(TAG, "failed to remove %s [error: %s]", item.getInworkPath().c_str(), err.message().c_str());
         }
     }
 
-    if(status == OK) {
-        // TODO add file to catalog
-    }
+    if(status == OK)
+        if(false == catalog.add(item.filename))
+            status = FAILED;
 
     return status;    
 }
