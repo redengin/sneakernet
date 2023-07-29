@@ -10,13 +10,6 @@
 #include <esp_log.h>
 static const char *TAG = "sneakernet";
 
-// Pin mapping - avoiding JTAG pins (12, 13, 14, 15)
-//--------------------------------------------------------------------------------
-#define PIN_NUM_MISO 2
-#define PIN_NUM_MOSI 4
-#define PIN_NUM_CLK  5
-#define PIN_NUM_CS   18
-//--------------------------------------------------------------------------------
 const std::string SneakerNet::MOUNT_PATH = "/sdcard";
 const std::string SneakerNet::CATALOG_DIR = "/catalog";
 
@@ -40,7 +33,14 @@ SneakerNet::SneakerNet()
 
 bool SneakerNet::mount_sdcard()
 {
-    esp_log_level_set("vfs_fat_sdmmc", ESP_LOG_DEBUG);
+// Pin mapping - avoiding JTAG pins (12, 13, 14, 15)
+//--------------------------------------------------------------------------------
+#define PIN_NUM_MISO 2
+#define PIN_NUM_MOSI 4
+#define PIN_NUM_CLK  5
+#define PIN_NUM_CS   18
+//--------------------------------------------------------------------------------
+    esp_log_level_set("vfs_fat_sdmmc", ESP_LOG_ERROR);
     ESP_LOGI(TAG, "Initializing sdcard");
     const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     constexpr int UNUSED = -1;
