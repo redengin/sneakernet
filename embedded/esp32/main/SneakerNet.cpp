@@ -10,176 +10,143 @@
 #include <esp_log.h>
 static const char *TAG = "sneakernet";
 
-const std::string SneakerNet::MOUNT_PATH = "/sdcard";
-const std::string SneakerNet::CATALOG_DIR = "/catalog";
+constexpr char MOUNT_DIR[] = "/sdcard";
+constexpr char CATALOG_DIR[] = "catalog";
 
 SneakerNet::SneakerNet()
-    : catalog(MOUNT_PATH + CATALOG_DIR)
+    : catalog(std::filesystem::path(MOUNT_DIR)/CATALOG_DIR)
 {
     // mount the sd card
-    state = mount_sdcard() ? State::OK : State::SDCARD_FAILED;
+    mount_sdcard();
 
     // initialize the catalog
-    if(state != State::SDCARD_FAILED) {
-        if(std::filesystem::exists(catalog.path))
-            catalog.init();
-        else {
-            // ensure sdcard catalog directory
-            if(false == std::filesystem::create_directory(catalog.path))
-                ESP_LOGE(TAG, "failed to create catalog directory");
-        }
-    }
+    catalog.init();
 }
 
-bool SneakerNet::mount_sdcard()
+void SneakerNet::mount_sdcard()
 {
 // Pin mapping - avoiding JTAG pins (12, 13, 14, 15)
 //--------------------------------------------------------------------------------
-#define PIN_NUM_MISO 2
+#define PIN_NUM_CS   2
 #define PIN_NUM_MOSI 4
 #define PIN_NUM_CLK  5
-#define PIN_NUM_CS   18
+#define PIN_NUM_MISO 18
 //--------------------------------------------------------------------------------
+    ESP_LOGI(TAG, "Mounting sdcard filesystem");
+
     esp_log_level_set("vfs_fat_sdmmc", ESP_LOG_ERROR);
-    ESP_LOGI(TAG, "Initializing sdcard");
     const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
-    constexpr int UNUSED = -1;
+    constexpr int UNUSED = 0;
+    constexpr int UNUSED_IO = -1;
     const spi_bus_config_t bus_cfg = {
         .mosi_io_num = PIN_NUM_MOSI,
         .miso_io_num = PIN_NUM_MISO,
         .sclk_io_num = PIN_NUM_CLK,
-        .quadwp_io_num = UNUSED,
-        .quadhd_io_num = UNUSED,
-        .data4_io_num = UNUSED,
-        .data5_io_num = UNUSED,
-        .data6_io_num = UNUSED,
-        .data7_io_num = UNUSED,
-        .max_transfer_sz = 0,   // use full dma buffer support
-        .flags = 0, /* not used */
-        .intr_flags = 0, /* not used */
+        .quadwp_io_num = UNUSED_IO,
+        .quadhd_io_num = UNUSED_IO,
+        .data4_io_num = UNUSED_IO,
+        .data5_io_num = UNUSED_IO,
+        .data6_io_num = UNUSED_IO,
+        .data7_io_num = UNUSED_IO,
+        .max_transfer_sz = 0,   // 0: use full dma buffer support
+        .flags = UNUSED,
+        .intr_flags = UNUSED,
     };
-    switch(spi_bus_initialize(static_cast<spi_host_device_t>(host.slot), &bus_cfg, SDSPI_DEFAULT_DMA))
-    {
-        case ESP_OK: {
-            ESP_LOGI(TAG, "sdcard spi connection created");
-            break;
-        }
-        default: {
-            ESP_LOGE(TAG, "failed to initialized sdcard spi connection");
-            return false;
-        }
-    }
+    ESP_ERROR_CHECK(spi_bus_initialize(static_cast<spi_host_device_t>(host.slot),
+                                       &bus_cfg, SDSPI_DEFAULT_DMA));
 
-    ESP_LOGI(TAG, "Mounting filesystem");
-    // no support for hardware CARD_DETECT or WRITE_PROTECT
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs = static_cast<gpio_num_t>(PIN_NUM_CS);
     slot_config.host_id = static_cast<spi_host_device_t>(host.slot);
     const esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = true,
-        .max_files = 10,
-        .allocation_unit_size = 200 * 1024,
-        .disk_status_check_enable = false
+        .max_files = 10,    // FIXME tune per RAM availability
+        .allocation_unit_size = 512,    // required value for sdcards for wear leveling
+        .disk_status_check_enable = false,
     };
-    switch(esp_vfs_fat_sdspi_mount(MOUNT_PATH.c_str(), &host, &slot_config, &mount_config, &card))
-    {
-        case ESP_OK: {
-            ESP_LOGI(TAG, "sdcard mounted");
-            sdmmc_card_print_info(stdout, card);
-            return true;
-        }
-        default: {
-            ESP_LOGE(TAG, "failed to mount sdcard");
-            return false;
-        }
-    }
-}
+    ESP_ERROR_CHECK(esp_vfs_fat_sdspi_mount(MOUNT_DIR,
+                                            &host, &slot_config, &mount_config, &pCard));
 
-bool SneakerNet::isValidContentPath(const std::string& path) const {
-    return (std::string::npos == path.find(CATALOG_DIR.size()));
-}
-
-std::ifstream SneakerNet::readCatalogItem(const std::string& path)
-{
-    // validate path
-    if(!SneakerNet::isValidContentPath(path)) {
-        // invalid path return disconnected stream
-        ESP_LOGI(TAG, "readCatalogItem: invalid path '%s'", path.c_str());
-        return std::ifstream();
-    }
-
-    return std::ifstream(MOUNT_PATH + path, std::ios_base::in | std::ios_base::binary);
+    sdmmc_card_print_info(stdout, pCard);
 }
 
 
-const std::string SneakerNet::CATALOG_NEW_ITEM_SUFFIX = ".inwork";
-const std::filesystem::path SneakerNet::NewItem::getInworkPath() const {
-    return std::filesystem::path(MOUNT_PATH)/CATALOG_DIR/(filename + CATALOG_NEW_ITEM_SUFFIX);
-}
 
-std::ofstream SneakerNet::NewItem::getOfstream() {
-    if(isBad())
-        return std::ofstream();
+// bool SneakerNet::isValidContentPath(const std::string& path) const {
+//     // FIXME
+//     // return (std::string::npos == path.find(CATALOG_DIR.size()));
+//     return false;
+// }
 
-    ESP_LOGI(TAG, "NewItem::getOfstream path:'%s'", getInworkPath().c_str());
-    return std::ofstream(getInworkPath(), std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
-}
 
-SneakerNet::NewItem SneakerNet::createNewCatalogItem(const std::string& path, const size_t size) {
-    // validate path
-    if(!SneakerNet::isValidContentPath(path)) {
-        // invalid path return disconnected stream
-        ESP_LOGI(TAG, "addCatalogItem: invalid path '%s'", path.c_str());
-        return SneakerNet::NewItem();
-    }
+// const std::string SneakerNet::CATALOG_NEW_ITEM_SUFFIX = ".inwork";
+// const std::filesystem::path SneakerNet::NewItem::getInworkPath() const {
+//     return std::filesystem::path("/")/MOUNT_DIR/CATALOG_DIR/(filename + CATALOG_NEW_ITEM_SUFFIX);
+// }
 
-    // TODO clean up oldest files to make room for new item
+// std::ofstream SneakerNet::NewItem::getOfstream() {
+//     if(isBad())
+//         return std::ofstream();
 
-    return SneakerNet::NewItem(std::filesystem::path(path).filename());
-}
+//     ESP_LOGI(TAG, "NewItem::getOfstream path:'%s'", getInworkPath().c_str());
+//     return std::ofstream(getInworkPath(), std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+// }
 
-SneakerNet::AddNewCatalogItemStatus SneakerNet::addNewCatalogItem(const NewItem& item) {
+// SneakerNet::NewItem SneakerNet::createNewCatalogItem(const std::string& path, const size_t size) {
+//     // validate path
+//     if(!SneakerNet::isValidContentPath(path)) {
+//         // invalid path return disconnected stream
+//         ESP_LOGI(TAG, "addCatalogItem: invalid path '%s'", path.c_str());
+//         return SneakerNet::NewItem();
+//     }
 
-    SneakerNet::AddNewCatalogItemStatus status = validateNewCatalogItem(item);
+//     // TODO clean up oldest files to make room for new item
 
-    std::error_code err;
-    switch(status) {
-        case OK: {
-            std::filesystem::path actualPath = item.getInworkPath();
-            actualPath.replace_filename(item.filename);
+//     return SneakerNet::NewItem(std::filesystem::path(path).filename());
+// }
 
-            // remove file about to be replaced
-            if(std::filesystem::exists(actualPath))
-                if(false == std::filesystem::remove(actualPath, err))
-                    ESP_LOGE(TAG, "failed to remove overwritten entry [error: %s]", err.message().c_str());
+// SneakerNet::AddNewCatalogItemStatus SneakerNet::addNewCatalogItem(const NewItem& item) {
 
-            // rename without the inwork suffix
-            std::filesystem::rename(item.getInworkPath(), actualPath, err);
-            if(err) {
-                ESP_LOGE(TAG, "failed to rename %s to %s [error: %s]", item.getInworkPath().c_str(), actualPath.c_str(), err.message().c_str());
-                // fail and fallthrough to default
-                status = FAILED;
-                [[fallthrough]];
-            }
-            else break;    
-        }
-        default: {
-            // delete the inwork item
-            if(false == std::filesystem::remove(item.getInworkPath(), err))
-                ESP_LOGE(TAG, "failed to remove %s [error: %s]", item.getInworkPath().c_str(), err.message().c_str());
-        }
-    }
+//     SneakerNet::AddNewCatalogItemStatus status = validateNewCatalogItem(item);
 
-    if(status == OK)
-        if(false == catalog.add(item.filename))
-            status = FAILED;
+//     std::error_code err;
+//     switch(status) {
+//         case OK: {
+//             std::filesystem::path actualPath = item.getInworkPath();
+//             actualPath.replace_filename(item.filename);
 
-    return status;    
-}
+//             // remove file about to be replaced
+//             if(std::filesystem::exists(actualPath))
+//                 if(false == std::filesystem::remove(actualPath, err))
+//                     ESP_LOGE(TAG, "failed to remove overwritten entry [error: %s]", err.message().c_str());
 
-SneakerNet::AddNewCatalogItemStatus SneakerNet::validateNewCatalogItem(const NewItem&) {
+//             // rename without the inwork suffix
+//             std::filesystem::rename(item.getInworkPath(), actualPath, err);
+//             if(err) {
+//                 ESP_LOGE(TAG, "failed to rename %s to %s [error: %s]", item.getInworkPath().c_str(), actualPath.c_str(), err.message().c_str());
+//                 // fail and fallthrough to default
+//                 status = FAILED;
+//                 [[fallthrough]];
+//             }
+//             else break;    
+//         }
+//         default: {
+//             // delete the inwork item
+//             if(false == std::filesystem::remove(item.getInworkPath(), err))
+//                 ESP_LOGE(TAG, "failed to remove %s [error: %s]", item.getInworkPath().c_str(), err.message().c_str());
+//         }
+//     }
 
-    // TODO validate per librarian preferences
+//     if(status == OK)
+//         if(false == catalog.add(item.filename))
+//             status = FAILED;
 
-    return OK;
-}
+//     return status;    
+// }
+
+// SneakerNet::AddNewCatalogItemStatus SneakerNet::validateNewCatalogItem(const NewItem&) {
+
+//     // TODO validate per librarian preferences
+
+//     return OK;
+// }

@@ -5,19 +5,21 @@ static constexpr char TAG[] = "webserver";
 #include "WebServer.hpp"
 #include <cJSON.h>
 
+static const std::string INDEX_URI("/");
 extern "C" esp_err_t INDEX(httpd_req_t*);
 extern "C" esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err);
+static const std::string CATALOG_URI(INDEX_URI + "catalog");
 extern "C" esp_err_t CATALOG(httpd_req_t* req);
+static const std::string CATALOG_FILE_URI(CATALOG_URI + "/*");
 extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t* req);
 extern "C" esp_err_t PUT_CATALOG_FILE(httpd_req_t* req);
-
 static constexpr size_t CHUNK_SZ = 1048;
 
-WebServer::WebServer(SneakerNet& _sneakerNet)
-:   sneakerNet(_sneakerNet)
+WebServer::WebServer(SneakerNet& sneakernet)
+:   sneakernet(sneakernet)
 {
     // FIXME debug use only
-    esp_log_level_set(TAG, ESP_LOG_DEBUG);
+    // esp_log_level_set(TAG, ESP_LOG_DEBUG);
 
     /*
         Turn of warnings from HTTP server as redirecting traffic will yield
@@ -39,7 +41,7 @@ WebServer::WebServer(SneakerNet& _sneakerNet)
     void* const self = this;
     // support index homepage (and captive portal)
     {   httpd_uri_t hook = {
-            .uri = "/",
+            .uri = INDEX_URI.c_str(),
             .method = HTTP_GET,
             .handler = INDEX,
             .user_ctx = self,
@@ -98,7 +100,7 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
     // Set status
     httpd_resp_set_status(req, "302 Temporary Redirect");
     // Redirect to the "/" root directory
-    httpd_resp_set_hdr(req, "Location", "/");
+    httpd_resp_set_hdr(req, "Location", INDEX_URI.c_str());
     // iOS requires content in the response to detect a captive portal, simply redirecting is not sufficient.
     httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
@@ -106,56 +108,45 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 
 
 /// Listing of content
-esp_err_t CATALOG(httpd_req_t* req)
+esp_err_t CATALOG(httpd_req_t* request)
 {
-    return httpd_resp_send_err(req, HTTPD_405_METHOD_NOT_ALLOWED, "not implemented"); 
     ESP_LOGI(TAG, "Serving catalog");
-    WebServer* const self = static_cast<WebServer*>(req->user_ctx);
-    const std::map<Catalog::Filename, Catalog::Entry> catalog = self->sneakerNet.getCatalog();
+    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
+    const std::map<Catalog::filename_t, Catalog::Entry> catalog = self->sneakernet.catalog.items();
     cJSON* const items = cJSON_CreateArray();
     for(const auto& [filename, entry] : catalog) {
         cJSON* const catalogItem = cJSON_CreateObject();
         cJSON_AddStringToObject(catalogItem, "filename", filename.c_str());
         cJSON_AddStringToObject(catalogItem, "sha256", entry.sha256.c_str());
     }
+    httpd_resp_set_type(request, "application/json");
+    const char* const response = cJSON_PrintUnformatted(items);
+    httpd_resp_send(request, response, strlen(response));
+    delete response;
     cJSON_Delete(items);
 
-    // cJSON* const catalog_object = cJSON_CreateObject();
-    // for(const auto &pair : catalog) {
-    //     cJSON* const contentUuids = cJSON_CreateArray();
-    //     for(const auto &contentUuid : pair.second) {
-    //         cJSON* const item = cJSON_CreateString(contentUuid.c_str());
-    //         cJSON_AddItemToArray(contentUuids, item);
-    //     }
-    //     cJSON_AddItemToObject(catalog_object, pair.first.c_str(), contentUuids);
-    // }
-    // const char* const ret = cJSON_PrintUnformatted(catalog_object);
-    // httpd_resp_set_type(req, "application/json");
-    // httpd_resp_send(req, ret, strlen(ret));
-    // delete ret;
-    // cJSON_Delete(catalog_object);
-    // return ESP_OK;
+    return ESP_OK;
 }
 
-esp_err_t GET_CATALOG_FILE(httpd_req_t* req)
+esp_err_t GET_CATALOG_FILE(httpd_req_t* request)
 {
     char* buf = new char[CHUNK_SZ];
     if(buf == NULL) {
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
-        return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
     }
 
-    WebServer* const self = static_cast<WebServer*>(req->user_ctx);
-    std::string filename = req->uri;
-    std::ifstream fis = self->sneakerNet.readCatalogItem(filename);
+    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
+    const std::string filename = request->uri + CATALOG_FILE_URI.size() - sizeof("*");
+    std::ifstream fis = self->sneakernet.catalog.readItem(filename);
     if(fis.bad())
-        return httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, NULL);
+        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, NULL);
 
-    httpd_resp_set_type(req, "application/octet-stream");
+    httpd_resp_set_type(request, "application/octet-stream");
     esp_err_t ret = ESP_OK;
     while(true) {
         const size_t chunk_sz = fis.readsome(buf, CHUNK_SZ);
-        esp_err_t status = httpd_resp_send_chunk(req, buf, chunk_sz);
+        esp_err_t status = httpd_resp_send_chunk(request, buf, chunk_sz);
         if(status != ESP_OK) {
             ESP_LOGW(TAG, "failed to send file [esp_err=%d]", status);
             ret = ESP_FAIL;
@@ -168,65 +159,47 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t* req)
     return ret;
 }
 
-esp_err_t PUT_CATALOG_FILE(httpd_req_t* req) {
+esp_err_t PUT_CATALOG_FILE(httpd_req_t* request) {
     // validate there is data
-    if(req->content_len <= 0) {
-        return httpd_resp_send_err(req, HTTPD_411_LENGTH_REQUIRED, "Length required"); 
+    if(request->content_len <= 0) {
+        return httpd_resp_send_err(request, HTTPD_411_LENGTH_REQUIRED, "Length required"); 
     }
 
     // create a buffer
     char* buf = new char[CHUNK_SZ];
     if(buf == NULL) {
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
-        return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
     }
 
-    // create a new catalog item
-    WebServer* const self = static_cast<WebServer*>(req->user_ctx);
-    SneakerNet::NewItem item = self->sneakerNet.createNewCatalogItem(req->uri, req->content_len);
-    // is the uri valid?
-    if(item.isBad()) {
-        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Illegal path"); 
-    }
-    // can we get an output stream?
-    std::ofstream ofs = item.getOfstream();
-    if(!ofs.is_open()) {
-        ESP_LOGW(TAG, "PUT_CATALOG_FILE, unable to open filestream");
-        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
-        return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
-    }
+    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
+    const std::string filename = request->uri + CATALOG_FILE_URI.size() - sizeof("*");
+    const size_t file_sz = request->content_len;
+    Catalog::InWorkItem item = self->sneakernet.catalog.newItem(filename, file_sz);
+    if(false == item.ofs.is_open())
+        return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "Illegal path"); 
 
     // receive the data
     esp_err_t ret = ESP_OK;
-    for(size_t remaining = req->content_len; remaining > 0;) {
-        int received = httpd_req_recv(req, buf, MIN(remaining, CHUNK_SZ));
+    for(size_t remaining = request->content_len; remaining > 0;) {
+        const int received = httpd_req_recv(request, buf, MIN(remaining, CHUNK_SZ));
         if(received < 0) {
-            ESP_LOGW(TAG, "download incomplete: %s", req->uri);
+            ESP_LOGW(TAG, "download incomplete: %s", request->uri);
             ret = ESP_FAIL;
             break;
         }
-        ofs.write(buf, received);
+        item.ofs.write(buf, received);
         remaining -= received;
     }
-    ofs.close();
     delete buf;
 
     if(ret != ESP_OK)
-        return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Item not received"); 
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Item not received"); 
 
-    // add the item to the catalog
-    switch(self->sneakerNet.addNewCatalogItem(item))
-    {
-        case SneakerNet::AddNewCatalogItemStatus::OK : {
-            ESP_LOGI(TAG, "item accepted: %s", req->uri);
-            break;
-        }
-        // TODO return error strings for rejection reason
-        default: {
-            ESP_LOGW(TAG, "item rejected: %s", req->uri);
-            return httpd_resp_send_err(req, HTTPD_408_REQ_TIMEOUT, "Item rejected"); 
-        }
-    }
+    if(item.add())
+        ESP_LOGI(TAG, "added item %s", request->uri);
+    else
+        return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, item.getMessages().c_str()); 
 
     return ESP_OK;
 }

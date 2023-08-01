@@ -6,14 +6,23 @@ static const char *TAG = "sneakernet-catalog";
 #include <mbedtls/sha256.h>
 #include <cstring>
 
+static const std::string INWORK_SUFFIX = ".inwork";
+static const Catalog::sha256_t sha256(const std::filesystem::path& path);
+
 void Catalog::init()
 {
+    // ensure catalog directory
+    if(false == std::filesystem::create_directory(path)) {
+        ESP_LOGE(TAG, "failed to create catalog directory");
+        return;
+    }
+
     for(auto const& entry : std::filesystem::directory_iterator{path}) {
         // don't allow subdirectories
         if(entry.is_directory()) std::filesystem::remove_all(entry);
         else {
             // drop any inwork files
-            if(entry.path().string().ends_with(".inwork")) {
+            if(entry.path().string().ends_with(INWORK_SUFFIX)) {
                 std::error_code err;
                 std::filesystem::remove(entry.path(), err);
                 if(err)
@@ -25,6 +34,55 @@ void Catalog::init()
         }
     }
 }
+
+static bool isValidFileName(const Catalog::filename_t& filename) {
+    // file name can not contain a delimeter
+    return filename.find("/") == filename.npos;
+}
+
+std::ifstream Catalog::readItem(const filename_t& filename)
+{
+    // validate path
+    if(isValidFileName(filename))
+        return std::ifstream(path/filename, std::ios_base::in | std::ios_base::binary);
+
+    return std::ifstream();
+}
+
+
+Catalog::InWorkItem Catalog::newItem(const std::string& filename, const size_t size)
+{
+    // validate path
+    if(false == isValidFileName(filename))
+        return InWorkItem();
+
+    // TODO clean up files to make room for new content size
+    (void)size;
+
+    return InWorkItem(this, filename);
+}
+
+Catalog::InWorkItem::InWorkItem() {};
+
+Catalog::InWorkItem::InWorkItem(Catalog* const catalog, const filename_t filename)
+    : catalog(catalog)
+     ,filename(filename)
+{
+     ofs = std::ofstream(catalog->path/(filename + INWORK_SUFFIX), std::ios_base::out | std::ios_base::binary);
+}
+
+Catalog::InWorkItem::~InWorkItem()
+{
+    ofs.close();
+    std::filesystem::remove(catalog->path/(filename + INWORK_SUFFIX));
+};
+
+bool Catalog::InWorkItem::add() {
+    // rename the file
+    std::filesystem::rename(catalog->path/(filename + INWORK_SUFFIX), catalog->path/filename);
+    return catalog->add(filename);
+}
+
 
 bool Catalog::add(const std::string& filename)
 {
@@ -47,6 +105,39 @@ bool Catalog::add(const std::string& filename)
         ESP_LOGI(TAG, "add() added catalog item '%s'", filename.c_str());
 
     return ret;
+}
+
+bool Catalog::addFile(const std::string& filename) {
+    // remove an entry that will be replaced
+    catalog.erase(filename);
+
+    Catalog::Entry entry = {
+        .sha256 = sha256(path/filename),
+        .sneakernetSigned = false,
+    };
+
+    // emplace().second is true if added
+    return catalog.emplace(filename, entry).second;
+}
+
+bool Catalog::addEpub(const std::string& filename) {
+    // TODO validate per librarian settings
+
+    // remove an entry that will be replaced
+    catalog.erase(filename);
+
+    // FIXME get identifiers
+
+    // FIXME get sneakernet signature
+    // FIXME validate sneakernet signature
+
+    Catalog::Entry entry = {
+        .sha256 = sha256(path/filename),
+        .sneakernetSigned = false,
+    };
+
+    // emplace().second is true if added
+    return catalog.emplace(filename, entry).second;
 }
 
 const Catalog::sha256_t sha256(const std::filesystem::path& path)
@@ -89,37 +180,3 @@ const Catalog::sha256_t sha256(const std::filesystem::path& path)
 
     return ret;
 }
-
-bool Catalog::addFile(const std::string& filename) {
-    // remove an entry that will be replaced
-    catalog.erase(filename);
-
-    Catalog::Entry entry = {
-        .sha256 = sha256(path/filename),
-        .sneakernetSigned = false,
-    };
-
-    // emplace().second is true if added
-    return catalog.emplace(filename, entry).second;
-}
-
-bool Catalog::addEpub(const std::string& filename) {
-    // TODO validate per librarian settings
-
-    // remove an entry that will be replaced
-    catalog.erase(filename);
-
-    // FIXME get identifiers
-
-    // FIXME get sneakernet signature
-    // FIXME validate sneakernet signature
-
-    Catalog::Entry entry = {
-        .sha256 = sha256(path/filename),
-        .sneakernetSigned = false,
-    };
-
-    // emplace().second is true if added
-    return catalog.emplace(filename, entry).second;
-}
-
