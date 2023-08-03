@@ -86,4 +86,12 @@ paths:
                 type: string
         '429':
           description: Too Many Requests
+    delete:
+      description: remove file from catalog
+      security: []
+      responses:
+        '200':
+          description: file was removed
+        '404':
+          description: File Not Found
 

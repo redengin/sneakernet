@@ -49,6 +49,9 @@ public:
     };
     InWorkItem newItem(const filename_t& filename, const size_t size);
 
+    bool removeItem(const filename_t&);
+
+
 private:
     const std::filesystem::path path;
 

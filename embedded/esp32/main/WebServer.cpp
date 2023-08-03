@@ -13,7 +13,27 @@ extern "C" esp_err_t CATALOG(httpd_req_t* req);
 static const std::string CATALOG_FILE_URI(CATALOG_URI + "/*");
 extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t* req);
 extern "C" esp_err_t PUT_CATALOG_FILE(httpd_req_t* req);
+extern "C" esp_err_t DELETE_CATALOG_FILE(httpd_req_t* req);
 static constexpr size_t CHUNK_SZ = 1048;
+
+static std::string urlDecode(const std::string& url)
+{
+    std::string ret;
+    for (int i=0; i < url.length(); i++){
+        if(url[i] != '%'){
+            if(url[i] == '+')
+                ret += ' ';
+            else
+                ret += url[i];
+        }else{
+            int ii;
+            sscanf(url.substr(i + 1, 2).c_str(), "%x", &ii);
+            ret += static_cast<char>(ii);
+            i = i + 2;
+        }
+    }
+    return ret;
+}
 
 WebServer::WebServer(SneakerNet& sneakernet)
 :   sneakernet(sneakernet)
@@ -80,6 +100,16 @@ WebServer::WebServer(SneakerNet& sneakernet)
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
+
+    // support removing files
+    {   httpd_uri_t hook = {
+            .uri = CATALOG_FILE_URI.c_str(),
+            .method = HTTP_DELETE,
+            .handler = DELETE_CATALOG_FILE,
+            .user_ctx = self,
+        };
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
+    }
 }
 
 /// INDEX handler
@@ -115,12 +145,15 @@ esp_err_t CATALOG(httpd_req_t* request)
     const std::map<Catalog::filename_t, Catalog::Entry> catalog = self->sneakernet.catalog.items();
     cJSON* const items = cJSON_CreateArray();
     for(const auto& [filename, entry] : catalog) {
-        cJSON* const catalogItem = cJSON_CreateObject();
-        cJSON_AddStringToObject(catalogItem, "filename", filename.c_str());
-        cJSON_AddStringToObject(catalogItem, "sha256", entry.sha256.c_str());
+        cJSON* const item = cJSON_CreateObject();
+        cJSON_AddStringToObject(item, "filename", filename.c_str());
+        cJSON_AddStringToObject(item, "sha256", entry.sha256.c_str());
+        cJSON_AddItemToArray(items, item);
+        ESP_LOGI(TAG, "adding item %s", filename.c_str());
     }
     httpd_resp_set_type(request, "application/json");
     const char* const response = cJSON_PrintUnformatted(items);
+    ESP_LOGI(TAG, "returning \n %s", response);
     httpd_resp_send(request, response, strlen(response));
     delete response;
     cJSON_Delete(items);
@@ -137,7 +170,7 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t* request)
     }
 
     WebServer* const self = static_cast<WebServer*>(request->user_ctx);
-    const std::string filename = request->uri + CATALOG_FILE_URI.size() - sizeof("*");
+    const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     std::ifstream fis = self->sneakernet.catalog.readItem(filename);
     if(fis.bad())
         return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, NULL);
@@ -173,7 +206,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t* request) {
     }
 
     WebServer* const self = static_cast<WebServer*>(request->user_ctx);
-    const std::string filename = request->uri + CATALOG_FILE_URI.size() - sizeof("*");
+    const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     const size_t file_sz = request->content_len;
     Catalog::InWorkItem item = self->sneakernet.catalog.newItem(filename, file_sz);
     if(false == item.ofs.is_open())
@@ -196,10 +229,18 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t* request) {
     if(ret != ESP_OK)
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Item not received"); 
 
-    if(item.add())
-        ESP_LOGI(TAG, "added item %s", request->uri);
-    else
+    if(false == item.add())
         return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, item.getMessages().c_str()); 
+
+    return ESP_OK;
+}
+
+esp_err_t DELETE_CATALOG_FILE(httpd_req_t* request) {
+
+    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
+    const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
+    if(false == self->sneakernet.catalog.removeItem(filename))
+        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, "File Not Found"); 
 
     return ESP_OK;
 }
