@@ -5,34 +5,52 @@
 static const char *TAG = "sneakernet-catalog";
 #include <mbedtls/sha256.h>
 #include <cstring>
+#include <dirent.h>
 
 static const std::string INWORK_SUFFIX = ".inwork";
 static const Catalog::sha256_t sha256(const std::filesystem::path& path);
 
 void Catalog::init()
 {
+    ESP_LOGI(TAG, "init() initializing catalog");
     // ensure catalog directory
-    if(false == std::filesystem::create_directory(path)) {
-        ESP_LOGE(TAG, "failed to create catalog directory");
-        return;
+    std::error_code err;
+    if(false == std::filesystem::is_directory(path, err)) {
+        if(false == std::filesystem::create_directory(path, err)) {
+            ESP_LOGE(TAG, "failed to create catalog directory");
+            return;
+        }
     }
 
-    for(auto const& entry : std::filesystem::directory_iterator{path}) {
-        // don't allow subdirectories
-        if(entry.is_directory()) std::filesystem::remove_all(entry);
+    // FIXME appears ESP32 directory_iterator is always empty
+    // for(const auto& entry : std::filesystem::directory_iterator(path)) {
+    DIR *dfd = opendir(path.c_str());
+    for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
+        // transmute pEntry
+        std::filesystem::directory_entry entry(path/(pEntry->d_name));
+        if(entry.is_directory()) {
+            std::filesystem::remove_all(entry, err);
+            ESP_LOGW(TAG, "init() unable to remove directory %s", entry.path().c_str());
+        }
         else {
             // drop any inwork files
             if(entry.path().string().ends_with(INWORK_SUFFIX)) {
-                std::error_code err;
+                ESP_LOGI(TAG, "init() dropping inwork item '%s'", entry.path().c_str());
                 std::filesystem::remove(entry.path(), err);
                 if(err)
                     ESP_LOGW(TAG, "init() failed to remove inwork item '%s' [%s]",
-                        entry.path().string().c_str(), err.message().c_str());
+                        entry.path().c_str(), err.message().c_str());
             }
-            else
+            else {
+                ESP_LOGI(TAG, "init() adding item '%s'", entry.path().c_str());
                 add(entry.path().filename().string());
+            }
         }
+
     }
+    closedir(dfd);
+
+    ESP_LOGI(TAG, "init() catalog size %d", catalog.size());
 }
 
 static bool isValidFileName(const Catalog::filename_t& filename) {
@@ -62,6 +80,25 @@ Catalog::InWorkItem Catalog::newItem(const std::string& filename, const size_t s
     return InWorkItem(this, filename);
 }
 
+bool Catalog::removeItem(const filename_t& filename)
+{
+    // validate path
+    if(false == isValidFileName(filename))
+        return false;
+
+    auto found = catalog.find(filename);
+    if(found == catalog.end())
+        return false;
+
+    catalog.erase(found);
+    std::error_code err;
+    std::filesystem::remove(path/filename, err);
+    if(err)
+        ESP_LOGW(TAG, "Catalog::removeItem unable to remove %s [err: %s]",
+                      (path/filename).c_str(), err.message().c_str());
+    return true;
+}
+
 Catalog::InWorkItem::InWorkItem() {};
 
 Catalog::InWorkItem::InWorkItem(Catalog* const catalog, const filename_t filename)
@@ -73,13 +110,24 @@ Catalog::InWorkItem::InWorkItem(Catalog* const catalog, const filename_t filenam
 
 Catalog::InWorkItem::~InWorkItem()
 {
-    ofs.close();
-    std::filesystem::remove(catalog->path/(filename + INWORK_SUFFIX));
+    if(ofs.is_open())
+        ofs.close();
+    std::error_code err;
+    std::filesystem::remove(catalog->path/(filename + INWORK_SUFFIX), err);
 };
 
 bool Catalog::InWorkItem::add() {
+    if(catalog == nullptr)
+        return false;
+
     // rename the file
-    std::filesystem::rename(catalog->path/(filename + INWORK_SUFFIX), catalog->path/filename);
+    std::error_code err;
+    std::filesystem::rename(catalog->path/(filename + INWORK_SUFFIX), catalog->path/filename, err);
+    if(err) {
+        ESP_LOGE(TAG, "Catalog::InworkItem::add unable to rename %s [err: %s]",
+                      (catalog->path/filename).c_str(), err.message().c_str());
+        return false;
+    }
     return catalog->add(filename);
 }
 
