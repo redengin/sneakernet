@@ -15,33 +15,38 @@ Human Factors
 Roles
 ================================================================================
 * **Reader** - consumer of content
-* **Librarian** - determines the content of a node
-    - see [content management](content_management)
-    - see [node control](node_control)
+* **Courier** - carrier of content
+    - **Readers** that use the `mobile app`, will automatically become couriers.  
+        In this way, content is automatically distributed.
+* **Librarian** - restricts the content of a node
+    - see [Content Management](content_management)
 * **Creator** - creates content
 * **Publisher** - 
-    - authorizes content per [content management](content_management)
-* **Courier** - carrier of content
-* **Distributor** - deploys a physical device under the control of a **Librarian**
+    - signs content per [content management](content_management)
+* **Distributor** - deploys a physical device
+    - can choose a Librarian
 
 
 Content Management<a id="content_management"></a>
 --------------------------------------------------------------------------------
-The **Librarian** dictates the content management of the node.
-
-To reduce the **Librarian's** effort to maintain content, `SneakerNet`
-incorporates **Courier's** content per the **Librarian's** controls.
+Without a **Librarian** the content of a node is **unrestricted**.
 
 The **Librarian** determines
-* which **Publisher** approved content can be on the node
-    * node's will disregard **Courier** content from unapproved **Publishers**.
-* allow **un-trusted** content (no approved **Publisher**)
+* which **Publishers** `epub` content can be on the node
+    - `SneakerNet` signatures of the `epub`
+* allow **un-trusted** content on the node
 
-Node Control<a id="node_control"></a>
+Content can be **deleted** by any user. This empowers the community to manage
+the content organically.
+
+Node Configuration Control<a id="node_configuration"></a>
 --------------------------------------------------------------------------------
-The **Librarian** can also leverage **Couriers** to manage the node. In addition
-to publishable content, **Couriers** can bring *signed* node control updates
-which:
-* add **Publisher** support
-* remove **Publisher** support (and the stored content)
-* relinquish control to another **Librarian**
+* **Firmware**
+    * The **Firmware** is securely signed.
+    * The `mobile app` will automatically update the node's firmware.
+* **Librarian Configuration**
+    * The **Librarian Configuration** is securely signed.
+    * The `mobile app` will carry the **Librarian Configurations** of the nodes
+        it has come in contact with.
+        * When the node comes into contact with a node, it will attempt to
+            update the **Librarian Configuration**.
