@@ -17,12 +17,14 @@ Roles
 * **Reader** - consumer of content
 * **Courier** - carrier of content
     - **Readers** that use the `mobile app`, will automatically become couriers.  
-        In this way, content is automatically distributed.
+        In this way, content is efficiently distributed.  
+        Aditionally, the `mobile app` will carry **Firmware** and
+        **Librarian Configurations** to efficiently maintain `SneakerNet`.
+        (see [Node Configuration Control](#node_configuration))
 * **Librarian** - restricts the content of a node
-    - see [Content Management](content_management)
+    - see [Content Management](#content_management)
 * **Creator** - creates content
-* **Publisher** - 
-    - signs content per [content management](content_management)
+* **Publisher** - signs content per [Content Management](#content_management)
 * **Distributor** - deploys a physical device
     - can choose a Librarian
 
