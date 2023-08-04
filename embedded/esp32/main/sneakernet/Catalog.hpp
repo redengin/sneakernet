@@ -17,6 +17,7 @@ public:
     typedef std::string filename_t;
     typedef std::string sha256_t;
     typedef struct Entry {
+        size_t size;
         sha256_t sha256;
         bool sneakernetSigned;
     } Entry;

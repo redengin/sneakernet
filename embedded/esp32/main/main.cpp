@@ -1,6 +1,7 @@
 #include "dns_server.h"
 #include "SneakerNet.hpp"
 #include "WebServer.hpp"
+#include "AdminWebServer.hpp"
 
 #include <nvs_flash.h>
 #include <esp_wifi.h>
@@ -17,9 +18,15 @@ void app_main(void)
     // create sneakernet controller
     static SneakerNet sneakerNet;
 
-    // create http interface to sneakernet controller
+    // start the network
     ESP_ERROR_CHECK(esp_netif_init());
+
+    // create http interface to sneakernet catalog
     static WebServer webserver(sneakerNet);
+
+    // FIXME fails to allocate socket
+    // // create https interface for sneakernet admin
+    // static AdminWebServer adminWebserver(sneakerNet);
 
     // create the wifi access point captive portal
     start_wifi_ap();

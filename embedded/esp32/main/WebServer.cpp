@@ -38,22 +38,18 @@ static std::string urlDecode(const std::string& url)
 WebServer::WebServer(SneakerNet& sneakernet)
 :   sneakernet(sneakernet)
 {
-    // FIXME debug use only
-    // esp_log_level_set(TAG, ESP_LOG_DEBUG);
-
     /*
-        Turn of warnings from HTTP server as redirecting traffic will yield
+        Turn off warnings from HTTP server as redirecting traffic will yield
         lots of invalid requests
     */
     esp_log_level_set("httpd_uri", ESP_LOG_ERROR);
     esp_log_level_set("httpd_txrx", ESP_LOG_WARN);
     esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
 
-    // Start the httpd server
+    // Start the http server
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.stack_size = 6*1024;
     config.uri_match_fn = httpd_uri_match_wildcard;
-    // TODO max_open_sockets increase (LWIP_SOCKETS - 3)
+    config.stack_size = 6*1024; // increase stack size
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
     ESP_ERROR_CHECK(httpd_start(&handle, &config));
 
@@ -126,7 +122,6 @@ esp_err_t INDEX(httpd_req_t* req)
 /// provides captive portal redirect
 esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 {
-    ESP_LOGI(TAG, "Redirecting to root");
     // Set status
     httpd_resp_set_status(req, "302 Temporary Redirect");
     // Redirect to the "/" root directory
@@ -147,6 +142,7 @@ esp_err_t CATALOG(httpd_req_t* request)
     for(const auto& [filename, entry] : catalog) {
         cJSON* const item = cJSON_CreateObject();
         cJSON_AddStringToObject(item, "filename", filename.c_str());
+        cJSON_AddNumberToObject(item, "size", entry.size);
         cJSON_AddStringToObject(item, "sha256", entry.sha256.c_str());
         cJSON_AddItemToArray(items, item);
         ESP_LOGI(TAG, "adding item %s", filename.c_str());
@@ -164,21 +160,21 @@ esp_err_t CATALOG(httpd_req_t* request)
 esp_err_t GET_CATALOG_FILE(httpd_req_t* request)
 {
     char* buf = new char[CHUNK_SZ];
-    if(buf == NULL) {
+    if(buf == NULL)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
-    }
 
     WebServer* const self = static_cast<WebServer*>(request->user_ctx);
     const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     std::ifstream fis = self->sneakernet.catalog.readItem(filename);
-    if(fis.bad())
+    if(false == fis.is_open())
         return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, NULL);
 
     httpd_resp_set_type(request, "application/octet-stream");
     esp_err_t ret = ESP_OK;
     while(true) {
         const size_t chunk_sz = fis.readsome(buf, CHUNK_SZ);
+        ESP_LOGI(TAG, "sending chunk [%d]", chunk_sz);
         esp_err_t status = httpd_resp_send_chunk(request, buf, chunk_sz);
         if(status != ESP_OK) {
             ESP_LOGW(TAG, "failed to send file [esp_err=%d]", status);
@@ -232,6 +228,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t* request) {
     if(false == item.add())
         return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, item.getMessages().c_str()); 
 
+    ESP_LOGI(TAG, "added file '%s'", filename.c_str());
     return ESP_OK;
 }
 
@@ -242,5 +239,6 @@ esp_err_t DELETE_CATALOG_FILE(httpd_req_t* request) {
     if(false == self->sneakernet.catalog.removeItem(filename))
         return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, "File Not Found"); 
 
+    ESP_LOGI(TAG, "deleted file '%s'", filename.c_str());
     return ESP_OK;
 }

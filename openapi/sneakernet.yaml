@@ -31,6 +31,8 @@ paths:
                   properties:
                     filename:
                       type: string
+                    size:
+                      type: integer
                     sha256:
                       type: string
                     identifiers:

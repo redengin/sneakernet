@@ -71,8 +71,15 @@ std::ifstream Catalog::readItem(const filename_t& filename)
 Catalog::InWorkItem Catalog::newItem(const std::string& filename, const size_t size)
 {
     // validate path
-    if(false == isValidFileName(filename))
+    if(false == isValidFileName(filename)) {
+        ESP_LOGI(TAG, "newItem() failed - illegal file name [%s]", filename.c_str());
         return InWorkItem();
+    }
+
+    if(catalog.contains(filename)) {
+        ESP_LOGI(TAG, "newItem() failed - existing file of same name [%s]", filename.c_str());
+        return InWorkItem();
+    }
 
     // TODO clean up files to make room for new content size
     (void)size;
@@ -112,13 +119,17 @@ Catalog::InWorkItem::~InWorkItem()
 {
     if(ofs.is_open())
         ofs.close();
-    std::error_code err;
-    std::filesystem::remove(catalog->path/(filename + INWORK_SUFFIX), err);
+    // FIXME ESP32 implementation of remove always throws (even if err is provided)
+    // std::error_code err;
+    // std::filesystem::remove(catalog->path/(filename + INWORK_SUFFIX), err);
 };
 
 bool Catalog::InWorkItem::add() {
     if(catalog == nullptr)
         return false;
+    
+    if(ofs.is_open())
+        ofs.close();
 
     // rename the file
     std::error_code err;
@@ -156,36 +167,45 @@ bool Catalog::add(const std::string& filename)
 }
 
 bool Catalog::addFile(const std::string& filename) {
-    // remove an entry that will be replaced
-    catalog.erase(filename);
+    std::error_code err;
+    const size_t size = std::filesystem::file_size(path/filename, err);
+    if( err || (size == 0) ) {
+        ESP_LOGW(TAG, "addFile() unable to get size of file [%s]", err.message().c_str());
+        return false;
+    }
 
     Catalog::Entry entry = {
+        .size = size,
         .sha256 = sha256(path/filename),
         .sneakernetSigned = false,
     };
+
+    // remove an entry that will be replaced
+    catalog.erase(filename);
 
     // emplace().second is true if added
     return catalog.emplace(filename, entry).second;
 }
 
 bool Catalog::addEpub(const std::string& filename) {
-    // TODO validate per librarian settings
+    return addFile(filename);
+    // // TODO validate per librarian settings
 
-    // remove an entry that will be replaced
-    catalog.erase(filename);
+    // // remove an entry that will be replaced
+    // catalog.erase(filename);
 
-    // FIXME get identifiers
+    // // FIXME get identifiers
 
-    // FIXME get sneakernet signature
-    // FIXME validate sneakernet signature
+    // // FIXME get sneakernet signature
+    // // FIXME validate sneakernet signature
 
-    Catalog::Entry entry = {
-        .sha256 = sha256(path/filename),
-        .sneakernetSigned = false,
-    };
+    // Catalog::Entry entry = {
+    //     .sha256 = sha256(path/filename),
+    //     .sneakernetSigned = false,
+    // };
 
-    // emplace().second is true if added
-    return catalog.emplace(filename, entry).second;
+    // // emplace().second is true if added
+    // return catalog.emplace(filename, entry).second;
 }
 
 const Catalog::sha256_t sha256(const std::filesystem::path& path)

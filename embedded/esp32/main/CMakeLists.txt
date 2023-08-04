@@ -5,6 +5,7 @@ idf_component_register(
        "SneakerNet.cpp"
        "sneakernet/Catalog.cpp"
        "WebServer.cpp"
+       "AdminWebServer.cpp"
     EMBED_TXTFILES
         "certs/servercert.pem"    
         "certs/prvtkey.pem"    
