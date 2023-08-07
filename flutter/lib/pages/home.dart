@@ -86,14 +86,14 @@ class _HomePageState extends State<HomePage> {
                       ),
                       TextButton(
                         child: Icon(Icons.add_circle),
-                        onPressed: () {
-                          // add book from Downloads
-                          const params = OpenFileDialogParams(
-                            mimeTypesFilter: ['application/epub+zip'],
-                          );
-                          final path = FlutterFileDialog.pickFile(params: params);
-                            Library.import(path);
-                        },
+                        onPressed: () {},
+                        //   // add book from Downloads
+                        //   const params = OpenFileDialogParams(
+                        //     mimeTypesFilter: ['application/epub+zip'],
+                        //   );
+                        //   final path = FlutterFileDialog.pickFile(params: params);
+                        //     Library.import(path);
+                        // },
                       ),
                     ],
                   ),

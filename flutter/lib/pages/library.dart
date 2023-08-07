@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:ebook/ebook.dart';
-
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:path/path.dart' as path;
 import '../library.dart';
-import '../widgets/book_card.dart';
+import 'dart:io';
+
+import '../widgets/file_tile.dart';
+import '../widgets/sneakernet_drawer.dart';
 
 class LibraryPage extends StatefulWidget {
   static const String routeName = '/library';
@@ -14,31 +17,55 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage> {
-  final Future<List<EBook>> catalog = Library.catalog();
+  var catalog;
 
   @override
   Widget build(BuildContext context) {
+    // get the latest set of files
+    catalog = library.catalog();
+    // most recent first
+    catalog.sort(
+        (a, b) => a.lastAccessedSync().isAfter(b.lastAccessedSync()) ? 1 : -1);
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text('SneakerNet Library'),
-        ),
-        body: FutureBuilder<List<EBook>>(
-          future: catalog,
-          builder: _bodyBuilder,
-        )
+      appBar: AppBar(
+        title: const Text('SneakerNet Library'),
+      ),
+      drawer: SneakerNetDrawer(),
+      body: (catalog.isEmpty)
+          ? Center(
+              child: Text('no files',
+                  style: Theme.of(context).textTheme.headlineLarge))
+          : ListView.builder(
+              itemExtent: 120,
+              itemCount: catalog.length,
+              itemBuilder: _itemBuilder,
+            ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          if (await library.import(FlutterFileDialog.pickFile())) {
+            setState(() {});
+          }
+        },
+      ),
     );
   }
 
-  Widget _bodyBuilder(BuildContext context,
-      AsyncSnapshot<List<EBook>> snapshot) {
-    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-      final ebookRefs = snapshot.data!;
-      return ListView.builder(
-          itemCount: ebookRefs.length,
-          itemBuilder: (context, index) {
-            return BookCard(ebookRefs.elementAt(index));
-          });
-    }
-    return const Center(child: Text('SneakerNet library is empty'));
+  Widget? _itemBuilder(BuildContext context, int index) {
+    File file = catalog[index];
+    return Card(
+        child: Column(children: [
+      FileTile(file),
+      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        IconButton(
+          icon: const Icon(Icons.delete),
+          onPressed: () => setState(() {
+            file.delete();
+            catalog.removeAt(index);
+          }),
+        )
+      ])
+    ]));
   }
 }

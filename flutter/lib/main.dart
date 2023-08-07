@@ -6,10 +6,12 @@ import 'package:wifi_scan/wifi_scan.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 
+import 'settings.dart';
+import 'library.dart';
 import 'notifications.dart';
 import 'sneakernet.dart';
-import 'settings.dart';
 import 'pages/home.dart';
 import 'pages/settings.dart';
 import 'pages/library.dart';
@@ -18,8 +20,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // initialize persistent settings
-  SharedPreferences preferences = await SharedPreferences.getInstance();
+  final SharedPreferences preferences = await SharedPreferences.getInstance();
   settings = Settings(preferences: preferences);
+
+  // use a non-backed up storage for library content
+  final storageDir = await getTemporaryDirectory();
+  library = Library(storageDir);
 
   // initialize local notifications
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -61,7 +67,7 @@ Future<void> main() async {
           Platform.isLinux
       ? null
       : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-  String initialRoute = HomePage.routeName;
+
   // FIXME support routing to other page upon notification
   // if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
   //   selectedNotificationPayload =
@@ -70,11 +76,11 @@ Future<void> main() async {
   // }
   runApp(
     MaterialApp(
-      initialRoute: initialRoute,
+      initialRoute: LibraryPage.routeName,
       routes: <String, WidgetBuilder>{
-        HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
-        SettingsPage.routeName: (_) => const SettingsPage(),
         LibraryPage.routeName: (_) => const LibraryPage(),
+        SettingsPage.routeName: (_) => const SettingsPage(),
+        HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
       },
     ),
   );
