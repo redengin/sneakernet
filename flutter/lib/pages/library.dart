@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import '../library.dart';
 import 'dart:io';
@@ -54,18 +55,22 @@ class _LibraryPageState extends State<LibraryPage> {
 
   Widget? _itemBuilder(BuildContext context, int index) {
     File file = catalog[index];
-    return Card(
-        child: Column(children: [
-      FileTile(file),
-      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-        IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () => setState(() {
-            file.delete();
-            catalog.removeAt(index);
-          }),
-        )
-      ])
-    ]));
+    return GestureDetector(
+        onTap: () {
+          // let the user decide how to open the file
+          OpenFilex.open(file.path);
+        },
+        child: Card(
+            child: Column(children: [
+          FileTile(file),
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => setState(() {
+                file.delete();
+              }),
+            )
+          ])
+        ])));
   }
 }

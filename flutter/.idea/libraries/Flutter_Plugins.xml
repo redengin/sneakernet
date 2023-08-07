@@ -6,7 +6,6 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_file_dialog-3.0.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider-2.0.15" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/wifi_scan-0.4.0+1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/vocsy_epub_viewer-2.0.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/auto_start_flutter-0.1.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_foundation-2.3.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/permission_handler-10.4.3" />
@@ -20,6 +19,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences-2.2.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.3.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.1.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/open_filex-4.3.2" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

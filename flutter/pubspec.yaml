@@ -49,10 +49,9 @@ dependencies:
   flutter_file_dialog: ^3.0.1
   path_provider: ^2.0.15
   path: ^1.8.3
-  vocsy_epub_viewer: ^2.0.0
   ebook:
     git: https://github.com/redengin/dart-ebook.git
-
+  open_filex: ^4.3.2
 
 dev_dependencies:
   flutter_test:
