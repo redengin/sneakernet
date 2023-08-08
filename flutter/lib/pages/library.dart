@@ -56,10 +56,7 @@ class _LibraryPageState extends State<LibraryPage> {
   Widget? _itemBuilder(BuildContext context, int index) {
     File file = catalog[index];
     return GestureDetector(
-        onTap: () {
-          // let the user decide how to open the file
-          OpenFilex.open(file.path);
-        },
+        onTap: () => {OpenFilex.open(file.path)},
         child: Card(
             child: Column(children: [
           FileTile(file),
@@ -70,7 +67,7 @@ class _LibraryPageState extends State<LibraryPage> {
                 file.delete();
               }),
             )
-          ])
+          ]),
         ])));
   }
 }
