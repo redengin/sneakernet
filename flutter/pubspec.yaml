@@ -37,6 +37,7 @@ dependencies:
   permission_handler: ^10.3.0
   auto_start_flutter: ^0.1.1
   wifi_scan: ^0.4.0
+  openapi_generator_annotations: ^4.11.0
   workmanager: ^0.5.1
   flutter_local_notifications: ^14.1.1
   settings_ui: ^2.0.2
@@ -66,6 +67,8 @@ dev_dependencies:
 #  flutter_launcher_icons: ^0.13.1
 # NOTE: to generate new icons
 #     dart run flutter_launcher_icons
+  build_runner: ^2.4.6
+  openapi_generator: ^4.11.0
 
 flutter_launcher_icons:
   android: "launcher_icon"
