@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:path/path.dart' as p;
 
 // initialized by main
@@ -10,7 +11,17 @@ class Library {
     libraryDir = Directory(p.join(dir.path, 'library'));
     libraryDir.create(recursive: true);
   }
-  static const inworkSuffix = ".inwork";
+
+  List<File> files() {
+    var files = libraryDir.listSync();
+    // remove non-files
+    files.removeWhere((item) => item is! File);
+    // remove any in-work files
+    files.removeWhere((item) => item.path.endsWith(inworkSuffix));
+    return files
+        .map((e) => e as File)
+        .toList(growable: false);
+  }
 
   // import a file
   Future<bool> import(Future<String?> from) async {
@@ -24,14 +35,22 @@ class Library {
     return file.exists();
   }
 
-  List<File> catalog() {
-    var files = libraryDir.listSync();
-    // remove non-files
-    files.removeWhere((item) => item is! File);
-    // remove any in-work files
-    files.removeWhere((item) => item.path.endsWith(inworkSuffix));
-    return files
-      .map((e) => e as File)
-      .toList();
+  static const inworkSuffix = ".inwork";
+  bool add(String filename, Uint8List bytes) {
+    // create an inwork file
+    final inWorkFile = File(p.join(libraryDir.path, filename+inworkSuffix));
+    try {
+      inWorkFile.writeAsBytesSync(bytes, flush: true);
+    } catch(e) {
+      inWorkFile.delete();
+      return false;
+    }
+    // rename inwork file to actual name
+    inWorkFile.rename(p.join(libraryDir.path, filename));
+    return true;
+  }
+
+  void remove(File file) {
+      file.deleteSync();
   }
 }

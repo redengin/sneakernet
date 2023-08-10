@@ -6,5 +6,5 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
     additionalProperties: AdditionalProperties(pubName: 'sneakernet_rest'),
     inputSpecFile: '../openapi/sneakernet.yaml',
     generatorName: Generator.dart,
-    outputDirectory: 'rest')
+    outputDirectory: 'lib/rest')
 class SneakernetRest extends OpenapiGeneratorConfig {}

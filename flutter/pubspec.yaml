@@ -53,6 +53,8 @@ dependencies:
   ebook:
     git: https://github.com/redengin/dart-ebook.git
   open_filex: ^4.3.2
+  sneakernet_rest:
+    path: lib/rest
 
 dev_dependencies:
   flutter_test:
