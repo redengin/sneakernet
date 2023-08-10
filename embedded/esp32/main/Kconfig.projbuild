@@ -1,15 +1,8 @@
 menu "SneakerNet"
-    config SNEAKERNET_CONTENT_ALLOW_NON_EPUB
-        bool "Allow files that aren't epub documents"
-        default y
-        help
-            Allow users to share files via the SneakerNet node.
-            As these aren't ebooks their is no way to control this content.
-
     config SNEAKERNET_CONTENT_REQUIRE_SNEAKERNET_SIGNATURE
-        bool "Require a sneakernet signature on epub documents"
+        bool "Require a sneakernet signature on files"
         default n
         help
-            Allows the librarian to ensure that epub content comes from
-            accepted publishers.
+            Generally files aren't able to be signed.
+            EPUB files are able to be signed.
 endmenu
