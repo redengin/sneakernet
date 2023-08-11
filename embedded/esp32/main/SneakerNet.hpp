@@ -1,5 +1,6 @@
 #pragma once
 #include <esp_vfs_fat.h>
+#include <esp_ota_ops.h>
 
 #include "sneakernet/Catalog.hpp"
 
@@ -9,6 +10,8 @@ public:
 
     // librarian controlled content
     Catalog catalog;
+
+    // const esp_app_desc_t firmwareInfo;
 
 private:
     void mount_sdcard();

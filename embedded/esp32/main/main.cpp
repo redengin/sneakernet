@@ -30,6 +30,9 @@ void app_main(void)
 
     // create the wifi access point captive portal
     start_wifi_ap();
+
+    // sneaker net working, don't roll back firmware
+    esp_ota_mark_app_valid_cancel_rollback();
 }
 
 /// creates a wifi access point captive portal
