@@ -3,7 +3,6 @@
 #include <esp_event.h>
 #include <sdmmc_cmd.h>
 #include <esp_vfs_fat.h>
-// #include <http_parser.h>
 #include <filesystem>
 #include <string.h>
 #include <exception>

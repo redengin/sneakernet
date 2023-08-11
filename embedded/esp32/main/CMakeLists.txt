@@ -2,10 +2,10 @@ idf_component_register(
     SRCS
        "main.cpp"
        "dns_server.c"
-       "SneakerNet.cpp"
+       "sneakernet/SneakerNet.cpp"
        "sneakernet/Catalog.cpp"
-       "WebServer.cpp"
-       "AdminWebServer.cpp"
+       "sneakernet/WebServer.cpp"
+       "sneakernet/AdminWebServer.cpp"
     EMBED_TXTFILES
         "certs/servercert.pem"    
         "certs/prvtkey.pem"    

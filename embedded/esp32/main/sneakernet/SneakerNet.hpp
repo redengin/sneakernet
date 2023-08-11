@@ -1,8 +1,8 @@
 #pragma once
 #include <esp_vfs_fat.h>
-#include <esp_ota_ops.h>
 
-#include "sneakernet/Catalog.hpp"
+#include "Sha256.hpp"
+#include "Catalog.hpp"
 
 class SneakerNet {
 public:
@@ -11,7 +11,7 @@ public:
     // librarian controlled content
     Catalog catalog;
 
-    // const esp_app_desc_t firmwareInfo;
+    const sha256_t firmwareSha256;
 
 private:
     void mount_sdcard();

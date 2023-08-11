@@ -8,7 +8,7 @@ static const char *TAG = "sneakernet-catalog";
 #include <dirent.h>
 
 static const std::string INWORK_SUFFIX = ".inwork";
-static const Catalog::sha256_t sha256(const std::filesystem::path& path);
+static const sha256_t sha256(const std::filesystem::path& path);
 
 void Catalog::init()
 {
@@ -176,7 +176,9 @@ bool Catalog::addFile(const std::string& filename) {
 
     Catalog::Entry entry = {
         .size = size,
-        .sha256 = sha256(path/filename),
+        // currently unused, so don't use the compute time
+        // .sha256 = sha256(path/filename),
+        .sha256 = "",
         .sneakernetSigned = false,
     };
 
@@ -208,9 +210,9 @@ bool Catalog::addEpub(const std::string& filename) {
     // return catalog.emplace(filename, entry).second;
 }
 
-const Catalog::sha256_t sha256(const std::filesystem::path& path)
+const sha256_t sha256(const std::filesystem::path& path)
 {
-    Catalog::sha256_t ret;
+    sha256_t ret;
 
     auto ifs = std::ifstream(path, std::ios_base::in | std::ios_base::binary);
     if(ifs.bad()) {

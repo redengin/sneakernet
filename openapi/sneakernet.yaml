@@ -27,7 +27,6 @@ paths:
                   type: object
                   required:
                     - filename
-                    - sha256
                   properties:
                     filename:
                       type: string
@@ -97,3 +96,35 @@ paths:
         '404':
           description: File Not Found
 
+  /firmware:
+    get:
+      description: Returns current firmware info
+      security: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - sha256
+                properties:
+                  sha256:
+                    type: string
+        '500':
+          description: invalid firmware
+    put:
+      description: update the firmware
+      security: []
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: accepted update, will now reboot
+        '400':
+          description: firmware was rejected

@@ -1,11 +1,13 @@
-#include "dns_server.h"
-#include "SneakerNet.hpp"
-#include "WebServer.hpp"
-#include "AdminWebServer.hpp"
-
 #include <nvs_flash.h>
+#include <esp_ota_ops.h>
 #include <esp_wifi.h>
 #include <hal/efuse_hal.h>
+
+#include "dns_server.h"
+#include "sneakernet/SneakerNet.hpp"
+#include "sneakernet/WebServer.hpp"
+#include "sneakernet/AdminWebServer.hpp"
+
 static void start_wifi_ap(void);
 
 
@@ -15,7 +17,7 @@ void app_main(void)
     // create default event bus (required for IDF drivers)
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    // create sneakernet controller
+    // create sneakernet controller (mounts sd card)
     static SneakerNet sneakerNet;
 
     // start the network

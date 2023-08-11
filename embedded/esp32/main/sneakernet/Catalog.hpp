@@ -5,6 +5,8 @@
 #include <map>
 #include <fstream>
 
+#include "Sha256.hpp"
+
 class Catalog {
 public:
     Catalog(const std::filesystem::path& path) : path(path) {};
@@ -15,7 +17,6 @@ public:
 
     /// a string without any path delimiters
     typedef std::string filename_t;
-    typedef std::string sha256_t;
     typedef struct Entry {
         size_t size;
         sha256_t sha256;
