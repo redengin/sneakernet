@@ -1,4 +1,5 @@
 #include "sdkconfig.h"
+#include <esp_ota_ops.h>
 #include <esp_log.h>
 static constexpr char TAG[] = "webserver";
 
@@ -9,11 +10,14 @@ static const std::string INDEX_URI("/");
 extern "C" esp_err_t INDEX(httpd_req_t*);
 extern "C" esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err);
 static const std::string CATALOG_URI(INDEX_URI + "catalog");
-extern "C" esp_err_t CATALOG(httpd_req_t* req);
+extern "C" esp_err_t GET_CATALOG(httpd_req_t* req);
 static const std::string CATALOG_FILE_URI(CATALOG_URI + "/*");
 extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t* req);
 extern "C" esp_err_t PUT_CATALOG_FILE(httpd_req_t* req);
 extern "C" esp_err_t DELETE_CATALOG_FILE(httpd_req_t* req);
+static const std::string FIRMWARE_URI("/firmware");
+extern "C" esp_err_t GET_FIRMWARE(httpd_req_t* req);
+extern "C" esp_err_t PUT_FIRMWARE(httpd_req_t* req);
 static constexpr size_t CHUNK_SZ = 1048;
 
 static std::string urlDecode(const std::string& url)
@@ -66,17 +70,16 @@ WebServer::WebServer(SneakerNet& sneakernet)
         // provide 404 redirect to support captive portal
         ESP_ERROR_CHECK(httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_redirect));
     }
-
+// CATALOG
     // support catalog listing
     {   httpd_uri_t hook = {
             .uri = CATALOG_URI.c_str(),
             .method = HTTP_GET,
-            .handler = CATALOG,
+            .handler = GET_CATALOG,
             .user_ctx = self,
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
-
     // support serving files
     {   httpd_uri_t hook = {
             .uri = CATALOG_FILE_URI.c_str(),
@@ -86,7 +89,6 @@ WebServer::WebServer(SneakerNet& sneakernet)
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
-
     // support receiving files
     {   httpd_uri_t hook = {
             .uri = CATALOG_FILE_URI.c_str(),
@@ -96,12 +98,30 @@ WebServer::WebServer(SneakerNet& sneakernet)
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
-
     // support removing files
     {   httpd_uri_t hook = {
             .uri = CATALOG_FILE_URI.c_str(),
             .method = HTTP_DELETE,
             .handler = DELETE_CATALOG_FILE,
+            .user_ctx = self,
+        };
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
+    }
+// FIRMWARE
+    // support firmware check
+    {   httpd_uri_t hook = {
+            .uri = FIRMWARE_URI.c_str(),
+            .method = HTTP_GET,
+            .handler = GET_FIRMWARE,
+            .user_ctx = self,
+        };
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
+    }
+    // support firmware check
+    {   httpd_uri_t hook = {
+            .uri = FIRMWARE_URI.c_str(),
+            .method = HTTP_PUT,
+            .handler = PUT_FIRMWARE,
             .user_ctx = self,
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
@@ -133,7 +153,7 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 
 
 /// Listing of content
-esp_err_t CATALOG(httpd_req_t* request)
+esp_err_t GET_CATALOG(httpd_req_t* request)
 {
     ESP_LOGI(TAG, "Serving catalog");
     WebServer* const self = static_cast<WebServer*>(request->user_ctx);
@@ -148,9 +168,9 @@ esp_err_t CATALOG(httpd_req_t* request)
         cJSON_AddItemToArray(items, item);
         ESP_LOGI(TAG, "adding item %s", filename.c_str());
     }
-    httpd_resp_set_type(request, "application/json");
     const char* const response = cJSON_PrintUnformatted(items);
     ESP_LOGI(TAG, "returning \n %s", response);
+    httpd_resp_set_type(request, "application/json");
     httpd_resp_send(request, response, strlen(response));
     delete response;
     cJSON_Delete(items);
@@ -242,4 +262,73 @@ esp_err_t DELETE_CATALOG_FILE(httpd_req_t* request) {
 
     ESP_LOGI(TAG, "deleted file '%s'", filename.c_str());
     return ESP_OK;
+}
+
+/// firmware info
+esp_err_t GET_FIRMWARE(httpd_req_t* request)
+{
+    ESP_LOGI(TAG, "Serving firmware info");
+    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
+    cJSON* const item = cJSON_CreateObject();
+    cJSON_AddStringToObject(item, "sha256", self->sneakernet.firmwareSha256);
+    const char* const response = cJSON_PrintUnformatted(item);
+    ESP_LOGI(TAG, "returning \n %s", response);
+    httpd_resp_set_type(request, "application/json");
+    httpd_resp_send(request, response, strlen(response));
+    delete response;
+    cJSON_Delete(item);
+    return ESP_OK;
+}
+
+// firmware update
+esp_err_t PUT_FIRMWARE(httpd_req_t* request) {
+    // validate there is data
+    if(request->content_len <= 0) {
+        return httpd_resp_send_err(request, HTTPD_411_LENGTH_REQUIRED, "Length required"); 
+    }
+
+    // create a buffer
+    char* buf = new char[CHUNK_SZ];
+    if(buf == NULL) {
+        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
+    }
+
+    const esp_partition_t* const partition = esp_ota_get_next_update_partition(nullptr);
+    esp_ota_handle_t handle;
+    if(ESP_OK != esp_ota_begin(partition, request->content_len, &handle)) {
+        ESP_LOGW(TAG, "unable to begin firmware update");
+        return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, nullptr);
+    }
+
+    // receive the data
+    esp_err_t ret = ESP_OK;
+    for(size_t remaining = request->content_len; remaining > 0;) {
+        const int received = httpd_req_recv(request, buf, MIN(remaining, CHUNK_SZ));
+        if(received < 0) {
+            ESP_LOGW(TAG, "download incomplete: %s", request->uri);
+            ret = ESP_FAIL;
+            break;
+        }
+        ret = esp_ota_write(handle, buf, received);
+        if(ret != ESP_OK) {
+            ESP_LOGW(TAG, "firmware update failed upon write");
+            break;
+        }
+        remaining -= received;
+    }
+
+    if(ESP_OK != esp_ota_end(handle)) {
+        ESP_LOGW(TAG, "unable to end firmware update");
+        return ESP_FAIL;
+    }
+
+    if(ESP_OK != esp_ota_set_boot_partition(partition)) {
+        ESP_LOGW(TAG, "unable to set new boot partition");
+        return ESP_FAIL;
+    }
+
+    // reboot
+    // FIXME send 200 response
+    esp_restart();
 }

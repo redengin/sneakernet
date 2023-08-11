@@ -70,6 +70,7 @@ paths:
       security: []
       requestBody:
         content:
+          # must set HTTP:Content-Length
           application/octet-stream:
             schema:
               type: string
@@ -120,6 +121,7 @@ paths:
       security: []
       requestBody:
         content:
+          # must set HTTP:Content-Length
           application/octet-stream:
             schema:
               type: string
