@@ -27,6 +27,7 @@ paths:
                   type: object
                   required:
                     - filename
+                    - size
                   properties:
                     filename:
                       type: string

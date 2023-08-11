@@ -143,7 +143,8 @@ esp_err_t CATALOG(httpd_req_t* request)
         cJSON* const item = cJSON_CreateObject();
         cJSON_AddStringToObject(item, "filename", filename.c_str());
         cJSON_AddNumberToObject(item, "size", entry.size);
-        cJSON_AddStringToObject(item, "sha256", entry.sha256.c_str());
+        // TODO unused
+        // cJSON_AddStringToObject(item, "sha256", entry.sha256.c_str());
         cJSON_AddItemToArray(items, item);
         ESP_LOGI(TAG, "adding item %s", filename.c_str());
     }

@@ -5,8 +5,6 @@
 #include <map>
 #include <fstream>
 
-#include "Sha256.hpp"
-
 class Catalog {
 public:
     Catalog(const std::filesystem::path& path) : path(path) {};
@@ -19,7 +17,8 @@ public:
     typedef std::string filename_t;
     typedef struct Entry {
         size_t size;
-        sha256_t sha256;
+        // TODO add this back in
+        // sha256_t sha256;
         bool sneakernetSigned;
     } Entry;
     /// @returns thread-safe map - won't invalidate thread iterators upon modification

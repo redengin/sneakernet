@@ -1,13 +1,10 @@
 #include "SneakerNet.hpp"
 
-#include <esp_event.h>
+#include <esp_app_desc.h>
 #include <sdmmc_cmd.h>
-#include <esp_vfs_fat.h>
-#include <filesystem>
-#include <string.h>
-#include <exception>
 #include <esp_log.h>
 static const char *TAG = "sneakernet";
+#include <filesystem>
 
 constexpr char MOUNT_DIR[] = "/sdcard";
 constexpr char CATALOG_DIR[] = "catalog";
@@ -15,6 +12,14 @@ constexpr char CATALOG_DIR[] = "catalog";
 SneakerNet::SneakerNet()
     : catalog(std::filesystem::path(MOUNT_DIR)/CATALOG_DIR)
 {
+    // initialize the firmwareSha256
+    // TODO esp_app_get_elf_sha256 implementation is garbage
+    // const int sz = esp_app_get_elf_sha256(firmwareSha256, sizeof(firmwareSha256 + 1));
+    const int sz = esp_app_get_elf_sha256(firmwareSha256, 2 * sizeof(firmwareSha256));
+    if(sz != sizeof(firmwareSha256))
+        ESP_LOGW(TAG, "mismatched sha256 length [is:%d, expected:%d]", sz, sizeof(firmwareSha256));
+    ESP_LOGI(TAG, "firmwware SHA256 %s", firmwareSha256);
+
     // mount the sd card
     mount_sdcard();
 

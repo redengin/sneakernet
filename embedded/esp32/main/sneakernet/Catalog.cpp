@@ -8,7 +8,6 @@ static const char *TAG = "sneakernet-catalog";
 #include <dirent.h>
 
 static const std::string INWORK_SUFFIX = ".inwork";
-static const sha256_t sha256(const std::filesystem::path& path);
 
 void Catalog::init()
 {
@@ -178,7 +177,6 @@ bool Catalog::addFile(const std::string& filename) {
         .size = size,
         // currently unused, so don't use the compute time
         // .sha256 = sha256(path/filename),
-        .sha256 = "",
         .sneakernetSigned = false,
     };
 
@@ -210,43 +208,45 @@ bool Catalog::addEpub(const std::string& filename) {
     // return catalog.emplace(filename, entry).second;
 }
 
-const sha256_t sha256(const std::filesystem::path& path)
-{
-    sha256_t ret;
 
-    auto ifs = std::ifstream(path, std::ios_base::in | std::ios_base::binary);
-    if(ifs.bad()) {
-        ESP_LOGE(TAG, "sha256() unable to open file '%s' [%s]", path.c_str(), strerror(errno));
-        return ret;
-    }
+// FIXME move to seperate namespace
+// const sha256_t sha256(const std::filesystem::path& path)
+// {
+//     sha256_t ret;
 
-    int err = 0;
-    mbedtls_sha256_context ctx;
-    mbedtls_sha256_init(&ctx);
-    err = mbedtls_sha256_starts(&ctx, false /* use sha256 rather than sha224 */);
-    if(err != 0)
-        ESP_LOGE(TAG, "sha256 unable to mbedtls_sha256_starts() [error: %X]", err);
+//     auto ifs = std::ifstream(path, std::ios_base::in | std::ios_base::binary);
+//     if(ifs.bad()) {
+//         ESP_LOGE(TAG, "sha256() unable to open file '%s' [%s]", path.c_str(), strerror(errno));
+//         return ret;
+//     }
 
-    char buffer[64];
-    while(false == ifs.eof()) {
-        ifs.read(buffer, sizeof(buffer));
-        err = mbedtls_sha256_update(&ctx, reinterpret_cast<unsigned char*>(buffer), ifs.gcount());
-        if(err != 0) {
-            ESP_LOGE(TAG, "sha256 unable to mbedtls_sha256_update() [error: %X]", err);
-            break;    
-        }
-    }
-    ifs.close();
-    if(err == 0) {
-        uint8_t sha256[32];
-        err = mbedtls_sha256_finish(&ctx, sha256);
-        if(err == 0)
-            for(size_t i=0; i < sizeof(sha256); ++i) {
-                char s[3];
-                std::snprintf(s, sizeof(s), "%X", sha256[i]);
-                ret += s;
-            }
-    }
+//     int err = 0;
+//     mbedtls_sha256_context ctx;
+//     mbedtls_sha256_init(&ctx);
+//     err = mbedtls_sha256_starts(&ctx, false /* use sha256 rather than sha224 */);
+//     if(err != 0)
+//         ESP_LOGE(TAG, "sha256 unable to mbedtls_sha256_starts() [error: %X]", err);
 
-    return ret;
-}
+//     char buffer[64];
+//     while(false == ifs.eof()) {
+//         ifs.read(buffer, sizeof(buffer));
+//         err = mbedtls_sha256_update(&ctx, reinterpret_cast<unsigned char*>(buffer), ifs.gcount());
+//         if(err != 0) {
+//             ESP_LOGE(TAG, "sha256 unable to mbedtls_sha256_update() [error: %X]", err);
+//             break;    
+//         }
+//     }
+//     ifs.close();
+//     if(err == 0) {
+//         uint8_t sha256[32];
+//         err = mbedtls_sha256_finish(&ctx, sha256);
+//         if(err == 0)
+//             for(size_t i=0; i < sizeof(sha256); ++i) {
+//                 char s[3];
+//                 std::snprintf(s, sizeof(s), "%X", sha256[i]);
+//                 ret += s;
+//             }
+//     }
+
+//     return ret;
+// }

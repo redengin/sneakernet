@@ -1,7 +1,6 @@
 #pragma once
 #include <esp_vfs_fat.h>
 
-#include "Sha256.hpp"
 #include "Catalog.hpp"
 
 class SneakerNet {
@@ -11,7 +10,8 @@ public:
     // librarian controlled content
     Catalog catalog;
 
-    const sha256_t firmwareSha256;
+    /// string of sha (with NULL terminator)
+    char firmwareSha256[CONFIG_APP_RETRIEVE_LEN_ELF_SHA + 1];
 
 private:
     void mount_sdcard();
