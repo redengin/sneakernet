@@ -57,16 +57,18 @@ class _LibraryPageState extends State<LibraryPage> {
     return GestureDetector(
         onTap: () => {OpenFilex.open(file.path)},
         child: Card(
-            child: Column(children: [
-          FileTile(file),
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => setState(() {
-                library.remove(file);
-              }),
+            child: Stack(
+          children: [
+            FileTile(file),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => setState(() {
+                        library.remove(file);
+                      })),
             )
-          ]),
-        ])));
+          ],
+        )));
   }
 }

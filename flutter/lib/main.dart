@@ -76,11 +76,14 @@ Future<void> main() async {
   // }
   runApp(
     MaterialApp(
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
       initialRoute: LibraryPage.routeName,
       routes: <String, WidgetBuilder>{
         LibraryPage.routeName: (_) => const LibraryPage(),
         SettingsPage.routeName: (_) => const SettingsPage(),
-        HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
+        // HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
       },
     ),
   );

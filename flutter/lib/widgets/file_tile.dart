@@ -23,7 +23,8 @@ class FileTile extends StatelessWidget {
                 ebook.readContainerFile(info.coverImageRefs.first.href);
             if (data != null) {
               // FIXME image doesn't scale correctly
-              preview = Image.memory(data, width: 100, height: 100);
+              // preview = Container(width: 100, height: 100, child: FittedBox(fit: BoxFit.cover, child: Image.memory(data, height: 100)));
+              preview = Image.memory(data, height: 100);
             }
             if (info.titles.isNotEmpty) {
               title = info.titles[0];
@@ -36,9 +37,20 @@ class FileTile extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => ListTile(
-        leading: _preview,
-        title: Text(_title),
-        // subtitle: Text(_subtitle),
-      );
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 2, child: _preview),
+        Expanded(flex: 5, child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(_title, style: Theme.of(context).textTheme.headlineSmall),
+            // Text(_subtitle),
+          ],
+        ),)
+      ],
+    )
+  );
 }
