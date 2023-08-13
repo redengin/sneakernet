@@ -38,19 +38,21 @@ class FileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 5),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(flex: 2, child: _preview),
-        Expanded(flex: 5, child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(_title, style: Theme.of(context).textTheme.headlineSmall),
-            // Text(_subtitle),
-          ],
-        ),)
-      ],
-    )
-  );
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: 2, child: _preview),
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(_title, style: Theme.of(context).textTheme.headlineSmall),
+                // Text(_subtitle),
+              ],
+            ),
+          )
+        ],
+      ));
 }
