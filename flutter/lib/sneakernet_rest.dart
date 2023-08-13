@@ -4,6 +4,7 @@ import 'package:openapi_generator_annotations/openapi_generator_annotations.dart
 // dart run build_runner build --delete-conflicting-outputs
 @Openapi(
     additionalProperties: AdditionalProperties(pubName: 'sneakernet_rest'),
+    alwaysRun: true,
     inputSpecFile: '../openapi/sneakernet.yaml',
     generatorName: Generator.dart,
     outputDirectory: 'lib/rest')

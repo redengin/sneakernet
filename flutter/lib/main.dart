@@ -8,11 +8,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'settings.dart';
 import 'library.dart';
+import 'settings.dart';
 import 'notifications.dart';
 import 'sneakernet.dart';
-import 'pages/home.dart';
 import 'pages/settings.dart';
 import 'pages/library.dart';
 
@@ -33,9 +32,9 @@ Future<void> main() async {
   // subscribe to wifi scans
   final scanSubscription =
       WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-    const SNEAKER_NET_SSID = "SneakerNet";
+    const SNEAKER_NET_PREFIX = "SneakerNet";
     var sneakerNets = results
-        .where((_) => _.ssid.startsWith(SNEAKER_NET_SSID))
+        .where((_) => _.ssid.startsWith(SNEAKER_NET_PREFIX))
         .toList(growable: false);
 
     if (sneakerNets.isNotEmpty) {
@@ -74,11 +73,12 @@ Future<void> main() async {
   //       notificationAppLaunchDetails!.notificationResponse?.payload;
   //   initialRoute = SecondPage.routeName;
   // }
+
   runApp(
     MaterialApp(
+      themeMode: ThemeMode.system,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.system,
       initialRoute: LibraryPage.routeName,
       routes: <String, WidgetBuilder>{
         LibraryPage.routeName: (_) => const LibraryPage(),
@@ -101,7 +101,12 @@ void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
     switch (taskName) {
       case SCAN_TASK_NAME:
-        return WiFiScan.instance.startScan();
+        switch (await WiFiScan.instance.canStartScan()) {
+          case CanStartScan.yes:
+            return WiFiScan.instance.startScan();
+          default:
+            return false;
+        }
       case SYNC_TASK_NAME:
         if (localSneakerNets.isEmpty) {
           flutterLocalNotificationsPlugin.show(SNEAKERNET_SYNC_ID,

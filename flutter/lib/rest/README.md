@@ -61,11 +61,14 @@ Class | Method | HTTP request | Description
 *DefaultApi* | [**catalogFilenameGet**](doc//DefaultApi.md#catalogfilenameget) | **GET** /catalog/{filename} | 
 *DefaultApi* | [**catalogFilenamePut**](doc//DefaultApi.md#catalogfilenameput) | **PUT** /catalog/{filename} | 
 *DefaultApi* | [**catalogGet**](doc//DefaultApi.md#catalogget) | **GET** /catalog | 
+*DefaultApi* | [**firmwareGet**](doc//DefaultApi.md#firmwareget) | **GET** /firmware | 
+*DefaultApi* | [**firmwarePut**](doc//DefaultApi.md#firmwareput) | **PUT** /firmware | 
 
 
 ## Documentation For Models
 
  - [CatalogGet200ResponseInner](doc//CatalogGet200ResponseInner.md)
+ - [FirmwareGet200Response](doc//FirmwareGet200Response.md)
 
 
 ## Documentation For Authorization

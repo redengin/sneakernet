@@ -30,6 +30,7 @@ part 'auth/http_bearer_auth.dart';
 part 'api/default_api.dart';
 
 part 'model/catalog_get200_response_inner.dart';
+part 'model/firmware_get200_response.dart';
 
 
 const _delimiters = {'csv': ',', 'ssv': ' ', 'tsv': '\t', 'pipes': '|'};

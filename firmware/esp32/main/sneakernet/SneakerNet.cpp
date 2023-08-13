@@ -13,12 +13,12 @@ SneakerNet::SneakerNet()
     : catalog(std::filesystem::path(MOUNT_DIR)/CATALOG_DIR)
 {
     // initialize the firmwareSha256
-    // TODO esp_app_get_elf_sha256 implementation is garbage
-    // const int sz = esp_app_get_elf_sha256(firmwareSha256, sizeof(firmwareSha256 + 1));
-    const int sz = esp_app_get_elf_sha256(firmwareSha256, 2 * sizeof(firmwareSha256));
-    if(sz != sizeof(firmwareSha256))
-        ESP_LOGW(TAG, "mismatched sha256 length [is:%d, expected:%d]", sz, sizeof(firmwareSha256));
-    ESP_LOGI(TAG, "firmwware SHA256 %s", firmwareSha256);
+    // const int sz = esp_app_get_elf_sha256(firmwareSha256, 2 * sizeof(firmwareSha256));
+    // if(sz != sizeof(firmwareSha256))
+    //     ESP_LOGW(TAG, "mismatched sha256 length [is:%d, expected:%d]", sz, sizeof(firmwareSha256));
+    // ESP_LOGI(TAG, "firmwware SHA256 %s", firmwareSha256);
+    const esp_app_desc_t* const pDesc = esp_app_get_description();
+    pVersion = pDesc->version;
 
     // mount the sd card
     mount_sdcard();

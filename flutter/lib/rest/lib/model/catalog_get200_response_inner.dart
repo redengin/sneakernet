@@ -14,13 +14,15 @@ class CatalogGet200ResponseInner {
   /// Returns a new [CatalogGet200ResponseInner] instance.
   CatalogGet200ResponseInner({
     required this.filename,
-    this.size,
-    required this.sha256,
+    required this.size,
+    this.sha256,
     this.identifiers = const [],
     this.sneakernetSigned,
   });
 
   String filename;
+
+  int size;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -28,9 +30,7 @@ class CatalogGet200ResponseInner {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  int? size;
-
-  String sha256;
+  String? sha256;
 
   List<String> identifiers;
 
@@ -54,8 +54,8 @@ class CatalogGet200ResponseInner {
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (filename.hashCode) +
-    (size == null ? 0 : size!.hashCode) +
-    (sha256.hashCode) +
+    (size.hashCode) +
+    (sha256 == null ? 0 : sha256!.hashCode) +
     (identifiers.hashCode) +
     (sneakernetSigned == null ? 0 : sneakernetSigned!.hashCode);
 
@@ -65,12 +65,12 @@ class CatalogGet200ResponseInner {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
       json[r'filename'] = this.filename;
-    if (this.size != null) {
       json[r'size'] = this.size;
-    } else {
-      json[r'size'] = null;
-    }
+    if (this.sha256 != null) {
       json[r'sha256'] = this.sha256;
+    } else {
+      json[r'sha256'] = null;
+    }
       json[r'identifiers'] = this.identifiers;
     if (this.sneakernetSigned != null) {
       json[r'sneakernetSigned'] = this.sneakernetSigned;
@@ -100,8 +100,8 @@ class CatalogGet200ResponseInner {
 
       return CatalogGet200ResponseInner(
         filename: mapValueOfType<String>(json, r'filename')!,
-        size: mapValueOfType<int>(json, r'size'),
-        sha256: mapValueOfType<String>(json, r'sha256')!,
+        size: mapValueOfType<int>(json, r'size')!,
+        sha256: mapValueOfType<String>(json, r'sha256'),
         identifiers: json[r'identifiers'] is List
             ? (json[r'identifiers'] as List).cast<String>()
             : const [],
@@ -154,7 +154,7 @@ class CatalogGet200ResponseInner {
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
     'filename',
-    'sha256',
+    'size',
   };
 }
 

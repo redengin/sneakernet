@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AndroidLayouts">
+    <shared>
+      <config />
+    </shared>
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="code complete for sync (now needs testing)">
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="working book icons">
+      <change beforePath="$PROJECT_DIR$/../embedded/esp32/main/sneakernet/WebServer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../embedded/esp32/main/sneakernet/WebServer.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pages/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/library.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/file_tile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/file_tile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/doc/CatalogGet200ResponseInner.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/CatalogGet200ResponseInner.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/lib/api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/lib/api/default_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/api/default_api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/lib/api_client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/api_client.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/lib/model/catalog_get200_response_inner.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/model/catalog_get200_response_inner.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/settings.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sneakernet_rest.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet_rest.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sneakernet.iml" beforeDir="false" afterPath="$PROJECT_DIR$/sneakernet.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../openapi/sneakernet.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../openapi/sneakernet.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +54,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;com.android.tools.idea.devicemanager.tab&quot;: &quot;Physical&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
@@ -133,7 +153,21 @@
       <option name="project" value="LOCAL" />
       <updated>1691639107847</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="working book icons">
+      <created>1691891924118</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1691891924118</updated>
+    </task>
+    <task id="LOCAL-00012" summary="working book icons">
+      <created>1691892013529</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1691892013529</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -154,7 +188,8 @@
     <MESSAGE value="calling it quits on formatting library" />
     <MESSAGE value="removing bad placement of rest api" />
     <MESSAGE value="code complete for sync (now needs testing)" />
-    <option name="LAST_COMMIT_MESSAGE" value="code complete for sync (now needs testing)" />
+    <MESSAGE value="working book icons" />
+    <option name="LAST_COMMIT_MESSAGE" value="working book icons" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -162,6 +197,11 @@
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$USER_HOME$/.pub-cache/hosted/pub.dev/http-0.13.6/lib/src/response.dart</url>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/sneakernet.dart</url>
+          <line>46</line>
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

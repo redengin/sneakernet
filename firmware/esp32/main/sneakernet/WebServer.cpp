@@ -270,7 +270,8 @@ esp_err_t GET_FIRMWARE(httpd_req_t* request)
     ESP_LOGI(TAG, "Serving firmware info");
     WebServer* const self = static_cast<WebServer*>(request->user_ctx);
     cJSON* const item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "sha256", self->sneakernet.firmwareSha256);
+    cJSON_AddStringToObject(item, "hardware", "ESP32");
+    cJSON_AddStringToObject(item, "version", self->sneakernet.pVersion);
     const char* const response = cJSON_PrintUnformatted(item);
     ESP_LOGI(TAG, "returning \n %s", response);
     httpd_resp_set_type(request, "application/json");
@@ -329,6 +330,8 @@ esp_err_t PUT_FIRMWARE(httpd_req_t* request) {
     }
 
     // reboot
-    // FIXME send 200 response
+    constexpr char msg[] = "accepted update, will now reboot...";
+    ESP_LOGI(TAG, "%s", msg);
+    httpd_resp_send(request, msg, sizeof(msg));
     esp_restart();
 }

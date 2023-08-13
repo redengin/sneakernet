@@ -17,9 +17,9 @@ class Settings {
   }
 
   final String KEY_AUTO_SYNC = "autoSync";
-  /** default: false */
+  /** default: true */
   bool getAutoSync() {
-    return preferences.getBool(KEY_AUTO_SYNC) ?? false;
+    return preferences.getBool(KEY_AUTO_SYNC) ?? true;
   }
   Future<void> setAutoSync(autoSync) async {
     await preferences.setBool(KEY_AUTO_SYNC, autoSync);

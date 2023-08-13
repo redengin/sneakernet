@@ -13,6 +13,8 @@ Method | HTTP request | Description
 [**catalogFilenameGet**](DefaultApi.md#catalogfilenameget) | **GET** /catalog/{filename} | 
 [**catalogFilenamePut**](DefaultApi.md#catalogfilenameput) | **PUT** /catalog/{filename} | 
 [**catalogGet**](DefaultApi.md#catalogget) | **GET** /catalog | 
+[**firmwareGet**](DefaultApi.md#firmwareget) | **GET** /firmware | 
+[**firmwarePut**](DefaultApi.md#firmwareput) | **PUT** /firmware | 
 
 
 # **catalogFilenameDelete**
@@ -179,6 +181,87 @@ No authorization required
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **firmwareGet**
+> FirmwareGet200Response firmwareGet()
+
+
+
+Returns current firmware info
+
+### Example
+```dart
+import 'package:sneakernet_rest/api.dart';
+
+final api_instance = DefaultApi();
+
+try {
+    final result = api_instance.firmwareGet();
+    print(result);
+} catch (e) {
+    print('Exception when calling DefaultApi->firmwareGet: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**FirmwareGet200Response**](FirmwareGet200Response.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **firmwarePut**
+> firmwarePut(body)
+
+
+
+update the firmware
+
+### Example
+```dart
+import 'package:sneakernet_rest/api.dart';
+
+final api_instance = DefaultApi();
+final body = MultipartFile(); // MultipartFile | 
+
+try {
+    api_instance.firmwarePut(body);
+} catch (e) {
+    print('Exception when calling DefaultApi->firmwarePut: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **body** | **MultipartFile**|  | [optional] 
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/octet-stream
+ - **Accept**: Not defined
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

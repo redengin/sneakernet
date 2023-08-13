@@ -1,4 +1,4 @@
-# sneakernet_rest.model.CatalogGet200ResponseInner
+# sneakernet_rest.model.FirmwareGet200Response
 
 ## Load the model package
 ```dart
@@ -8,11 +8,7 @@ import 'package:sneakernet_rest/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**filename** | **String** |  | 
-**size** | **int** |  | 
-**sha256** | **String** |  | [optional] 
-**identifiers** | **List<String>** |  | [optional] [default to const []]
-**sneakernetSigned** | **bool** |  | [optional] 
+**sha256** | **String** |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

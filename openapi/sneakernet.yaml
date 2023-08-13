@@ -110,9 +110,12 @@ paths:
               schema:
                 type: object
                 required:
-                  - sha256
+                  - hardware
+                  - version
                 properties:
-                  sha256:
+                  hardware:
+                    type: string
+                  version:
                     type: string
         '500':
           description: invalid firmware
@@ -128,6 +131,6 @@ paths:
               format: binary
       responses:
         '200':
-          description: accepted update, will now reboot
+          description: accepted update, will now reboot...
         '400':
           description: firmware was rejected

@@ -10,8 +10,8 @@ public:
     // librarian controlled content
     Catalog catalog;
 
-    /// string of sha (with NULL terminator)
-    char firmwareSha256[CONFIG_APP_RETRIEVE_LEN_ELF_SHA + 1];
+    /// firmware version
+    const char* pVersion;
 
 private:
     void mount_sdcard();

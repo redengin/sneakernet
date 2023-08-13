@@ -183,6 +183,8 @@ class ApiClient {
           return value is DateTime ? value : DateTime.tryParse(value);
         case 'CatalogGet200ResponseInner':
           return CatalogGet200ResponseInner.fromJson(value);
+        case 'FirmwareGet200Response':
+          return FirmwareGet200Response.fromJson(value);
         default:
           dynamic match;
           if (value is List && (match = _regList.firstMatch(targetType)?.group(1)) != null) {
