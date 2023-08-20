@@ -45,5 +45,19 @@ void main() {
       // TODO
     });
 
+    // Returns current firmware info
+    //
+    //Future<FirmwareGet200Response> firmwareGet() async
+    test('test firmwareGet', () async {
+      // TODO
+    });
+
+    // update the firmware
+    //
+    //Future firmwarePut({ MultipartFile body }) async
+    test('test firmwarePut', () async {
+      // TODO
+    });
+
   });
 }

@@ -53,8 +53,6 @@ dependencies:
   ebook:
     git: https://github.com/redengin/dart-ebook.git
   open_filex: ^4.3.2
-  sneakernet_rest:
-    path: lib/rest
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +69,9 @@ dev_dependencies:
 #     dart run flutter_launcher_icons
   build_runner: ^2.4.6
   openapi_generator: ^4.11.0
+  sneakernet_rest:
+    path: lib/rest
+  version: ^3.0.2
 
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -99,5 +100,4 @@ flutter:
   uses-material-design: true
 
   assets:
-     - firmware/sha.txt
-     - firmware/sneakernet.bin
+     - firmware/esp32-sneakernet.bin

@@ -16,6 +16,7 @@ import 'pages/settings.dart';
 import 'pages/library.dart';
 
 Future<void> main() async {
+  sneakernet = SneakerNet();
   WidgetsFlutterBinding.ensureInitialized();
 
   // initialize persistent settings
@@ -26,25 +27,25 @@ Future<void> main() async {
   final storageDir = await getTemporaryDirectory();
   library = Library(storageDir);
 
+
   // initialize local notifications
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   // subscribe to wifi scans
   final scanSubscription =
       WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-    const SNEAKER_NET_PREFIX = "SneakerNet";
-    var sneakerNets = results
-        .where((_) => _.ssid.startsWith(SNEAKER_NET_PREFIX))
+    var sneakerNetNodes = results
+        .where((_) => _.ssid.startsWith(sneakerNetPrefix))
         .toList(growable: false);
 
-    if (sneakerNets.isNotEmpty) {
+    if (sneakerNetNodes.isNotEmpty) {
       if (settings.getDoNotify()) {
-        var ssids = sneakerNets.map((_) => _.ssid).toList();
+        var ssids = sneakerNetNodes.map((_) => _.ssid).toList();
         flutterLocalNotificationsPlugin.show(SNEAKERNETS_FOUND_ID,
             'SneakerNets found', ssids.join(','), notificationDetails);
       }
       if (settings.getAutoSync()) {
-        localSneakerNets.addAll(sneakerNets);
+        sneakernet.addAll(sneakerNetNodes);
         Workmanager()
             .registerOneOffTask(SNEAKERNET_SYNC_ID.toString(), SYNC_TASK_NAME);
       }
@@ -107,19 +108,15 @@ void callbackDispatcher() {
           default:
             return false;
         }
+
       case SYNC_TASK_NAME:
-        if (localSneakerNets.isEmpty) {
-          flutterLocalNotificationsPlugin.show(SNEAKERNET_SYNC_ID,
-              'SneakerNets Sync Completed', '', notificationDetails);
-          return Future(() => true);
+        await sneakernet.syncNext();
+        if (sneakernet.hasNodes) {
+          Workmanager().registerOneOffTask(
+              SNEAKERNET_SYNC_ID.toString(), SYNC_TASK_NAME);
         }
-        var sneakerNet = localSneakerNets.first;
-        localSneakerNets.remove(localSneakerNets.first);
-        SneakerNet.sync(sneakerNet);
-        // keep working through the queue
-        Workmanager()
-            .registerOneOffTask(SNEAKERNET_SYNC_ID.toString(), SYNC_TASK_NAME);
-        return Future(() => true);
+        return true;
+
       default:
         return Future.error("unknown task");
     }

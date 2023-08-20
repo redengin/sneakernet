@@ -270,7 +270,7 @@ esp_err_t GET_FIRMWARE(httpd_req_t* request)
     ESP_LOGI(TAG, "Serving firmware info");
     WebServer* const self = static_cast<WebServer*>(request->user_ctx);
     cJSON* const item = cJSON_CreateObject();
-    cJSON_AddStringToObject(item, "hardware", "ESP32");
+    cJSON_AddStringToObject(item, "filename", "esp32-sneakernet.bin");
     cJSON_AddStringToObject(item, "version", self->sneakernet.pVersion);
     const char* const response = cJSON_PrintUnformatted(item);
     ESP_LOGI(TAG, "returning \n %s", response);
@@ -330,8 +330,10 @@ esp_err_t PUT_FIRMWARE(httpd_req_t* request) {
     }
 
     // reboot
-    constexpr char msg[] = "accepted update, will now reboot...";
+    constexpr char msg[] = "accepted update, rebooting...";
     ESP_LOGI(TAG, "%s", msg);
+    httpd_resp_set_status(request, HTTPD_200);
+    httpd_resp_set_type(request, HTTPD_TYPE_TEXT);
     httpd_resp_send(request, msg, sizeof(msg));
     esp_restart();
 }

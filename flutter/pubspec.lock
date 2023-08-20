@@ -728,7 +728,7 @@ packages:
     source: sdk
     version: "0.0.99"
   sneakernet_rest:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       path: "lib/rest"
       relative: true
@@ -830,6 +830,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  version:
+    dependency: "direct dev"
+    description:
+      name: version
+      sha256: "3d4140128e6ea10d83da32fef2fa4003fccbf6852217bb854845802f04191f94"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   watcher:
     dependency: transitive
     description:

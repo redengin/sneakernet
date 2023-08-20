@@ -16,8 +16,13 @@ void main() {
   // final instance = FirmwareGet200Response();
 
   group('test FirmwareGet200Response', () {
-    // String sha256
-    test('to test the property `sha256`', () async {
+    // String filename
+    test('to test the property `filename`', () async {
+      // TODO
+    });
+
+    // String version
+    test('to test the property `version`', () async {
       // TODO
     });
 

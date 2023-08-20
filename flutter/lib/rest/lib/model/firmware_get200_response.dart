@@ -13,26 +13,32 @@ part of openapi.api;
 class FirmwareGet200Response {
   /// Returns a new [FirmwareGet200Response] instance.
   FirmwareGet200Response({
-    required this.sha256,
+    required this.filename,
+    required this.version,
   });
 
-  String sha256;
+  String filename;
+
+  String version;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is FirmwareGet200Response &&
-     other.sha256 == sha256;
+     other.filename == filename &&
+     other.version == version;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
-    (sha256.hashCode);
+    (filename.hashCode) +
+    (version.hashCode);
 
   @override
-  String toString() => 'FirmwareGet200Response[sha256=$sha256]';
+  String toString() => 'FirmwareGet200Response[filename=$filename, version=$version]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-      json[r'sha256'] = this.sha256;
+      json[r'filename'] = this.filename;
+      json[r'version'] = this.version;
     return json;
   }
 
@@ -55,7 +61,8 @@ class FirmwareGet200Response {
       }());
 
       return FirmwareGet200Response(
-        sha256: mapValueOfType<String>(json, r'sha256')!,
+        filename: mapValueOfType<String>(json, r'filename')!,
+        version: mapValueOfType<String>(json, r'version')!,
       );
     }
     return null;
@@ -103,7 +110,8 @@ class FirmwareGet200Response {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
-    'sha256',
+    'filename',
+    'version',
   };
 }
 
