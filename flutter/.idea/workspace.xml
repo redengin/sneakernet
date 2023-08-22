@@ -9,24 +9,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="working book icons">
-      <change beforePath="$PROJECT_DIR$/../firmware/esp32/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="code complete">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/firmware/sha.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/firmware/sneakernet.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/library.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/doc/FirmwareGet200Response.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/FirmwareGet200Response.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/lib/model/firmware_get200_response.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/model/firmware_get200_response.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/test/default_api_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/test/default_api_test.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/test/firmware_get200_response_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/test/firmware_get200_response_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../openapi/sneakernet.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../openapi/sneakernet.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -166,7 +153,14 @@
       <option name="project" value="LOCAL" />
       <updated>1691892013529</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="code complete">
+      <created>1692509443548</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1692509443548</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -188,7 +182,8 @@
     <MESSAGE value="removing bad placement of rest api" />
     <MESSAGE value="code complete for sync (now needs testing)" />
     <MESSAGE value="working book icons" />
-    <option name="LAST_COMMIT_MESSAGE" value="working book icons" />
+    <MESSAGE value="code complete" />
+    <option name="LAST_COMMIT_MESSAGE" value="code complete" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -199,8 +194,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/sneakernet.dart</url>
-          <line>31</line>
+          <line>28</line>
           <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/sneakernet.dart</url>
+          <line>60</line>
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

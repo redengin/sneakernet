@@ -7,8 +7,7 @@ late final Library library;
 
 class Library {
   late final Directory libraryDir;
-  Library(Directory dir) {
-    libraryDir = Directory(p.join(dir.path, 'library'));
+  Library(this.libraryDir) {
     libraryDir.create(recursive: true);
   }
 

@@ -7,6 +7,7 @@ import 'package:workmanager/workmanager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 import 'library.dart';
 import 'settings.dart';
@@ -16,7 +17,6 @@ import 'pages/settings.dart';
 import 'pages/library.dart';
 
 Future<void> main() async {
-  sneakernet = SneakerNet();
   WidgetsFlutterBinding.ensureInitialized();
 
   // initialize persistent settings
@@ -25,8 +25,8 @@ Future<void> main() async {
 
   // use a non-backed up storage for library content
   final storageDir = await getTemporaryDirectory();
-  library = Library(storageDir);
-
+  final libraryDir = Directory(p.join(storageDir.path, 'library'));
+  library = Library(libraryDir);
 
   // initialize local notifications
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -39,15 +39,20 @@ Future<void> main() async {
         .toList(growable: false);
 
     if (sneakerNetNodes.isNotEmpty) {
+      var ssids = sneakerNetNodes.map((_) => _.ssid).toList();
+
       if (settings.getDoNotify()) {
-        var ssids = sneakerNetNodes.map((_) => _.ssid).toList();
         flutterLocalNotificationsPlugin.show(SNEAKERNETS_FOUND_ID,
             'SneakerNets found', ssids.join(','), notificationDetails);
       }
+
       if (settings.getAutoSync()) {
-        sneakernet.addAll(sneakerNetNodes);
-        Workmanager()
-            .registerOneOffTask(SNEAKERNET_SYNC_ID.toString(), SYNC_TASK_NAME);
+        Workmanager().registerOneOffTask(
+            SNEAKERNET_SYNC_ID.toString(), syncTaskName,
+            inputData: {
+              syncTaskParamSneakernets: ssids,
+              syncTaskParamLibraryPath: libraryDir.path,
+            });
       }
     }
   });
@@ -60,7 +65,7 @@ Future<void> main() async {
   );
   int taskId = 0;
   // for Android, the minimum period is 15 minutes
-  Workmanager().registerPeriodicTask((++taskId).toString(), SCAN_TASK_NAME);
+  Workmanager().registerPeriodicTask((++taskId).toString(), scanTaskName);
 
   // decide which page to start based upon how we were launched
   final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
@@ -93,15 +98,17 @@ Future<void> main() async {
 /*------------------------------------------------------------------------------
 WorkManager Helpers
 ------------------------------------------------------------------------------*/
-const SCAN_TASK_NAME = "sneakernet-wifi-scan";
-const SYNC_TASK_NAME = "sneakernet-sync";
+const scanTaskName = 'wifi-scan';
+const syncTaskName = 'sneakernet-sync';
+const syncTaskParamSneakernets = 'sneakernets';
+const syncTaskParamLibraryPath = 'libraryPath';
 
 @pragma(
     'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
 void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
     switch (taskName) {
-      case SCAN_TASK_NAME:
+      case scanTaskName:
         switch (await WiFiScan.instance.canStartScan()) {
           case CanStartScan.yes:
             return WiFiScan.instance.startScan();
@@ -109,12 +116,15 @@ void callbackDispatcher() {
             return false;
         }
 
-      case SYNC_TASK_NAME:
-        await sneakernet.syncNext();
-        if (sneakernet.hasNodes) {
-          Workmanager().registerOneOffTask(
-              SNEAKERNET_SYNC_ID.toString(), SYNC_TASK_NAME);
-        }
+      case syncTaskName:
+        // validate invocation
+        final sneakernets = inputData?[syncTaskParamSneakernets];
+        if(sneakernets == null) return Future.error("<$syncTaskParamSneakernets> param not found");
+        final libraryPath = inputData?[syncTaskParamLibraryPath];
+        if(libraryPath == null) return Future.error("<$syncTaskParamLibraryPath> param not found");
+
+        final library = Library(Directory(libraryPath));
+        await SneakerNet.syncAll(sneakernets, library);
         return true;
 
       default:
