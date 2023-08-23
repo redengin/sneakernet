@@ -58,29 +58,30 @@ class SneakerNet {
 
   static syncAll(sneakernets, Library library) async {
     // memo the current connection
-    final String? originalSsid = await PluginWifiConnect.ssid;
+    // final String? originalSsid = await PluginWifiConnect.ssid;
 
     // sync each found ssid
     for (var ssid in sneakernets) {
       if (await PluginWifiConnect.connect(ssid, saveNetwork: false) ?? false) {
-        // sync with remote sneakernet node
         flutterLocalNotificationsPlugin.show(
             SNEAKERNET_SYNC_ID, ssid, 'syncing...', notificationDetails);
         var handled = await _sync(ssid, library);
         // TODO if handled, delay future sync
+
+        PluginWifiConnect.disconnect();
       }
     }
 
-    // restore previous connection
-    if (originalSsid != null) {
-      if (await PluginWifiConnect.connect(originalSsid) ?? false) {
-        flutterLocalNotificationsPlugin.show(
-            SNEAKERNET_WIFI_ERROR_ID,
-            'SneakerNet unable to restore WIFI connection',
-            originalSsid,
-            notificationDetails);
-      }
-    }
+    // // restore previous connection
+    // if (originalSsid != null) {
+    //   if (await PluginWifiConnect.connect(originalSsid) ?? false) {
+    //     flutterLocalNotificationsPlugin.show(
+    //         SNEAKERNET_WIFI_ERROR_ID,
+    //         'SneakerNet unable to restore WIFI connection',
+    //         originalSsid,
+    //         notificationDetails);
+    //   }
+    // }
   }
 
   static Future<bool> _sync(String label, Library library) async {
@@ -102,11 +103,12 @@ class SneakerNet {
     final remoteFirmware = await restClient.firmwareGet();
     if (remoteFirmware == null) return false;
 
+    // see if we have newer firmware
     ByteData? newFirmwareData;
     switch (remoteFirmware.filename) {
       case "esp32-sneakernet.bin":
         /// TODO update each time new esp32 firmware is added as an asset
-        final esp32FirmwareVersion = Version.parse("0.0.2");
+        final esp32FirmwareVersion = Version.parse("0.0.1");
         if (esp32FirmwareVersion > Version.parse(remoteFirmware.version)) {
           newFirmwareData = await rootBundle
               .load('firmware/esp32-sneakernet.bin');
@@ -154,8 +156,7 @@ class SneakerNet {
       if (remoteFilenames.contains(filename) == false) {
         flutterLocalNotificationsPlugin.show(
             SNEAKERNET_SYNC_ID, ssid, "sending $filename", notificationDetails);
-        // FIXME use fromPath
-        final body = MultipartFile.fromBytes(filename, file.readAsBytesSync());
+        final body = await MultipartFile.fromPath('', file.path);
         await restClient.catalogFilenamePutWithHttpInfo(filename, body: body);
       }
     }
