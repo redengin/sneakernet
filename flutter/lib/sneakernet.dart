@@ -102,22 +102,21 @@ class SneakerNet {
     final remoteFirmware = await restClient.firmwareGet();
     if (remoteFirmware == null) return false;
 
-    List<int>? newFirmwareData;
+    ByteData? newFirmwareData;
     switch (remoteFirmware.filename) {
       case "esp32-sneakernet.bin":
-
         /// TODO update each time new esp32 firmware is added as an asset
         final esp32FirmwareVersion = Version.parse("0.0.2");
         if (esp32FirmwareVersion > Version.parse(remoteFirmware.version)) {
           newFirmwareData = await rootBundle
-              .loadBuffer('firmware/esp32-sneakernet.bin') as List<int>;
+              .load('firmware/esp32-sneakernet.bin');
         }
     }
     if (newFirmwareData == null) return false;
 
     // update the firmware
     var response = await restClient.firmwarePutWithHttpInfo(
-        body: MultipartFile.fromBytes('', newFirmwareData));
+        body: MultipartFile.fromBytes('', newFirmwareData.buffer.asUint8List()));
     if (response.statusCode == 200) {
       flutterLocalNotificationsPlugin.show(
           SNEAKERNET_SYNC_ID, label, "updated firmware", notificationDetails);
@@ -155,6 +154,7 @@ class SneakerNet {
       if (remoteFilenames.contains(filename) == false) {
         flutterLocalNotificationsPlugin.show(
             SNEAKERNET_SYNC_ID, ssid, "sending $filename", notificationDetails);
+        // FIXME use fromPath
         final body = MultipartFile.fromBytes(filename, file.readAsBytesSync());
         await restClient.catalogFilenamePutWithHttpInfo(filename, body: body);
       }
