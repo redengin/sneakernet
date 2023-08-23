@@ -42,7 +42,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.sneakernet"
+        applicationId "monster.sneakernet"
 //        minSdkVersion flutter.minSdkVersion
 //        minSdkVersion 16 // min required for wifi-scan
 //        minSdkVersion 19 // min required for flutter_file_dialog
