@@ -195,7 +195,6 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t* request)
     esp_err_t ret = ESP_OK;
     while(true) {
         const size_t chunk_sz = fis.readsome(buf, CHUNK_SZ);
-        ESP_LOGI(TAG, "sending chunk [%d]", chunk_sz);
         esp_err_t status = httpd_resp_send_chunk(request, buf, chunk_sz);
         if(status != ESP_OK) {
             ESP_LOGW(TAG, "failed to send file [esp_err=%d]", status);
@@ -234,7 +233,8 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t* request) {
     for(size_t remaining = request->content_len; remaining > 0;) {
         const int received = httpd_req_recv(request, buf, MIN(remaining, CHUNK_SZ));
         if(received < 0) {
-            ESP_LOGW(TAG, "download incomplete: %s", request->uri);
+            ESP_LOGW(TAG, "download incomplete: %s [%d/%d]", request->uri,
+                (request->content_len - remaining), request->content_len);
             ret = ESP_FAIL;
             break;
         }
