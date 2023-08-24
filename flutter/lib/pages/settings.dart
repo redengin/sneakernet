@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:auto_start_flutter/auto_start_flutter.dart';
 import '../settings.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -15,7 +16,8 @@ class _SettingsPageState extends State<SettingsPage> {
   late bool _doNotify;
   late bool _autoSync;
 
-  @override void initState() {
+  @override
+  void initState() {
     // TODO: implement initState
     super.initState();
     _doNotify = settings.getDoNotify();
@@ -32,6 +34,12 @@ class _SettingsPageState extends State<SettingsPage> {
           sections: [
             SettingsSection(
               tiles: <SettingsTile>[
+                SettingsTile.navigation(
+                  leading: Icon(Icons.star_border_outlined),
+                  title: Text('Start Automatically'),
+                  description: Text('enable SneakerNet to AutoStart'),
+                  onPressed: (_) => getAutoStartPermission(),
+                ),
                 SettingsTile.switchTile(
                   leading: Icon(Icons.notification_add),
                   title: Text('Notify upon entering into a SneakerNet space'),

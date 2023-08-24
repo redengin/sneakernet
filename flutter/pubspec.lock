@@ -42,7 +42,7 @@ packages:
     source: hosted
     version: "2.11.0"
   auto_start_flutter:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: auto_start_flutter
       sha256: "27b12be7dc2d37b1a535189f461a12dad15b54c12f0a36e6ea69e73e579d433b"

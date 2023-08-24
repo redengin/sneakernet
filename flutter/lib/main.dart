@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi_scan/wifi_scan.dart';
@@ -8,6 +6,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'dart:async';
+import 'dart:io';
 
 import 'library.dart';
 import 'settings.dart';
@@ -109,7 +109,7 @@ void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
     switch (taskName) {
       case scanTaskName:
-        switch (await WiFiScan.instance.canStartScan()) {
+        switch (await WiFiScan.instance.canStartScan(askPermissions: true)) {
           case CanStartScan.yes:
             return WiFiScan.instance.startScan();
           default:
