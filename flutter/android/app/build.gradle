@@ -45,8 +45,7 @@ android {
         applicationId "monster.sneakernet"
 //        minSdkVersion flutter.minSdkVersion
 //        minSdkVersion 16 // min required for wifi-scan
-//        minSdkVersion 19 // min required for flutter_file_dialog
-        minSdkVersion 21 // min required for vocsy_epub_viewer
+        minSdkVersion 19 // min required for flutter_file_dialog
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -71,6 +70,8 @@ android {
         }
     }
 }
+// include symbol table for native code
+android.buildTypes.release.ndk.debugSymbolLevel = 'SYMBOL_TABLE'
 
 flutter {
     source '../..'
