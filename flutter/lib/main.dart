@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi_scan/wifi_scan.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +19,11 @@ import 'pages/library.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // request Location access
+  if(await Permission.locationWhenInUse.isDenied) {
+    Permission.locationWhenInUse.request();
+  }
 
   // initialize persistent settings
   final SharedPreferences preferences = await SharedPreferences.getInstance();

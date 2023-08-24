@@ -68,8 +68,3 @@ class _SettingsPageState extends State<SettingsPage> {
         ));
   }
 }
-
-// FIXME
-// if (await Permission.locationWhenInUse.request().isGranted) {
-//   await Permission.locationAlways.request().isGranted;
-// }
