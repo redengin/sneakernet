@@ -1,0 +1,1 @@
+SneakerNet does not collect any information about the users.
