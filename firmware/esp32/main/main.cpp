@@ -26,8 +26,9 @@ void app_main(void)
     // create http interface to sneakernet catalog
     static WebServer webserver(sneakerNet);
 
-    // create https interface for sneakernet admin (aka librarian)
-    static AdminWebServer adminWebserver(sneakerNet);
+    // NOT NEEDED per current design
+    // // create https interface for sneakernet admin (aka librarian)
+    // static AdminWebServer adminWebserver(sneakerNet);
 
     // create the wifi access point captive portal
     start_wifi_ap();

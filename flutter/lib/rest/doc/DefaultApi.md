@@ -5,7 +5,7 @@
 import 'package:sneakernet_rest/api.dart';
 ```
 
-All URIs are relative to *http://sneakernet.monster*
+All URIs are relative to *http://192.168.4.1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------

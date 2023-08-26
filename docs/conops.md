@@ -7,9 +7,9 @@ be able to access the content stored on that node.
 Human Factors
 --------------------------------------------------------------------------------
 * Awareness - the person must be made aware that the content is available
-    * primarily this can be accomplished by an application installed on the
+    * **primarily** this is accomplished by an application installed on the
         phone that recognizes `SneakerNet` nodes
-    * `SneakerNet` nodes can also publish themselves as a wifi connection
+    * `SneakerNet` nodes also publish themselves as an open wifi connection
         - attracting those looking for internet connectivity
 
 Roles
@@ -18,17 +18,17 @@ Roles
 * **Courier** - carrier of content
     - **Readers** that use the `mobile app`, will automatically become couriers.  
         In this way, content is efficiently distributed.  
-        Aditionally, the `mobile app` will carry **Firmware** and
-        **Librarian Configurations** to efficiently maintain `SneakerNet`.
-        (see [Node Configuration Control](#node_configuration))
+        Aditionally, the `mobile app` will carry **Firmware** to efficiently maintain `SneakerNet`.
+<!--
 * **Librarian** - restricts the content of a node
     - see [Content Management](#content_management)
 * **Creator** - creates content
 * **Publisher** - signs content per [Content Management](#content_management)
 * **Distributor** - deploys a physical device
     - can choose a Librarian
+-->
 
-
+<!--
 Content Management<a id="content_management"></a>
 --------------------------------------------------------------------------------
 Without a **Librarian** the content of a node is **unrestricted**.
@@ -52,3 +52,4 @@ Node Configuration Control<a id="node_configuration"></a>
         it has come in contact with.
         * When the node comes into contact with a node, it will attempt to
             update the **Librarian Configuration**.
+-->

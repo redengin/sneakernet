@@ -5,20 +5,19 @@ info:
   version: 0.0.0
 
 servers:
-  - url: http://sneakernet.monster
+  - url: http://192.168.4.1
 
-# security: []
-# components:
-#   securitySchemes: {}
+# no security required
+security: []
+
 
 paths:
   /catalog:
     get:
       description: Returns a list of content objects
-      security: []
       responses:
         '200':
-          description: Successfully returned a list of artists
+          description: Successfully returned a list of content
           content:
             application/json:
               schema:
@@ -55,7 +54,6 @@ paths:
           type: string
     get:
       description: receive the file
-      security: []
       responses:
         '200':
           description: transferring file
@@ -67,7 +65,6 @@ paths:
           description: Too Many Requests
     put:
       description: add file to catalog
-      security: []
       requestBody:
         content:
           # must set HTTP:Content-Length
@@ -91,7 +88,6 @@ paths:
           description: Too Many Requests
     delete:
       description: remove file from catalog
-      security: []
       responses:
         '200':
           description: file was removed
@@ -101,7 +97,6 @@ paths:
   /firmware:
     get:
       description: Returns current firmware info
-      security: []
       responses:
         '200':
           description: Success
@@ -121,7 +116,6 @@ paths:
           description: invalid firmware
     put:
       description: update the firmware
-      security: []
       requestBody:
         content:
           # must set HTTP:Content-Length

@@ -9,10 +9,19 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="requesting Location permission">
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="requesting Location permission Always">
+      <change afterPath="$PROJECT_DIR$/../openapi/sneakernet librarian.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/conops.md" beforeDir="false" afterPath="$PROJECT_DIR$/../docs/conops.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/lib/api_client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/api_client.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sneakernet_rest.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet_rest.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../openapi/sneakernet admin.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../openapi/sneakernet.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../openapi/sneakernet.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -187,7 +196,14 @@
       <option name="project" value="LOCAL" />
       <updated>1692856652527</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="requesting Location permission Always">
+      <created>1693020017347</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1693020017347</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -213,7 +229,8 @@
     <MESSAGE value="working firmware update" />
     <MESSAGE value="supporting AutoStart" />
     <MESSAGE value="requesting Location permission" />
-    <option name="LAST_COMMIT_MESSAGE" value="requesting Location permission" />
+    <MESSAGE value="requesting Location permission Always" />
+    <option name="LAST_COMMIT_MESSAGE" value="requesting Location permission Always" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -226,16 +243,6 @@
           <url>file://$PROJECT_DIR$/lib/sneakernet.dart</url>
           <line>28</line>
           <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/main.dart</url>
-          <line>46</line>
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/main.dart</url>
-          <line>23</line>
-          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

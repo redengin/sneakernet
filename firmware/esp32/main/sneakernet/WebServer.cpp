@@ -18,6 +18,7 @@ extern "C" esp_err_t DELETE_CATALOG_FILE(httpd_req_t* req);
 static const std::string FIRMWARE_URI("/firmware");
 extern "C" esp_err_t GET_FIRMWARE(httpd_req_t* req);
 extern "C" esp_err_t PUT_FIRMWARE(httpd_req_t* req);
+// TODO increase size for efficiency (window size:5744)
 static constexpr size_t CHUNK_SZ = 1048;
 
 static std::string urlDecode(const std::string& url)
