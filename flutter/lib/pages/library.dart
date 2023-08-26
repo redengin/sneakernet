@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart' as p;
 import 'dart:io';
 
 import '../library.dart';
@@ -55,7 +56,13 @@ class _LibraryPageState extends State<LibraryPage> {
   Widget? _itemBuilder(BuildContext context, int index) {
     File file = files[index];
     return GestureDetector(
-        onTap: () => {OpenFilex.open(file.path)},
+        onTap: () => {
+              // FIXME OpenFilex doesn't understand epub
+              if (p.extension(file.path) == 'epub')
+                OpenFilex.open(file.path, type: 'application/epub+zip')
+              else
+                OpenFilex.open(file.path)
+            },
         child: Card(
             child: Stack(
           children: [

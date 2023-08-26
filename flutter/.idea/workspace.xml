@@ -10,18 +10,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="requesting Location permission Always">
-      <change afterPath="$PROJECT_DIR$/../openapi/sneakernet librarian.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docs/conops.md" beforeDir="false" afterPath="$PROJECT_DIR$/../docs/conops.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/lib/api_client.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/api_client.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/sneakernet_rest.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet_rest.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../openapi/sneakernet admin.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../openapi/sneakernet.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../openapi/sneakernet.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/library.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
