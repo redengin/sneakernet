@@ -12,7 +12,7 @@ AdminWebServer::AdminWebServer(SneakerNet& sneakernet)
 
     // Start the https server
     httpd_ssl_config_t config = HTTPD_SSL_CONFIG_DEFAULT();
-    config.httpd.server_port = 443;
+    --config.httpd.ctrl_port; // use the next control port (DEFAULT uses UINT16_MAX)
     config.httpd.max_open_sockets = 1; // only allow one admin at a time
     extern const unsigned char servercert_start[] asm("_binary_servercert_pem_start");
     extern const unsigned char servercert_end[]   asm("_binary_servercert_pem_end");

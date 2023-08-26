@@ -52,6 +52,7 @@ WebServer::WebServer(SneakerNet& sneakernet)
 
     // Start the http server
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.max_open_sockets = 13;
     config.uri_match_fn = httpd_uri_match_wildcard;
     config.stack_size = 6*1024; // increase stack size
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);

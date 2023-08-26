@@ -26,9 +26,8 @@ void app_main(void)
     // create http interface to sneakernet catalog
     static WebServer webserver(sneakerNet);
 
-    // FIXME fails to allocate socket
-    // // create https interface for sneakernet admin
-    // static AdminWebServer adminWebserver(sneakerNet);
+    // create https interface for sneakernet admin (aka librarian)
+    static AdminWebServer adminWebserver(sneakerNet);
 
     // create the wifi access point captive portal
     start_wifi_ap();
