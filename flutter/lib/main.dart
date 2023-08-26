@@ -21,8 +21,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // request Location access
-  if(await Permission.locationWhenInUse.isDenied) {
-    Permission.locationWhenInUse.request();
+  if (await Permission.locationWhenInUse.isDenied) {
+    // must ask for WhenInUse before askgin for Always
+    await Permission.locationWhenInUse.request();
+    if (await Permission.locationWhenInUse.isGranted) {
+      await Permission.locationAlways.request();
+    }
   }
 
   // initialize persistent settings
@@ -125,10 +129,13 @@ void callbackDispatcher() {
       case syncTaskName:
         // validate invocation
         final sneakernets = inputData?[syncTaskParamSneakernets];
-        if(sneakernets == null) return Future.error("<$syncTaskParamSneakernets> param not found");
+        if (sneakernets == null)
+          return Future.error("<$syncTaskParamSneakernets> param not found");
         final libraryPath = inputData?[syncTaskParamLibraryPath];
-        if(libraryPath == null) return Future.error("<$syncTaskParamLibraryPath> param not found");
+        if (libraryPath == null)
+          return Future.error("<$syncTaskParamLibraryPath> param not found");
 
+        // synchronize with the nodes
         final library = Library(Directory(libraryPath));
         await SneakerNet.syncAll(sneakernets, library);
         return true;
