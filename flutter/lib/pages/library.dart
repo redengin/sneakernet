@@ -37,10 +37,13 @@ class _LibraryPageState extends State<LibraryPage> {
           ? Center(
               child: Text('no files',
                   style: Theme.of(context).textTheme.headlineLarge))
-          : ListView.builder(
-              itemExtent: 120,
-              itemCount: files.length,
-              itemBuilder: _itemBuilder,
+          : RefreshIndicator(
+              child: ListView.builder(
+                itemExtent: 120,
+                itemCount: files.length,
+                itemBuilder: _itemBuilder,
+              ),
+              onRefresh: () async { setState((){}); },
             ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),

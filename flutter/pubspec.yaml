@@ -73,6 +73,7 @@ dev_dependencies:
   sneakernet_rest:
     path: lib/rest
   version: ^3.0.2
+  url_launcher: ^6.1.12
 
 flutter_launcher_icons:
   android: "launcher_icon"

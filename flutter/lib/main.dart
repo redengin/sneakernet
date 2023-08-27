@@ -15,6 +15,7 @@ import 'settings.dart';
 import 'notifications.dart';
 import 'sneakernet.dart';
 import 'pages/settings.dart';
+import 'pages/about.dart';
 import 'pages/library.dart';
 
 Future<void> main() async {
@@ -99,6 +100,7 @@ Future<void> main() async {
       routes: <String, WidgetBuilder>{
         LibraryPage.routeName: (_) => const LibraryPage(),
         SettingsPage.routeName: (_) => const SettingsPage(),
+        AboutPage.routeName: (_) => const AboutPage(),
         // HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
       },
     ),
