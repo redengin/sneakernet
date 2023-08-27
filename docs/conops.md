@@ -14,42 +14,20 @@ Human Factors
 
 Roles
 ================================================================================
+* **Author** - creates content
 * **Reader** - consumer of content
 * **Courier** - carrier of content
     - **Readers** that use the `mobile app`, will automatically become couriers.  
         In this way, content is efficiently distributed.  
         Aditionally, the `mobile app` will carry **Firmware** to efficiently maintain `SneakerNet`.
-<!--
-* **Librarian** - restricts the content of a node
-    - see [Content Management](#content_management)
-* **Creator** - creates content
-* **Publisher** - signs content per [Content Management](#content_management)
-* **Distributor** - deploys a physical device
-    - can choose a Librarian
--->
 
-<!--
 Content Management<a id="content_management"></a>
 --------------------------------------------------------------------------------
-Without a **Librarian** the content of a node is **unrestricted**.
+`SneakerNet` node content is both **addable** and **removable** by users.
 
-The **Librarian** determines
-* which **Publishers** `epub` content can be on the node
-    - `SneakerNet` signatures of the `epub`
-* allow **un-trusted** content on the node
+Upon sync
+* **Courier**'s content will be added to the `SneakerNet` node
+* **Courier**'s flagged content will be removed from the `SneakerNet` node
 
-Content can be **deleted** by any user. This empowers the community to manage
-the content organically.
-
-Node Configuration Control<a id="node_configuration"></a>
---------------------------------------------------------------------------------
-* **Firmware**
-    * The **Firmware** is securely signed.
-    * The `mobile app` will automatically update the node's firmware.
-* **Librarian Configuration**
-    * The **Librarian Configuration** is securely signed.
-    * The `mobile app` will carry the **Librarian Configurations** of the nodes
-        it has come in contact with.
-        * When the node comes into contact with a node, it will attempt to
-            update the **Librarian Configuration**.
--->
+By giving the **courier** both the ability to **add** and **remove** content,
+the `SneakerNet` content will evolve by the social norms of the users.
