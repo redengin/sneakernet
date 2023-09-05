@@ -14,47 +14,6 @@ import '../notifications.dart';
 const sneakerNetPrefix = "SneakerNet";
 
 class SneakerNet {
-  // final SplayTreeSet<WiFiAccessPoint> _foundNodes =
-  //     SplayTreeSet<WiFiAccessPoint>((a, b) => a.bssid.compareTo(b.bssid));
-  //
-  // bool get hasNodes => _foundNodes.isNotEmpty;
-  //
-  // /// add found nodes to the syncable list
-  // void addAll(List<WiFiAccessPoint> sneakerNets) {
-  //   // TODO deprioritize/delay successfully synced nodes
-  //   _foundNodes.addAll(sneakerNets);
-  // }
-
-  // syncNext() async {
-  //   if (_foundNodes.isEmpty) return;
-  //
-  //   // pop the first node
-  //   final node = _foundNodes.first;
-  //   _foundNodes.remove(node);
-  //
-  //   // connect to the node
-  //   // memo the current connection
-  //   String? originalSsid = await PluginWifiConnect.ssid;
-  //   if (await PluginWifiConnect.connect(node.ssid) ?? false) {
-  //     // sync with remote sneakernet node
-  //     flutterLocalNotificationsPlugin.show(
-  //         SNEAKERNET_SYNC_ID, node.ssid, 'syncing...', notificationDetails);
-  //
-  //     var handled = await _sync(node.ssid);
-  //     // TODO if handled, delay future sync
-  //
-  //     // restore previous connection
-  //     if (originalSsid != null) {
-  //       if (await PluginWifiConnect.connect(originalSsid) ?? false) {
-  //         flutterLocalNotificationsPlugin.show(
-  //             SNEAKERNET_WIFI_ERROR_ID,
-  //             'SneakerNet unable to restore WIFI connection',
-  //             originalSsid,
-  //             notificationDetails);
-  //       }
-  //     }
-  //   }
-  // }
 
   static syncAll(sneakernets, Library library) async {
     // memo the current connection
@@ -71,17 +30,6 @@ class SneakerNet {
         PluginWifiConnect.disconnect();
       }
     }
-
-    // // restore previous connection
-    // if (originalSsid != null) {
-    //   if (await PluginWifiConnect.connect(originalSsid) ?? false) {
-    //     flutterLocalNotificationsPlugin.show(
-    //         SNEAKERNET_WIFI_ERROR_ID,
-    //         'SneakerNet unable to restore WIFI connection',
-    //         originalSsid,
-    //         notificationDetails);
-    //   }
-    // }
   }
 
   static Future<bool> _sync(String label, Library library) async {

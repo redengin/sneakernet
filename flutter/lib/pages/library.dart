@@ -43,7 +43,9 @@ class _LibraryPageState extends State<LibraryPage> {
                 itemCount: files.length,
                 itemBuilder: _itemBuilder,
               ),
-              onRefresh: () async { setState((){}); },
+              onRefresh: () async {
+                setState(() {});
+              },
             ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
@@ -72,12 +74,24 @@ class _LibraryPageState extends State<LibraryPage> {
             FileTile(file),
             Align(
               alignment: Alignment.bottomRight,
-              child: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => setState(() {
-                        library.remove(file);
-                      })),
-            )
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      icon: const Icon(Icons.flag),
+                      tooltip: 'flag offensive content',
+                      onPressed: () => setState(() {
+                            library.flag(file);
+                          })),
+                  IconButton(
+                      icon: const Icon(Icons.delete),
+                      tooltip: 'unwanted content',
+                      onPressed: () => setState(() {
+                            library.remove(file);
+                          })),
+                ],
+              ),
+            ),
           ],
         )));
   }

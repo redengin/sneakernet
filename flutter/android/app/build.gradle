@@ -18,14 +18,14 @@ if (flutterRoot == null) {
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
+//if (flutterVersionCode == null) {
+//    flutterVersionCode = '1'
+//}
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
+//if (flutterVersionName == null) {
+//    flutterVersionName = '1.0'
+//}
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
@@ -47,8 +47,10 @@ android {
 //        minSdkVersion 16 // min required for wifi-scan
         minSdkVersion 19 // min required for flutter_file_dialog
         targetSdkVersion flutter.targetSdkVersion
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+//        versionCode flutterVersionCode.toInteger()
+        versionCode 2
+//        versionName flutterVersionName
+        versionName '2.0.0'
         // support desugaring for flutter_local_notifications
         multiDexEnabled true
     }

@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:auto_start_flutter/auto_start_flutter.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 import '../settings.dart';
+import '../library.dart';
 
 class SettingsPage extends StatefulWidget {
   static const String routeName = '/settings';
@@ -28,21 +31,22 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('SneakerNet Settings'),
+          title: const Text('SneakerNet Settings'),
         ),
         body: SettingsList(
           sections: [
             SettingsSection(
               tiles: <SettingsTile>[
                 SettingsTile.navigation(
-                  leading: Icon(Icons.star_border_outlined),
-                  title: Text('Start Automatically'),
-                  description: Text('enable SneakerNet to AutoStart'),
+                  leading: const Icon(Icons.star_border_outlined),
+                  title: const Text('Start Automatically'),
+                  description: const Text('enable SneakerNet to AutoStart'),
                   onPressed: (_) => getAutoStartPermission(),
                 ),
                 SettingsTile.switchTile(
-                  leading: Icon(Icons.notification_add),
-                  title: Text('Notify upon entering into a SneakerNet space'),
+                  leading: const Icon(Icons.notification_add),
+                  title: const Text(
+                      'Notify upon entering into a SneakerNet space'),
                   initialValue: _doNotify,
                   onToggle: (_) => setState(() {
                     _doNotify = _;
@@ -50,9 +54,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   }),
                 ),
                 SettingsTile.switchTile(
-                  leading: Icon(Icons.sync_alt),
-                  title: Text('Automatically sync'),
-                  description: Text(
+                  leading: const Icon(Icons.sync_alt),
+                  title: const Text('Automatically sync'),
+                  description: const Text(
                       'Upon entering within a SneakerNet space, your '
                       'wifi will switch to SnearkerNet during the sync. \n'
                       'NOTE: internet access may be disrupted during the transfer.'),
@@ -62,9 +66,49 @@ class _SettingsPageState extends State<SettingsPage> {
                     settings.setAutoSync(_);
                   }),
                 ),
+                SettingsTile.navigation(
+                  leading: const Icon(Icons.delete_outline),
+                  title: const Text('Manage unwanted files'),
+                  description: const Text("deleted files will not be gathered "
+                    "from other nodes"),
+                  onPressed: (_) => showDialog(
+                      context: context,
+                      builder: (context) {
+                        return LibraryFilterPicker(library.unwantedFiles);
+                      }),
+                ),
+                SettingsTile.navigation(
+                  leading: const Icon(Icons.flag_outlined),
+                  title: const Text('Manage flagged files'),
+                  description: const Text("flagged files will be removed from "
+                    "other nodes"),
+                  onPressed: (_) => showDialog(
+                      context: context,
+                      builder: (context) {
+                        return LibraryFilterPicker(library.flaggedFiles);
+                      }),
+                ),
               ],
             ),
           ],
         ));
+  }
+}
+
+class LibraryFilterPicker extends StatelessWidget {
+  StringListFile filterSettings;
+  LibraryFilterPicker(this.filterSettings);
+
+  @override
+  Widget build(BuildContext context) {
+    final items = filterSettings
+        .load()
+        .map((e) => MultiSelectItem<String>(e, e))
+        .toList(growable: false);
+    return MultiSelectDialog(
+      items: items,
+      initialValue: const <String>[],
+      onConfirm: (values) => filterSettings.removeAll(values),
+    );
   }
 }
