@@ -17,15 +17,10 @@ if (flutterRoot == null) {
     throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-//if (flutterVersionCode == null) {
-//    flutterVersionCode = '1'
-//}
-
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
-//if (flutterVersionName == null) {
-//    flutterVersionName = '1.0'
-//}
+if (flutterVersionName == null) {
+    throw new GradleException("Flutter project versionName not found")
+}
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
@@ -47,10 +42,8 @@ android {
 //        minSdkVersion 16 // min required for wifi-scan
         minSdkVersion 19 // min required for flutter_file_dialog
         targetSdkVersion flutter.targetSdkVersion
-//        versionCode flutterVersionCode.toInteger()
-        versionCode 2
-//        versionName flutterVersionName
-        versionName '2.0.0'
+        versionCode 3
+        versionName flutterVersionName
         // support desugaring for flutter_local_notifications
         multiDexEnabled true
     }
