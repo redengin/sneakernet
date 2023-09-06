@@ -9,7 +9,7 @@ import '../widgets/sneakernet_drawer.dart';
 import '../widgets/file_tile.dart';
 
 class LibraryPage extends StatefulWidget {
-  static const String routeName = '/library';
+  static const String routeName = '/';
 
   const LibraryPage({super.key});
 

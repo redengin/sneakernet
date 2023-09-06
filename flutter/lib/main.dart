@@ -17,18 +17,10 @@ import 'sneakernet.dart';
 import 'pages/settings.dart';
 import 'pages/about.dart';
 import 'pages/library.dart';
+import 'pages/location_permissions_request.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // request Location access
-  if (await Permission.locationWhenInUse.isDenied) {
-    // must ask for WhenInUse before askgin for Always
-    await Permission.locationWhenInUse.request();
-    if (await Permission.locationWhenInUse.isGranted) {
-      await Permission.locationAlways.request();
-    }
-  }
 
   // initialize persistent settings
   final SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -84,27 +76,32 @@ Future<void> main() async {
       ? null
       : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
 
-  // FIXME support routing to other page upon notification
+  var initialRoute = LibraryPage.routeName;
+
+  // request Location access if not granted
+  if (await Permission.locationAlways.isDenied) {
+    initialRoute = LocationPermissionsRequest.routeName;
+  }
+  // TODO support routing to other page upon notification
   // if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
   //   selectedNotificationPayload =
   //       notificationAppLaunchDetails!.notificationResponse?.payload;
   //   initialRoute = SecondPage.routeName;
   // }
 
-  runApp(
-    MaterialApp(
-      themeMode: ThemeMode.system,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      initialRoute: LibraryPage.routeName,
-      routes: <String, WidgetBuilder>{
-        LibraryPage.routeName: (_) => const LibraryPage(),
-        SettingsPage.routeName: (_) => const SettingsPage(),
-        AboutPage.routeName: (_) => const AboutPage(),
-        // HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
-      },
-    ),
-  );
+  runApp(MaterialApp(
+    themeMode: ThemeMode.system,
+    theme: ThemeData.light(),
+    darkTheme: ThemeData.dark(),
+    initialRoute: initialRoute,
+    routes: <String, WidgetBuilder>{
+      LibraryPage.routeName: (_) => const LibraryPage(),
+      SettingsPage.routeName: (_) => const SettingsPage(),
+      AboutPage.routeName: (_) => const AboutPage(),
+      LocationPermissionsRequest.routeName: (_) => LocationPermissionsRequest(),
+      // HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
+    },
+  ));
 }
 
 /*------------------------------------------------------------------------------
