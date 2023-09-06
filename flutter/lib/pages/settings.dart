@@ -74,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: (_) => showDialog(
                       context: context,
                       builder: (context) {
-                        return LibraryFilterPicker(library.unwantedFiles);
+                        return LibraryFilterPicker(library.unwantedFiles, "Unwanted");
                       }),
                 ),
                 SettingsTile.navigation(
@@ -85,7 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: (_) => showDialog(
                       context: context,
                       builder: (context) {
-                        return LibraryFilterPicker(library.flaggedFiles);
+                        return LibraryFilterPicker(library.flaggedFiles, "Flagged");
                       }),
                 ),
               ],
@@ -96,8 +96,9 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class LibraryFilterPicker extends StatelessWidget {
-  StringListFile filterSettings;
-  LibraryFilterPicker(this.filterSettings);
+  final StringListFile filterSettings;
+  final String message;
+  const LibraryFilterPicker(this.filterSettings, this.message, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +108,7 @@ class LibraryFilterPicker extends StatelessWidget {
         .toList(growable: false);
     return MultiSelectDialog(
       backgroundColor: Colors.orange,
-      title: Text('Remove Filter'),
+      title: Text('Remove Filter for $message files'),
       items: items,
       initialValue: const <String>[],
       onConfirm: (values) => filterSettings.removeAll(values),

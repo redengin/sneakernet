@@ -9,7 +9,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="adding location request per google policy">
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="setting background color to make it readable.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/pages/settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/settings.dart" afterDir="false" />
     </list>
@@ -237,7 +237,14 @@
       <option name="project" value="LOCAL" />
       <updated>1693971263058</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="setting background color to make it readable.">
+      <created>1693972433600</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1693972433600</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -268,7 +275,8 @@
     <MESSAGE value="adding about page and library refresh" />
     <MESSAGE value="fixing gradle build" />
     <MESSAGE value="adding location request per google policy" />
-    <option name="LAST_COMMIT_MESSAGE" value="adding location request per google policy" />
+    <MESSAGE value="setting background color to make it readable." />
+    <option name="LAST_COMMIT_MESSAGE" value="setting background color to make it readable." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
