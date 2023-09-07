@@ -26,6 +26,18 @@ build-webapp: angular-init
 		$(NG_DOCKER_IMAGE) \
 			ng build
 
+.PHONY: view-webapp
+#view-webapp: build-webapp
+view-webapp: 
+	@docker run --rm -it \
+		--network host \
+		--user $(UID):$(GID) \
+		--volume $(abspath $(SOURCE_DIR)):/tmp/ng \
+		--env HOME=/tmp/ng \
+		--workdir /tmp/ng/angular \
+		$(NG_DOCKER_IMAGE) \
+			ng serve
+
 #-------------------------------------------------------------------------------
 # Docker Images
 #-------------------------------------------------------------------------------
