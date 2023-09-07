@@ -9,7 +9,7 @@ static constexpr char TAG[] = "webserver";
 static const std::string INDEX_URI("/");
 extern "C" esp_err_t INDEX(httpd_req_t*);
 extern "C" esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err);
-static const std::string CATALOG_URI(INDEX_URI + "catalog");
+static const std::string CATALOG_URI("/catalog");
 extern "C" esp_err_t GET_CATALOG(httpd_req_t* req);
 static const std::string CATALOG_FILE_URI(CATALOG_URI + "/*");
 extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t* req);
@@ -205,7 +205,7 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t* request)
         }
         if(chunk_sz == 0) break;
     }
-    delete buf;
+    delete[] buf;
 
     return ret;
 }
@@ -243,7 +243,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t* request) {
         item.ofs.write(buf, received);
         remaining -= received;
     }
-    delete buf;
+    delete[] buf;
 
     if(ret != ESP_OK)
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Item not received"); 
