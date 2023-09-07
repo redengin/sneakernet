@@ -9,10 +9,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="setting background color to make it readable.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pages/settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/settings.dart" afterDir="false" />
-    </list>
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="adding description to filter dialog" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -244,7 +241,14 @@
       <option name="project" value="LOCAL" />
       <updated>1693972433600</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="adding description to filter dialog">
+      <created>1693972997895</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1693972997895</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -276,7 +280,8 @@
     <MESSAGE value="fixing gradle build" />
     <MESSAGE value="adding location request per google policy" />
     <MESSAGE value="setting background color to make it readable." />
-    <option name="LAST_COMMIT_MESSAGE" value="setting background color to make it readable." />
+    <MESSAGE value="adding description to filter dialog" />
+    <option name="LAST_COMMIT_MESSAGE" value="adding description to filter dialog" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
