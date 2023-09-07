@@ -24,7 +24,7 @@ build-webapp: angular-init
 		--env HOME=/tmp/ng \
 		--workdir /tmp/ng/angular \
 		$(NG_DOCKER_IMAGE) \
-			ng build
+			ng build --deploy-url "/app/"
 
 .PHONY: view-webapp
 #view-webapp: build-webapp
@@ -33,7 +33,6 @@ view-webapp:
 		--network host \
 		--user $(UID):$(GID) \
 		--volume $(abspath $(SOURCE_DIR)):/tmp/ng \
-		--env HOME=/tmp/ng \
 		--workdir /tmp/ng/angular \
 		$(NG_DOCKER_IMAGE) \
 			ng serve
