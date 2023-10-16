@@ -8,8 +8,10 @@ Android Permissions
 `Location Permissions` are required to find and synchronize with SneakerNet
 nodes in your vicinity.
 
-To automate the synchronization, SneakerNet uses `Location Permissions` in the
-background.
+`Background Location Permissions` allow SneakerNet to automatically identify and
+synchronize with SneakerNet nodes - providing the user with the desired
+experience of gathering SneakerNet node content without the need for manual
+interaction.
 
 Contact Information
 ================================================================================
