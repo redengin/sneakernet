@@ -1,6 +1,9 @@
 FROM espressif/idf
 
 ARG DEBIAN_FRONTEND=nointeractive
+ARG CONTAINER_USER=esp
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 
 RUN apt-get update \
   && apt install -y -q \
@@ -10,14 +13,14 @@ RUN apt-get update \
   libglib2.0-0 \
   libnuma1 \
   libpixman-1-0 \
-  linux-tools-5.4.0-77-generic \
+  linux-tools-virtual \
   && rm -rf /var/lib/apt/lists/*
 
-RUN update-alternatives --install /usr/local/bin/usbip usbip /usr/lib/linux-tools/5.4.0-77-generic/usbip 20
+RUN update-alternatives --install /usr/local/bin/usbip usbip `ls /usr/lib/linux-tools/*/usbip | tail -n1` 20
 
 # QEMU
-ENV QEMU_REL=esp-develop-20220203
-ENV QEMU_SHA256=c83e483e3290f48a563c2a376b7413cd94a8692d8c7308b119f4268ca6d164b6
+ENV QEMU_REL=esp-develop-20220919
+ENV QEMU_SHA256=f6565d3f0d1e463a63a7f81aec94cce62df662bd42fc7606de4b4418ed55f870
 ENV QEMU_DIST=qemu-${QEMU_REL}.tar.bz2
 ENV QEMU_URL=https://github.com/espressif/qemu/releases/download/${QEMU_REL}/${QEMU_DIST}
 
@@ -31,8 +34,15 @@ RUN wget --no-verbose ${QEMU_URL} \
 
 ENV PATH=/opt/qemu/bin:${PATH}
 
+RUN groupadd --gid $USER_GID $CONTAINER_USER \
+    && adduser --uid $USER_UID --gid $USER_GID --disabled-password --gecos "" ${CONTAINER_USER} \
+    && usermod -a -G dialout $CONTAINER_USER
+USER ${CONTAINER_USER}
+ENV USER=${CONTAINER_USER}
+WORKDIR /home/${CONTAINER_USER}
+
 RUN echo "source /opt/esp/idf/export.sh > /dev/null 2>&1" >> ~/.bashrc
 
 ENTRYPOINT [ "/opt/esp/entrypoint.sh" ]
 
-CMD ["/bin/bash"]
+CMD ["/bin/bash", "-c"]
