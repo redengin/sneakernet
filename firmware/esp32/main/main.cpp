@@ -6,7 +6,6 @@
 #include "dns_server.h"
 #include "sneakernet/SneakerNet.hpp"
 #include "sneakernet/WebServer.hpp"
-#include "sneakernet/AdminWebServer.hpp"
 
 static void start_wifi_ap(void);
 
@@ -17,23 +16,15 @@ void app_main(void)
     // create default event bus (required for IDF drivers)
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    // create sneakernet controller (mounts sd card)
+    // provide the locally stored content
     static SneakerNet sneakerNet;
 
-    // start the network
+    // serve the content
     ESP_ERROR_CHECK(esp_netif_init());
-
-    // create http interface to sneakernet catalog
     static WebServer webserver(sneakerNet);
-
-    // NOT NEEDED per current design
-    // // create https interface for sneakernet admin (aka librarian)
-    // static AdminWebServer adminWebserver(sneakerNet);
-
-    // create the wifi access point captive portal
     start_wifi_ap();
 
-    // sneaker net working, don't roll back firmware
+    // accept working firmware
     esp_ota_mark_app_valid_cancel_rollback();
 }
 
@@ -60,7 +51,7 @@ static void start_wifi_ap(void)
         .ssid_len = 0,      // will set below
         .channel = 0,       // will set below
         .authmode = WIFI_AUTH_OPEN,
-        .ssid_hidden = 0,
+        .ssid_hidden = false,
         .max_connection = ESP_WIFI_MAX_CONN_NUM,
         .beacon_interval = 100,
         .pairwise_cipher = WIFI_CIPHER_TYPE_TKIP_CCMP,
@@ -76,13 +67,11 @@ static void start_wifi_ap(void)
                                       sizeof(wifi_config.ap.ssid),
                                       "SneakerNet %X%X%X%X%X%X",
                                       mac[5], mac[4], mac[3], mac[2], mac[1], mac[0]);
-
-    // set a "random" channel based on mac random
+    // set a "random" channel based on mac
     srand(*reinterpret_cast<int*>(mac + 2));
     // WIFI channels https://en.wikipedia.org/wiki/List_of_WLAN_channels
     constexpr int WIFI_CHANNEL_MAX = 11;    // North America limit
     wifi_config.ap.channel = (rand() % WIFI_CHANNEL_MAX) + 1;
-
     ESP_ERROR_CHECK(esp_wifi_set_config(static_cast<wifi_interface_t>(ESP_IF_WIFI_AP), &wifi_config));
 
     // handle DNS requests upon connection w/ redirect to captive portal

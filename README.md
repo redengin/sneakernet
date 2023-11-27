@@ -29,3 +29,12 @@ Providing a SneakerNet node
 --------------------------------------------------------------------------------
 SneakerNet nodes use inexpensive hardware (less than $20 USD). Checkout the
 [wiki](https://github.com/redengin/sneakernet/wiki) for details.
+
+
+Software Development
+--------------------------------------------------------------------------------
+see [design](docs/design.md) for an overview of this repository's contents.
+
+All code is open source under [Apache License Version 2.0](LICENSE).
+
+SneakerNet firmware is signed by a private key (not published).

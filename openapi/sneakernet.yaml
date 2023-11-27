@@ -4,15 +4,13 @@ info:
   description: REST API for SneakerNet
   version: 0.0.0
 
-servers:
-  - url: http://192.168.4.1
-
 # no security required
 security: []
 
+servers: []
 
 paths:
-  /catalog:
+  api/catalog:
     get:
       description: Returns a list of content objects
       responses:
@@ -32,20 +30,12 @@ paths:
                       type: string
                     size:
                       type: integer
-                    sha256:
-                      type: string
-                    identifiers:
-                      type: array
-                      items:
-                        type: string
-                    sneakernetSigned:
-                      type: boolean
         '404':
           description: catalog not ready
         '429':
           description: Too Many Requests
 
-  /catalog/{filename}:
+  api/catalog/{filename}:
     parameters:
       - name: filename
         in: path
@@ -76,14 +66,7 @@ paths:
         '200':
           description: accepted file
         '411':
-          description: length required
-        '403':
-          description: file not acceptable per Librarian's settings
-          content:
-            text/plain:
-              schema:
-                description: "reason for rejection"
-                type: string
+          description: Content-Length required
         '429':
           description: Too Many Requests
     delete:
@@ -94,7 +77,7 @@ paths:
         '404':
           description: File Not Found
 
-  /firmware:
+  api/firmware:
     get:
       description: Returns current firmware info
       responses:
