@@ -1,33 +1,38 @@
 Concept of Operations
 ================================================================================
 <!-- main scenario -->
-When a person enters into the physical space of a `SneakerNet` node, they will
+When a person enters into the physical space of a SneakerNet node, they will
 be able to access the content stored on that node.
 
 Human Factors
 --------------------------------------------------------------------------------
-* Awareness - the person must be made aware that the content is available
-    * **primarily** this is accomplished by an application installed on the
-        phone that recognizes `SneakerNet` nodes
-    * `SneakerNet` nodes also publish themselves as an open wifi connection
-        - attracting those looking for internet connectivity
+* Awareness - user must be made aware that the content is available
+    * **primarily** accomplished via the mobile app that automatically
+        synchronizes with SneakerNet nodes
+    * provide an open wifi connection (attracting those looking for internet
+        connectivity)
+* Relevance - users want locally relevant content
+    * each SneakerNet node's content is maintained by local users - able to
+        add and remove content to maximize relevance (curating content)
 
 Roles
 ================================================================================
-* **Author** - creates content
-* **Reader** - consumer of content
-* **Courier** - carrier of content
-    - **Readers** that use the `mobile app`, will automatically become couriers.  
-        In this way, content is efficiently distributed.  
-        Aditionally, the `mobile app` will carry **Firmware** to efficiently maintain `SneakerNet`.
+* **Author** - content creator
+* **Reader** - content consumer
+* **Courier** - content distributor/curator
 
-Content Management<a id="content_management"></a>
+The mobile app unifies the **Reader** and **Courier** roles by automatically
+gathering and distributing content during the user's travels. Additionally, the
+mobile app updates SneakerNet nodes to the latest firmware revision.
+
+
+Content Management (Curating Content)
 --------------------------------------------------------------------------------
-`SneakerNet` node content is both **addable** and **removable** by users.
+The content of each SneakerNet node is dynamic and curated by **couriers**.
 
-Upon sync
-* **Courier**'s content will be added to the `SneakerNet` node
-* **Courier**'s flagged content will be removed from the `SneakerNet` node
+**Couriers** are able to both **add** and **remove** content from a SneakerNet
+node. In this way, each SneakerNet node's content reflects the judgement of the
+**couriers** in its vicinity.
 
-By giving the **courier** both the ability to **add** and **remove** content,
-the `SneakerNet` content will evolve by the social norms of the users.
+Mobile app users can flag content for **automatic removal** to increase the
+efficiency of content curation.
