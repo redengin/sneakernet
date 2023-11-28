@@ -1,4 +1,4 @@
-`SneakerNet`
+SneakerNet
 ================================================================================
 ### [The internet has diluted the sense of local community.](https://en.wikipedia.org/wiki/Internet_influences_on_communities)
 

@@ -56,7 +56,8 @@ static void start_wifi_ap(void)
         .beacon_interval = 100,
         .pairwise_cipher = WIFI_CIPHER_TYPE_TKIP_CCMP,
         .ftm_responder = false,
-        .pmf_cfg { .capable = true, .required = true }
+        .pmf_cfg { .capable = false, .required = false},
+        .sae_pwe_h2e = WPA3_SAE_PWE_UNSPECIFIED
     }};
 
     // get the hard-coded mac address
