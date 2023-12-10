@@ -4,7 +4,8 @@
 #include <sdmmc_cmd.h>
 #include <esp_log.h>
 #include <filesystem>
-#include <dirent.h>
+#include <dirent.h> /* workaround for incomplete ESP32 filesystem support */
+#include <time.h>
 
 
 static const char *TAG = "sneakernet";
@@ -20,7 +21,28 @@ SneakerNet::SneakerNet()
     // mount the sd card
     mount_sdcard();
 
-    // TODO initialize the catalog
+    // cleanup contents and set system time per newest file
+    struct timeval newest_ts{};
+    DIR *dfd = opendir(MOUNT_DIR);
+    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+    for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
+        // transmute pEntry into a directory entry
+        std::filesystem::directory_entry entry(path/(pEntry->d_name));
+        if(entry.is_directory()) continue;
+
+        if(entry.path().string().ends_with(INWORK_SUFFIX))
+            std::filesystem::remove(entry);
+        else {
+            // find newest file
+            const std::time_t ts = std::chrono::system_clock::to_time_t(
+                    std::chrono::file_clock::to_sys(entry.last_write_time())
+            );
+            if(newest_ts.tv_sec < ts)
+                newest_ts.tv_sec = ts;
+        }
+    }
+    closedir(dfd);
+    settimeofday(&newest_ts, DST_NONE);
 }
 
 void SneakerNet::mount_sdcard()
