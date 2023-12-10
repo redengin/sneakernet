@@ -39,4 +39,5 @@ public:
 private:
     sdmmc_card_t *pCard;
     void mount_sdcard();
+    off_t delete_oldest_content();
 };

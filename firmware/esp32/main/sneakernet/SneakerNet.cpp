@@ -139,9 +139,46 @@ void SneakerNet::removeContent(const std::string& filename)
     }
 }
 
+off_t SneakerNet::delete_oldest_content()
+{
+    std::filesystem::directory_entry oldest;
+    DIR *dfd = opendir(MOUNT_DIR);
+    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+    for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
+        // transmute pEntry into a directory entry
+        std::filesystem::directory_entry entry(path/(pEntry->d_name));
+        if(entry.is_directory()) continue;
+        if(entry.path().string().ends_with(INWORK_SUFFIX)) continue;
+        else {
+            // find oldest file
+            if(false == oldest.exists())
+                oldest = entry;
+            else if(entry.last_write_time() < oldest.last_write_time())
+                oldest = entry;
+        }
+    }
+    closedir(dfd);
+
+    if(oldest.exists())
+    {
+        off_t sz = oldest.file_size();
+        std::filesystem::remove(oldest);
+        return sz;
+    }
+    else return 0;
+}
+
 SneakerNet::InWorkContent SneakerNet::addContent(const std::string& filename, const size_t file_size)
 {
-    // FIXME make room for new content (delete oldest files)
+    // make room for new content (delete oldest files)
+    uint64_t remaining;
+    esp_vfs_fat_info(MOUNT_DIR, NULL, &remaining);
+    while(remaining < file_size) {
+        const off_t freed = delete_oldest_content();
+        if(freed == 0)
+            return SneakerNet::InWorkContent("/dev/null");
+        remaining -= freed;
+    }
 
     return SneakerNet::InWorkContent(filename);
 }
