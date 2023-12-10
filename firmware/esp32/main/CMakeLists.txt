@@ -3,7 +3,6 @@ idf_component_register(
        "main.cpp"
        "dns_server.c"
        "sneakernet/SneakerNet.cpp"
-       "sneakernet/Catalog.cpp"
        "sneakernet/WebServer.cpp"
     EMBED_TXTFILES
         "index.html"

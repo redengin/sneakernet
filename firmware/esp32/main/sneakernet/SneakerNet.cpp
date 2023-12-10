@@ -4,13 +4,14 @@
 #include <sdmmc_cmd.h>
 #include <esp_log.h>
 #include <filesystem>
-static const char *TAG = "sneakernet";
+#include <dirent.h>
 
+
+static const char *TAG = "sneakernet";
 constexpr char MOUNT_DIR[] = "/sdcard";
-constexpr char CATALOG_DIR[] = "catalog";
+constexpr char INWORK_SUFFIX[] = ".inwork";
 
 SneakerNet::SneakerNet()
-    : catalog(std::filesystem::path(MOUNT_DIR)/CATALOG_DIR)
 {
     const esp_app_desc_t* const pDesc = esp_app_get_description();
     pVersion = pDesc->version;
@@ -19,8 +20,7 @@ SneakerNet::SneakerNet()
     // mount the sd card
     mount_sdcard();
 
-    // initialize the catalog
-    catalog.init();
+    // TODO initialize the catalog
 }
 
 void SneakerNet::mount_sdcard()
@@ -50,6 +50,7 @@ void SneakerNet::mount_sdcard()
         .data7_io_num = UNUSED_IO,
         .max_transfer_sz = 0,   // 0: use full dma buffer support
         .flags = UNUSED,
+        .isr_cpu_id = INTR_CPU_ID_AUTO,
         .intr_flags = UNUSED,
     };
     ESP_ERROR_CHECK(spi_bus_initialize(static_cast<spi_host_device_t>(host.slot),
@@ -71,82 +72,86 @@ void SneakerNet::mount_sdcard()
 }
 
 
+std::vector<SneakerNet::content_t> SneakerNet::contents()
+{
+    std::vector<SneakerNet::content_t> ret;
+    // FIXME ESP32 doesn't support directory_iterator (it's always empty)
+    // for(const std::filesystem::directory_entry entry : std::filesystem::directory_iterator(MOUNT_DIR))
+// Workaround - use C iterator
+    DIR *dfd = opendir(MOUNT_DIR);
+    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+    for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
+        // transmute pEntry into a directory entry
+        std::filesystem::directory_entry entry(path/(pEntry->d_name));
+        if(entry.is_directory()) continue;
+        if(entry.path().string().ends_with(INWORK_SUFFIX)) continue;
+        ret.emplace_back(entry.path().filename(), entry.file_size());
+    }
+    closedir(dfd);
+    return ret;
+}
 
-// bool SneakerNet::isValidContentPath(const std::string& path) const {
-//     // FIXME
-//     // return (std::string::npos == path.find(CATALOG_DIR.size()));
-//     return false;
-// }
+static bool isValidContentName(const std::string& filename)
+{
+    // make sure it's only a name (no path)
+    if(filename.find(std::filesystem::path::preferred_separator) != filename.npos) return false;
+    return true;
+}
 
+std::ifstream SneakerNet::readContent(const std::string& filename)
+{
+    // validate filename
+    if(isValidContentName(filename)) {
+        const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+        return std::ifstream(path/filename, std::ios_base::in | std::ios_base::binary);
+    }
+    // else return a null stream
+    return std::ifstream();
+}
 
-// const std::string SneakerNet::CATALOG_NEW_ITEM_SUFFIX = ".inwork";
-// const std::filesystem::path SneakerNet::NewItem::getInworkPath() const {
-//     return std::filesystem::path("/")/MOUNT_DIR/CATALOG_DIR/(filename + CATALOG_NEW_ITEM_SUFFIX);
-// }
+void SneakerNet::removeContent(const std::string& filename)
+{
+    if(isValidContentName(filename)) {
+        const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+        std::filesystem::remove(path/filename);
+    }
+}
 
-// std::ofstream SneakerNet::NewItem::getOfstream() {
-//     if(isBad())
-//         return std::ofstream();
+SneakerNet::InWorkContent SneakerNet::addContent(const std::string& filename, const size_t file_size)
+{
+    // FIXME make room for new content (delete oldest files)
 
-//     ESP_LOGI(TAG, "NewItem::getOfstream path:'%s'", getInworkPath().c_str());
-//     return std::ofstream(getInworkPath(), std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
-// }
+    return SneakerNet::InWorkContent(filename);
+}
 
-// SneakerNet::NewItem SneakerNet::createNewCatalogItem(const std::string& path, const size_t size) {
-//     // validate path
-//     if(!SneakerNet::isValidContentPath(path)) {
-//         // invalid path return disconnected stream
-//         ESP_LOGI(TAG, "addCatalogItem: invalid path '%s'", path.c_str());
-//         return SneakerNet::NewItem();
-//     }
+SneakerNet::InWorkContent::InWorkContent(const std::string& filename)
+    : filename(filename)
+{
+    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+    ofs = std::ofstream(path/(filename + INWORK_SUFFIX),
+                        std::ios_base::out | std::ios_base::binary);
+}
 
-//     // TODO clean up oldest files to make room for new item
+bool SneakerNet::InWorkContent::write(const char buffer[], const size_t sz)
+{
+    ofs.write(buffer, sz);
+    return ofs.good();
+}
 
-//     return SneakerNet::NewItem(std::filesystem::path(path).filename());
-// }
+void SneakerNet::InWorkContent::done()
+{
+    ofs.close();
+    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+    std::filesystem::rename(path/(filename + INWORK_SUFFIX), path/filename);
+}
 
-// SneakerNet::AddNewCatalogItemStatus SneakerNet::addNewCatalogItem(const NewItem& item) {
-
-//     SneakerNet::AddNewCatalogItemStatus status = validateNewCatalogItem(item);
-
-//     std::error_code err;
-//     switch(status) {
-//         case OK: {
-//             std::filesystem::path actualPath = item.getInworkPath();
-//             actualPath.replace_filename(item.filename);
-
-//             // remove file about to be replaced
-//             if(std::filesystem::exists(actualPath))
-//                 if(false == std::filesystem::remove(actualPath, err))
-//                     ESP_LOGE(TAG, "failed to remove overwritten entry [error: %s]", err.message().c_str());
-
-//             // rename without the inwork suffix
-//             std::filesystem::rename(item.getInworkPath(), actualPath, err);
-//             if(err) {
-//                 ESP_LOGE(TAG, "failed to rename %s to %s [error: %s]", item.getInworkPath().c_str(), actualPath.c_str(), err.message().c_str());
-//                 // fail and fallthrough to default
-//                 status = FAILED;
-//                 [[fallthrough]];
-//             }
-//             else break;    
-//         }
-//         default: {
-//             // delete the inwork item
-//             if(false == std::filesystem::remove(item.getInworkPath(), err))
-//                 ESP_LOGE(TAG, "failed to remove %s [error: %s]", item.getInworkPath().c_str(), err.message().c_str());
-//         }
-//     }
-
-//     if(status == OK)
-//         if(false == catalog.add(item.filename))
-//             status = FAILED;
-
-//     return status;    
-// }
-
-// SneakerNet::AddNewCatalogItemStatus SneakerNet::validateNewCatalogItem(const NewItem&) {
-
-//     // TODO validate per librarian preferences
-
-//     return OK;
-// }
+SneakerNet::InWorkContent::~InWorkContent()
+{
+    // cancel incomplete transfer
+    if(ofs.is_open())
+    {
+        ofs.close();
+        const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+        std::filesystem::remove(path/(filename + INWORK_SUFFIX));
+    }
+}

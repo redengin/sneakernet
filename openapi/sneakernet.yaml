@@ -12,7 +12,7 @@ servers: []
 paths:
   api/catalog:
     get:
-      description: Returns a list of content objects
+      description: Returns a list of content
       responses:
         '200':
           description: Successfully returned a list of content
@@ -54,7 +54,7 @@ paths:
         '429':
           description: Too Many Requests
     put:
-      description: add file to catalog
+      description: add file
       requestBody:
         content:
           # must set HTTP:Content-Length
@@ -70,7 +70,7 @@ paths:
         '429':
           description: Too Many Requests
     delete:
-      description: remove file from catalog
+      description: remove file
       responses:
         '200':
           description: file was removed
