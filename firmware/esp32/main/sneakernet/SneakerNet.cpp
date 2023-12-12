@@ -107,7 +107,10 @@ std::vector<SneakerNet::content_t> SneakerNet::contents()
         std::filesystem::directory_entry entry(path/(pEntry->d_name));
         if(entry.is_directory()) continue;
         if(entry.path().string().ends_with(INWORK_SUFFIX)) continue;
-        ret.emplace_back(entry.path().filename(), entry.file_size());
+        ret.emplace_back(entry.path().filename(),
+                         entry.file_size(),
+                         std::chrono::system_clock::to_time_t(std::chrono::file_clock::to_sys(entry.last_write_time()))
+        );
     }
     closedir(dfd);
     return ret;
@@ -168,7 +171,7 @@ off_t SneakerNet::delete_oldest_content()
     else return 0;
 }
 
-SneakerNet::InWorkContent SneakerNet::addContent(const std::string& filename, const size_t file_size)
+SneakerNet::InWorkContent SneakerNet::newContent(const std::string& filename, const size_t file_size)
 {
     // make room for new content (delete oldest files)
     uint64_t remaining;

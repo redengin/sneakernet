@@ -8,33 +8,36 @@ static constexpr char TAG[] = "webserver";
 #include <filesystem>
 
 static const std::string INDEX_URI("/");
-extern "C" esp_err_t INDEX(httpd_req_t*);
+extern "C" esp_err_t INDEX(httpd_req_t *);
 extern "C" esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err);
 
-
 static const std::string CATALOG_URI("api/catalog");
-extern "C" esp_err_t GET_CATALOG(httpd_req_t* req);
+extern "C" esp_err_t GET_CATALOG(httpd_req_t *req);
 static const std::string CATALOG_FILE_URI(CATALOG_URI + "/*");
-extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t* req);
-extern "C" esp_err_t PUT_CATALOG_FILE(httpd_req_t* req);
-extern "C" esp_err_t DELETE_CATALOG_FILE(httpd_req_t* req);
+extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t *req);
+extern "C" esp_err_t PUT_CATALOG_FILE(httpd_req_t *req);
+extern "C" esp_err_t DELETE_CATALOG_FILE(httpd_req_t *req);
 static const std::string FIRMWARE_URI("api/firmware");
-extern "C" esp_err_t GET_FIRMWARE(httpd_req_t* req);
-extern "C" esp_err_t PUT_FIRMWARE(httpd_req_t* req);
+extern "C" esp_err_t GET_FIRMWARE(httpd_req_t *req);
+extern "C" esp_err_t PUT_FIRMWARE(httpd_req_t *req);
 
 // TODO increase size for efficiency (window size:5744)
 static constexpr size_t CHUNK_SZ = 1048;
 
-static std::string urlDecode(const std::string& url)
+static std::string urlDecode(const std::string &url)
 {
     std::string ret;
-    for (int i=0; i < url.length(); i++){
-        if(url[i] != '%'){
-            if(url[i] == '+')
+    for (int i = 0; i < url.length(); i++)
+    {
+        if (url[i] != '%')
+        {
+            if (url[i] == '+')
                 ret += ' ';
             else
                 ret += url[i];
-        }else{
+        }
+        else
+        {
             int ii;
             sscanf(url.substr(i + 1, 2).c_str(), "%x", &ii);
             ret += static_cast<char>(ii);
@@ -44,8 +47,8 @@ static std::string urlDecode(const std::string& url)
     return ret;
 }
 
-WebServer::WebServer(SneakerNet& sneakernet)
-:   sneakernet(sneakernet)
+WebServer::WebServer(SneakerNet &sneakernet)
+    : sneakernet(sneakernet)
 {
     /*
         Turn off warnings from HTTP server as redirecting traffic will yield
@@ -59,14 +62,15 @@ WebServer::WebServer(SneakerNet& sneakernet)
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.max_open_sockets = 13;
     config.uri_match_fn = httpd_uri_match_wildcard;
-    config.stack_size = 6*1024; // increase stack size
+    config.stack_size = 6 * 1024; // increase stack size
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
     ESP_ERROR_CHECK(httpd_start(&handle, &config));
 
     // link our hooks back to our instance
-    void* const self = this;
+    void *const self = this;
     // support index homepage (and captive portal)
-    {   httpd_uri_t hook = {
+    {
+        httpd_uri_t hook = {
             .uri = INDEX_URI.c_str(),
             .method = HTTP_GET,
             .handler = INDEX,
@@ -76,9 +80,10 @@ WebServer::WebServer(SneakerNet& sneakernet)
         // provide 404 redirect to support captive portal
         ESP_ERROR_CHECK(httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_redirect));
     }
-// CATALOG
+    // CATALOG
     // support catalog listing
-    {   httpd_uri_t hook = {
+    {
+        httpd_uri_t hook = {
             .uri = CATALOG_URI.c_str(),
             .method = HTTP_GET,
             .handler = GET_CATALOG,
@@ -87,7 +92,8 @@ WebServer::WebServer(SneakerNet& sneakernet)
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
     // support serving files
-    {   httpd_uri_t hook = {
+    {
+        httpd_uri_t hook = {
             .uri = CATALOG_FILE_URI.c_str(),
             .method = HTTP_GET,
             .handler = GET_CATALOG_FILE,
@@ -96,7 +102,8 @@ WebServer::WebServer(SneakerNet& sneakernet)
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
     // support receiving files
-    {   httpd_uri_t hook = {
+    {
+        httpd_uri_t hook = {
             .uri = CATALOG_FILE_URI.c_str(),
             .method = HTTP_PUT,
             .handler = PUT_CATALOG_FILE,
@@ -105,7 +112,8 @@ WebServer::WebServer(SneakerNet& sneakernet)
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
     // support removing files
-    {   httpd_uri_t hook = {
+    {
+        httpd_uri_t hook = {
             .uri = CATALOG_FILE_URI.c_str(),
             .method = HTTP_DELETE,
             .handler = DELETE_CATALOG_FILE,
@@ -113,9 +121,10 @@ WebServer::WebServer(SneakerNet& sneakernet)
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
-// FIRMWARE
+    // FIRMWARE
     // support firmware check
-    {   httpd_uri_t hook = {
+    {
+        httpd_uri_t hook = {
             .uri = FIRMWARE_URI.c_str(),
             .method = HTTP_GET,
             .handler = GET_FIRMWARE,
@@ -124,7 +133,8 @@ WebServer::WebServer(SneakerNet& sneakernet)
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
     // support firmware check
-    {   httpd_uri_t hook = {
+    {
+        httpd_uri_t hook = {
             .uri = FIRMWARE_URI.c_str(),
             .method = HTTP_PUT,
             .handler = PUT_FIRMWARE,
@@ -137,7 +147,7 @@ WebServer::WebServer(SneakerNet& sneakernet)
 /// INDEX handler
 extern "C" const char indexHtml_start[] asm("_binary_index_html_start");
 extern "C" const char indexHtml_end[] asm("_binary_index_html_end");
-esp_err_t INDEX(httpd_req_t* req)
+esp_err_t INDEX(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "Serving index.html");
     const size_t indexHtml_sz = indexHtml_end - indexHtml_start;
@@ -158,20 +168,21 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 }
 
 /// Listing of content
-esp_err_t GET_CATALOG(httpd_req_t* request)
+esp_err_t GET_CATALOG(httpd_req_t *request)
 {
     ESP_LOGI(TAG, "Serving catalog");
-    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
     const std::vector<SneakerNet::content_t> contents = self->sneakernet.contents();
-    cJSON* const items = cJSON_CreateArray();
-    for(const auto& content : contents) {
-        cJSON* const item = cJSON_CreateObject();
+    cJSON *const items = cJSON_CreateArray();
+    for (const auto &content : contents)
+    {
+        cJSON *const item = cJSON_CreateObject();
         cJSON_AddStringToObject(item, "filename", content.filename.c_str());
         cJSON_AddNumberToObject(item, "size", content.size);
+        cJSON_AddNumberToObject(item, "timestamp", content.timestamp);
         cJSON_AddItemToArray(items, item);
-        ESP_LOGI(TAG, "adding item %s", content.filename.c_str());
     }
-    const char* const response = cJSON_PrintUnformatted(items);
+    const char *const response = cJSON_PrintUnformatted(items);
     ESP_LOGI(TAG, "returning \n %s", response);
     httpd_resp_set_type(request, "application/json");
     httpd_resp_send(request, response, strlen(response));
@@ -181,115 +192,117 @@ esp_err_t GET_CATALOG(httpd_req_t* request)
     return ESP_OK;
 }
 
-static bool isValidContentName(const std::string& filename)
+static bool isValidContentName(const std::string &filename)
 {
     // make sure it's only a name (no path)
-    if(filename.find(std::filesystem::path::preferred_separator) != filename.npos) return false;
-    return true;
+    return filename.find(std::filesystem::path::preferred_separator) == filename.npos;
 }
 
-esp_err_t DELETE_CATALOG_FILE(httpd_req_t* request) {
-    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
+esp_err_t DELETE_CATALOG_FILE(httpd_req_t *request)
+{
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
     const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
-    if(isValidContentName(filename))
+    if (isValidContentName(filename))
         self->sneakernet.removeContent(filename);
     else
-        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr); 
+        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
     ESP_LOGI(TAG, "deleted file '%s'", filename.c_str());
     return ESP_OK;
 }
 
-esp_err_t GET_CATALOG_FILE(httpd_req_t* request)
+esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
 {
-    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
     const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
-    if(false == isValidContentName(filename))
-        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr); 
+    if (false == isValidContentName(filename))
+        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
-    char* buf = new char[CHUNK_SZ];
-    if(buf == NULL)
+    std::unique_ptr<char[]> buf(new char[CHUNK_SZ]);
+    if (!buf)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
-        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
 
     std::ifstream fis = self->sneakernet.readContent(filename);
-    if(false == fis.is_open())
-        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, NULL);
+    if (false == fis.is_open())
+        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
     httpd_resp_set_type(request, "application/octet-stream");
     esp_err_t ret = ESP_OK;
-    while(true) {
-        const size_t chunk_sz = fis.readsome(buf, CHUNK_SZ);
-        esp_err_t status = httpd_resp_send_chunk(request, buf, chunk_sz);
-        if(status != ESP_OK) {
-            ESP_LOGW(TAG, "failed to send file [esp_err=%d]", status);
+    while (true)
+    {
+        const size_t chunk_sz = fis.readsome(buf.get(), CHUNK_SZ);
+        if (ESP_OK != httpd_resp_send_chunk(request, buf.get(), chunk_sz))
+        {
+            ESP_LOGW(TAG, "failed to send file");
             ret = ESP_FAIL;
             break;
         }
-        if(chunk_sz == 0) break;
+        if (chunk_sz == 0)
+            break;
     }
-    delete[] buf;
 
     return ret;
 }
 
-esp_err_t PUT_CATALOG_FILE(httpd_req_t* request) {
-    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
+esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
+{
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
     const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
-    if(false == isValidContentName(filename))
-        return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "illegal filename"); 
+    if (false == isValidContentName(filename))
+        return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "illegal filename");
 
     // validate there is data
-    if(request->content_len <= 0)
-        return httpd_resp_send_err(request, HTTPD_411_LENGTH_REQUIRED, "Length required"); 
+    if (request->content_len <= 0)
+        return httpd_resp_send_err(request, HTTPD_411_LENGTH_REQUIRED, "Length required");
 
     // create a buffer
-    char* buf = new char[CHUNK_SZ];
-    if(buf == NULL)
+    std::unique_ptr<char[]> buf(new char[CHUNK_SZ]);
+    if (!buf)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
-        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
 
     const size_t file_sz = request->content_len;
-    SneakerNet::InWorkContent content = self->sneakernet.addContent(filename, file_sz);
+    SneakerNet::InWorkContent content = self->sneakernet.newContent(filename, file_sz);
     // receive the data
     esp_err_t ret = ESP_OK;
-    for(size_t remaining = request->content_len; remaining > 0;) {
-        const int received = httpd_req_recv(request, buf, MIN(remaining, CHUNK_SZ));
-        if(received < 0) {
+    for (size_t remaining = request->content_len; remaining > 0;)
+    {
+        const int received = httpd_req_recv(request, buf.get(), MIN(remaining, CHUNK_SZ));
+        if (received < 0)
+        {
             ESP_LOGW(TAG, "download incomplete: %s [%d/%d]", request->uri,
-                (request->content_len - remaining), request->content_len);
+                     (request->content_len - remaining), request->content_len);
             ret = ESP_FAIL;
             break;
         }
-        if(false == content.write(buf, received))
+        if (false == content.write(buf.get(), received))
         {
             ret = ESP_FAIL;
             break;
         }
         remaining -= received;
     }
-    delete[] buf;
 
-    if(ret == ESP_OK)
+    if (ret == ESP_OK)
     {
         content.done();
         return ESP_OK;
     }
 
-    return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Upload failed"); 
+    return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Upload failed");
 }
 
-/// firmware info
-esp_err_t GET_FIRMWARE(httpd_req_t* request)
+esp_err_t GET_FIRMWARE(httpd_req_t *request)
 {
     ESP_LOGI(TAG, "Serving firmware info");
-    WebServer* const self = static_cast<WebServer*>(request->user_ctx);
-    cJSON* const item = cJSON_CreateObject();
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
+    cJSON *const item = cJSON_CreateObject();
     cJSON_AddStringToObject(item, "filename", "esp32-sneakernet.bin");
     cJSON_AddStringToObject(item, "version", self->sneakernet.pVersion);
-    const char* const response = cJSON_PrintUnformatted(item);
+    const char *const response = cJSON_PrintUnformatted(item);
     ESP_LOGI(TAG, "returning \n %s", response);
     httpd_resp_set_type(request, "application/json");
     httpd_resp_send(request, response, strlen(response));
@@ -298,52 +311,59 @@ esp_err_t GET_FIRMWARE(httpd_req_t* request)
     return ESP_OK;
 }
 
-// firmware update
-esp_err_t PUT_FIRMWARE(httpd_req_t* request) {
+esp_err_t PUT_FIRMWARE(httpd_req_t *request)
+{
     // validate there is data
-    if(request->content_len <= 0) {
-        return httpd_resp_send_err(request, HTTPD_411_LENGTH_REQUIRED, "Length required"); 
-    }
+    if (request->content_len <= 0)
+        return httpd_resp_send_err(request, HTTPD_411_LENGTH_REQUIRED, "Length required");
 
     // create a buffer
-    char* buf = new char[CHUNK_SZ];
-    if(buf == NULL) {
+    std::unique_ptr<char[]> buf(new char[CHUNK_SZ]);
+    if (!buf)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
-        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)"); 
-    }
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
 
-    const esp_partition_t* const partition = esp_ota_get_next_update_partition(nullptr);
+    const esp_partition_t *const partition = esp_ota_get_next_update_partition(nullptr);
     esp_ota_handle_t handle;
-    if(ESP_OK != esp_ota_begin(partition, request->content_len, &handle)) {
+    if (ESP_OK != esp_ota_begin(partition, request->content_len, &handle))
+    {
         ESP_LOGW(TAG, "unable to begin firmware update");
-        return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, nullptr);
+        return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, "unable to start ota update");
     }
 
     // receive the data
     esp_err_t ret = ESP_OK;
-    for(size_t remaining = request->content_len; remaining > 0;) {
-        const int received = httpd_req_recv(request, buf, MIN(remaining, CHUNK_SZ));
-        if(received < 0) {
+    for (size_t remaining = request->content_len; remaining > 0;)
+    {
+        const int received = httpd_req_recv(request, buf.get(), MIN(remaining, CHUNK_SZ));
+        if (received < 0)
+        {
             ESP_LOGW(TAG, "download incomplete: %s", request->uri);
             ret = ESP_FAIL;
             break;
         }
-        ret = esp_ota_write(handle, buf, received);
-        if(ret != ESP_OK) {
+        ret = esp_ota_write(handle, buf.get(), received);
+        if (ret != ESP_OK)
+        {
             ESP_LOGW(TAG, "firmware update failed upon write");
             break;
         }
         remaining -= received;
     }
 
-    if(ESP_OK != esp_ota_end(handle)) {
+    if (ret != ESP_OK)
+        return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, "ota update failed");
+
+    if (ESP_OK != esp_ota_end(handle))
+    {
         ESP_LOGW(TAG, "unable to end firmware update");
-        return ESP_FAIL;
+        return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, "ota end failed");
     }
 
-    if(ESP_OK != esp_ota_set_boot_partition(partition)) {
+    if (ESP_OK != esp_ota_set_boot_partition(partition))
+    {
         ESP_LOGW(TAG, "unable to set new boot partition");
-        return ESP_FAIL;
+        return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, "set boot partition failed.");
     }
 
     // reboot
@@ -353,5 +373,6 @@ esp_err_t PUT_FIRMWARE(httpd_req_t* request) {
     httpd_resp_set_type(request, HTTPD_TYPE_TEXT);
     httpd_resp_send(request, msg, sizeof(msg));
     esp_restart();
+
     return ESP_OK;
 }

@@ -30,6 +30,8 @@ paths:
                       type: string
                     size:
                       type: integer
+                    timestamp:
+                      type: integer
         '404':
           description: catalog not ready
         '429':

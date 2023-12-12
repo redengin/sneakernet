@@ -12,6 +12,7 @@ public:
     typedef struct {
         std::string filename;
         size_t size;
+        time_t timestamp;
     } content_t;
     std::vector<content_t> contents();
 
@@ -31,7 +32,7 @@ public:
         const std::string& filename;
         std::ofstream ofs;
     };
-    InWorkContent addContent(const std::string& filename, const size_t file_size);
+    InWorkContent newContent(const std::string& filename, const size_t file_size);
 
     /// firmware version
     const char* pVersion;
