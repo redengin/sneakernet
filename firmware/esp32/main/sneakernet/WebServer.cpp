@@ -170,10 +170,14 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
 /// Listing of content
 esp_err_t GET_CATALOG(httpd_req_t *request)
 {
-    ESP_LOGI(TAG, "Serving catalog");
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
-    const std::vector<SneakerNet::content_t> contents = self->sneakernet.contents();
+
     cJSON *const items = cJSON_CreateArray();
+    if(!items)
+        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, nullptr);
+
+    const std::vector<SneakerNet::content_t> contents = self->sneakernet.contents();
     for (const auto &content : contents)
     {
         cJSON *const item = cJSON_CreateObject();
@@ -182,12 +186,12 @@ esp_err_t GET_CATALOG(httpd_req_t *request)
         cJSON_AddNumberToObject(item, "timestamp", content.timestamp);
         cJSON_AddItemToArray(items, item);
     }
-    const char *const response = cJSON_PrintUnformatted(items);
+    char *const response = cJSON_PrintUnformatted(items);
+    cJSON_Delete(items);
     ESP_LOGI(TAG, "returning \n %s", response);
     httpd_resp_set_type(request, "application/json");
     httpd_resp_send(request, response, strlen(response));
-    delete response;
-    cJSON_Delete(items);
+    cJSON_free(response);
 
     return ESP_OK;
 }
@@ -229,21 +233,17 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
         return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
     httpd_resp_set_type(request, "application/octet-stream");
-    esp_err_t ret = ESP_OK;
     while (true)
     {
         const size_t chunk_sz = fis.readsome(buf.get(), CHUNK_SZ);
         if (ESP_OK != httpd_resp_send_chunk(request, buf.get(), chunk_sz))
         {
             ESP_LOGW(TAG, "failed to send file");
-            ret = ESP_FAIL;
-            break;
+            return ESP_FAIL;
         }
         if (chunk_sz == 0)
-            break;
+            return ESP_OK;
     }
-
-    return ret;
 }
 
 esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
@@ -297,17 +297,21 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
 
 esp_err_t GET_FIRMWARE(httpd_req_t *request)
 {
-    ESP_LOGI(TAG, "Serving firmware info");
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
+
     cJSON *const item = cJSON_CreateObject();
+    if(!item)
+        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
+
     cJSON_AddStringToObject(item, "filename", "esp32-sneakernet.bin");
     cJSON_AddStringToObject(item, "version", self->sneakernet.pVersion);
-    const char *const response = cJSON_PrintUnformatted(item);
+    char *const response = cJSON_PrintUnformatted(item);
+    cJSON_Delete(item);
     ESP_LOGI(TAG, "returning \n %s", response);
     httpd_resp_set_type(request, "application/json");
     httpd_resp_send(request, response, strlen(response));
-    delete response;
-    cJSON_Delete(item);
+    cJSON_free(response);
     return ESP_OK;
 }
 
