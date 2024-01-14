@@ -204,6 +204,9 @@ void SneakerNet::InWorkContent::done()
 {
     ofs.close();
     const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+    // remove previous file if it exists
+    if(std::filesystem::exists(path/filename))
+        std::filesystem::remove(path/filename);
     std::filesystem::rename(path/(filename + INWORK_SUFFIX), path/filename);
 }
 

@@ -7,17 +7,19 @@ static constexpr char TAG[] = "webserver";
 #include <cJSON.h>
 #include <filesystem>
 
+// static content
 static const std::string INDEX_URI("/");
 extern "C" esp_err_t INDEX(httpd_req_t *);
 extern "C" esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err);
 
-static const std::string CATALOG_URI("api/catalog");
+// REST API
+static const std::string CATALOG_URI("/api/catalog");
 extern "C" esp_err_t GET_CATALOG(httpd_req_t *req);
 static const std::string CATALOG_FILE_URI(CATALOG_URI + "/*");
 extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t *req);
 extern "C" esp_err_t PUT_CATALOG_FILE(httpd_req_t *req);
 extern "C" esp_err_t DELETE_CATALOG_FILE(httpd_req_t *req);
-static const std::string FIRMWARE_URI("api/firmware");
+static const std::string FIRMWARE_URI("/api/firmware");
 extern "C" esp_err_t GET_FIRMWARE(httpd_req_t *req);
 extern "C" esp_err_t PUT_FIRMWARE(httpd_req_t *req);
 
@@ -167,16 +169,17 @@ esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
     return ESP_OK;
 }
 
-/// Listing of content
+/// JSON listing of content
 esp_err_t GET_CATALOG(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
     cJSON *const items = cJSON_CreateArray();
-    if(!items)
+    if (!items)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, nullptr);
 
+    // TODO use an iterator pattern
     const std::vector<SneakerNet::content_t> contents = self->sneakernet.contents();
     for (const auto &content : contents)
     {
@@ -200,19 +203,6 @@ static bool isValidContentName(const std::string &filename)
 {
     // make sure it's only a name (no path)
     return filename.find(std::filesystem::path::preferred_separator) == filename.npos;
-}
-
-esp_err_t DELETE_CATALOG_FILE(httpd_req_t *request)
-{
-    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
-    const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
-    if (isValidContentName(filename))
-        self->sneakernet.removeContent(filename);
-    else
-        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
-
-    ESP_LOGI(TAG, "deleted file '%s'", filename.c_str());
-    return ESP_OK;
 }
 
 esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
@@ -273,13 +263,15 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
         const int received = httpd_req_recv(request, buf.get(), MIN(remaining, CHUNK_SZ));
         if (received < 0)
         {
-            ESP_LOGW(TAG, "download incomplete: %s [%d/%d]", request->uri,
+            ESP_LOGW(TAG, "PUT incomplete: %s [%d/%d]", request->uri,
                      (request->content_len - remaining), request->content_len);
             ret = ESP_FAIL;
             break;
         }
         if (false == content.write(buf.get(), received))
         {
+            ESP_LOGE(TAG, "PUT write failed: %s [%d/%d]", request->uri,
+                     (request->content_len - remaining), request->content_len);
             ret = ESP_FAIL;
             break;
         }
@@ -289,10 +281,25 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
     if (ret == ESP_OK)
     {
         content.done();
-        return ESP_OK;
+        // send an empty 200 response
+        return httpd_resp_send(request, nullptr, 0);
     }
+    else
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Upload failed");
+}
 
-    return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Upload failed");
+esp_err_t DELETE_CATALOG_FILE(httpd_req_t *request)
+{
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
+    const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
+    if (isValidContentName(filename))
+    {
+        self->sneakernet.removeContent(filename);
+        // send an empty 200 response
+        return httpd_resp_send(request, nullptr, 0);
+    }
+    else
+        return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "illegal filename");
 }
 
 esp_err_t GET_FIRMWARE(httpd_req_t *request)
@@ -300,7 +307,7 @@ esp_err_t GET_FIRMWARE(httpd_req_t *request)
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
     cJSON *const item = cJSON_CreateObject();
-    if(!item)
+    if (!item)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
 
