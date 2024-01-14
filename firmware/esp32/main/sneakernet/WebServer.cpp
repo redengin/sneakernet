@@ -380,8 +380,6 @@ esp_err_t PUT_FIRMWARE(httpd_req_t *request)
     // reboot
     constexpr char msg[] = "accepted update, rebooting...";
     ESP_LOGI(TAG, "%s", msg);
-    httpd_resp_set_status(request, HTTPD_200);
-    httpd_resp_set_type(request, HTTPD_TYPE_TEXT);
     httpd_resp_send(request, msg, sizeof(msg));
     esp_restart();
 
