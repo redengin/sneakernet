@@ -26,9 +26,8 @@ build-webapp: angular-init
 		$(NG_DOCKER_IMAGE) \
 			ng build --deploy-url "/app/"
 
-.PHONY: view-webapp
-#view-webapp: build-webapp
-view-webapp: 
+.PHONY: live-edit-webapp
+live-edit-webapp: 
 	@docker run --rm -it \
 		--network host \
 		--user $(UID):$(GID) \
