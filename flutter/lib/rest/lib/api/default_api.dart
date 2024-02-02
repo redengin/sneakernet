@@ -16,7 +16,7 @@ class DefaultApi {
 
   final ApiClient apiClient;
 
-  /// remove file from catalog
+  /// remove file
   ///
   /// Note: This method returns the HTTP [Response].
   ///
@@ -49,7 +49,7 @@ class DefaultApi {
     );
   }
 
-  /// remove file from catalog
+  /// remove file
   ///
   /// Parameters:
   ///
@@ -106,7 +106,7 @@ class DefaultApi {
     }
   }
 
-  /// add file to catalog
+  /// add file
   ///
   /// Note: This method returns the HTTP [Response].
   ///
@@ -141,7 +141,7 @@ class DefaultApi {
     );
   }
 
-  /// add file to catalog
+  /// add file
   ///
   /// Parameters:
   ///
@@ -155,7 +155,7 @@ class DefaultApi {
     }
   }
 
-  /// Returns a list of content objects
+  /// Returns a list of content
   ///
   /// Note: This method returns the HTTP [Response].
   Future<Response> catalogGetWithHttpInfo() async {
@@ -183,7 +183,7 @@ class DefaultApi {
     );
   }
 
-  /// Returns a list of content objects
+  /// Returns a list of content
   Future<List<CatalogGet200ResponseInner>?> catalogGet() async {
     final response = await catalogGetWithHttpInfo();
     if (response.statusCode >= HttpStatus.badRequest) {

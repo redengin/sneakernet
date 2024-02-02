@@ -14,15 +14,19 @@ class CatalogGet200ResponseInner {
   /// Returns a new [CatalogGet200ResponseInner] instance.
   CatalogGet200ResponseInner({
     required this.filename,
-    required this.size,
-    this.sha256,
-    this.identifiers = const [],
-    this.sneakernetSigned,
+    this.size,
+    this.timestamp,
   });
 
   String filename;
 
-  int size;
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  int? size;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -30,52 +34,36 @@ class CatalogGet200ResponseInner {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  String? sha256;
-
-  List<String> identifiers;
-
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  bool? sneakernetSigned;
+  int? timestamp;
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is CatalogGet200ResponseInner &&
      other.filename == filename &&
      other.size == size &&
-     other.sha256 == sha256 &&
-     other.identifiers == identifiers &&
-     other.sneakernetSigned == sneakernetSigned;
+     other.timestamp == timestamp;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (filename.hashCode) +
-    (size.hashCode) +
-    (sha256 == null ? 0 : sha256!.hashCode) +
-    (identifiers.hashCode) +
-    (sneakernetSigned == null ? 0 : sneakernetSigned!.hashCode);
+    (size == null ? 0 : size!.hashCode) +
+    (timestamp == null ? 0 : timestamp!.hashCode);
 
   @override
-  String toString() => 'CatalogGet200ResponseInner[filename=$filename, size=$size, sha256=$sha256, identifiers=$identifiers, sneakernetSigned=$sneakernetSigned]';
+  String toString() => 'CatalogGet200ResponseInner[filename=$filename, size=$size, timestamp=$timestamp]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
       json[r'filename'] = this.filename;
+    if (this.size != null) {
       json[r'size'] = this.size;
-    if (this.sha256 != null) {
-      json[r'sha256'] = this.sha256;
     } else {
-      json[r'sha256'] = null;
+      json[r'size'] = null;
     }
-      json[r'identifiers'] = this.identifiers;
-    if (this.sneakernetSigned != null) {
-      json[r'sneakernetSigned'] = this.sneakernetSigned;
+    if (this.timestamp != null) {
+      json[r'timestamp'] = this.timestamp;
     } else {
-      json[r'sneakernetSigned'] = null;
+      json[r'timestamp'] = null;
     }
     return json;
   }
@@ -100,12 +88,8 @@ class CatalogGet200ResponseInner {
 
       return CatalogGet200ResponseInner(
         filename: mapValueOfType<String>(json, r'filename')!,
-        size: mapValueOfType<int>(json, r'size')!,
-        sha256: mapValueOfType<String>(json, r'sha256'),
-        identifiers: json[r'identifiers'] is List
-            ? (json[r'identifiers'] as List).cast<String>()
-            : const [],
-        sneakernetSigned: mapValueOfType<bool>(json, r'sneakernetSigned'),
+        size: mapValueOfType<int>(json, r'size'),
+        timestamp: mapValueOfType<int>(json, r'timestamp'),
       );
     }
     return null;
@@ -154,7 +138,6 @@ class CatalogGet200ResponseInner {
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
     'filename',
-    'size',
   };
 }
 

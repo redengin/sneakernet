@@ -8,11 +8,11 @@ info:
 security: []
 
 servers: [
-  url: http://sneakernet.monster
+  url: http://sneakernet.monster/api
 ]
 
 paths:
-  /api/catalog:
+  /catalog:
     get:
       description: Returns a list of content
       responses:
@@ -38,7 +38,7 @@ paths:
         '429':
           description: Too Many Requests (try again)
 
-  /api/catalog/{filename}:
+  /catalog/{filename}:
     parameters:
       - name: filename
         in: path
@@ -86,7 +86,7 @@ paths:
         '404':
           description: File Not Found
 
-  /api/firmware:
+  /firmware:
     get:
       description: Returns current firmware info
       responses:

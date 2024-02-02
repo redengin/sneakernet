@@ -5,7 +5,7 @@
 import 'package:sneakernet_rest/api.dart';
 ```
 
-All URIs are relative to *http://192.168.4.1*
+All URIs are relative to *http://sneakernet.monster/api*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -22,7 +22,7 @@ Method | HTTP request | Description
 
 
 
-remove file from catalog
+remove file
 
 ### Example
 ```dart
@@ -106,7 +106,7 @@ No authorization required
 
 
 
-add file to catalog
+add file
 
 ### Example
 ```dart
@@ -141,7 +141,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/octet-stream
- - **Accept**: text/plain
+ - **Accept**: Not defined
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -150,7 +150,7 @@ No authorization required
 
 
 
-Returns a list of content objects
+Returns a list of content
 
 ### Example
 ```dart

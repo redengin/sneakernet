@@ -40,11 +40,11 @@ class Library {
   }
 
   static const inworkSuffix = ".inwork";
-  bool add(String filename, Uint8List bytes) {
+  bool add(String filename, Uint8List data) {
     // create an inwork file
     final inWorkFile = File(p.join(catalogDir.path, filename + inworkSuffix));
     try {
-      inWorkFile.writeAsBytesSync(bytes);
+      inWorkFile.writeAsBytesSync(data);
     } catch (e) {
       inWorkFile.delete();
       return false;

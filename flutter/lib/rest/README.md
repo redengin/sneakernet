@@ -53,7 +53,7 @@ try {
 
 ## Documentation for API Endpoints
 
-All URIs are relative to *http://192.168.4.1*
+All URIs are relative to *http://sneakernet.monster/api*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
