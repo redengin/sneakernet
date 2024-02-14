@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:share/share.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
@@ -35,7 +36,7 @@ class _LibraryPageState extends State<LibraryPage> {
       drawer: SneakerNetDrawer(),
       body: (files.isEmpty)
           ? Center(
-              child: Text('no files',
+              child: Text('no files yet...\n(find some sneakernets)',
                   style: Theme.of(context).textTheme.headlineLarge))
           : RefreshIndicator(
               child: ListView.builder(
@@ -89,6 +90,12 @@ class _LibraryPageState extends State<LibraryPage> {
                       onPressed: () => setState(() {
                             library.remove(file);
                           })),
+                  IconButton(
+                      icon: const Icon(Icons.share),
+                      tooltip: 'share content',
+                      onPressed: () => setState(() {
+                        Share.shareFiles([file.path]);
+                      })),
                 ],
               ),
             ),

@@ -10,7 +10,8 @@ class FileTile extends StatelessWidget {
   late final String _title;
 
   FileTile(this.file, {super.key}) {
-    Widget preview = const Icon(Icons.article_outlined, size: 100);
+    const double previewHeight = 80;
+    Widget preview = const Icon(Icons.article_outlined, size: previewHeight);
     var title = p.basename(file.path);
 
     switch (p.extension(file.path)) {
@@ -22,9 +23,7 @@ class FileTile extends StatelessWidget {
             final data =
                 ebook.readContainerFile(info.coverImageRefs.first.href);
             if (data != null) {
-              // FIXME image doesn't scale correctly
-              // preview = Container(width: 100, height: 100, child: FittedBox(fit: BoxFit.cover, child: Image.memory(data, height: 100)));
-              preview = Image.memory(data, height: 100);
+              preview = Image.memory(data, height: previewHeight);
             }
             if (info.titles.isNotEmpty) {
               title = info.titles[0];
