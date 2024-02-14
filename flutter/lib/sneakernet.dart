@@ -77,7 +77,10 @@ class SneakerNet {
       List<String> remoteFilenames =
           remoteCatalog.map((e) => e.filename).toList(growable: false);
 
-      // download the offered files first
+      // remove the flagged content
+      // TODO
+
+      // download the offered files
       // ignore unwanted files
       remoteFilenames
           .removeWhere((filename) => unwantedFilenames.contains(filename));
@@ -100,7 +103,8 @@ class SneakerNet {
           library.add(filename, get.bodyBytes, timestamp);
         }
       }
-      // send files
+
+      // send local files
       for (var file in localCatalog) {
         final filename = p.basename(file.path);
         if (remoteFilenames.contains(filename) == false) {
