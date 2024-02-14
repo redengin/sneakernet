@@ -103,7 +103,7 @@ class LibraryFilterPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = filterSettings
-        .load()
+        .list()
         .map((e) => MultiSelectItem<String>(e, e))
         .toList(growable: false);
     return MultiSelectDialog(
@@ -111,7 +111,7 @@ class LibraryFilterPicker extends StatelessWidget {
       title: Text('Remove Filter for $message files'),
       items: items,
       initialValue: const <String>[],
-      onConfirm: (values) => filterSettings.removeAll(values),
+      onConfirm: (values) => filterSettings.removeEach(values),
     );
   }
 }

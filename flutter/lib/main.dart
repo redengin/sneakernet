@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
@@ -27,16 +28,14 @@ Future<void> main() async {
   settings = Settings(preferences: preferences);
 
   // use a non-backed up storage for library content
-  final storageDir = await getTemporaryDirectory();
-  final libraryDir = Directory(p.join(storageDir.path, 'library'));
-  library = Library(libraryDir);
+  library = Library(await getTemporaryDirectory());
 
-  // initialize local notifications
+  // create background tasks
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
+  Workmanager().initialize(callbackDispatcher);
   // subscribe to wifi scans
   final scanSubscription =
-      WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+  WiFiScan.instance.onScannedResultsAvailable.listen((results) {
     var sneakerNetNodes = results
         .where((_) => _.ssid.startsWith(sneakerNetPrefix))
         .toList(growable: false);
@@ -50,25 +49,26 @@ Future<void> main() async {
       }
 
       if (settings.getAutoSync()) {
-        Workmanager().registerOneOffTask(
-            SNEAKERNET_SYNC_ID.toString(), syncTaskName,
+        ssids.forEach((ssid) {
+          // TODO only supports android
+          Workmanager().registerOneOffTask(syncTaskName, ssid,
+            existingWorkPolicy:ExistingWorkPolicy.append,
             inputData: {
-              syncTaskParamSneakernets: ssids,
-              syncTaskParamLibraryPath: libraryDir.path,
+              syncTaskParamSsid: ssid,
             });
+        });
+        // Workmanager().registerOneOffTask(
+        //     SNEAKERNET_SYNC_ID.toString(), syncTaskName,
+        //     inputData: {
+        //       syncTaskParamSneakernets: ssids,
+        //       syncTaskParamLibraryPath: libraryDir.path,
+        //     });
       }
     }
   });
+  // start the wifi scan background task
+  Workmanager().registerPeriodicTask(scanTaskName, scanTaskName);
 
-  // setup background tasks
-  Workmanager().initialize(
-    callbackDispatcher,
-    // If enabled it will post a notification upon each callback event
-    // isInDebugMode: true
-  );
-  int taskId = 0;
-  // for Android, the minimum period is 15 minutes
-  Workmanager().registerPeriodicTask((++taskId).toString(), scanTaskName);
 
   // decide which page to start based upon how we were launched
   final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
@@ -109,7 +109,7 @@ WorkManager Helpers
 ------------------------------------------------------------------------------*/
 const scanTaskName = 'wifi-scan';
 const syncTaskName = 'sneakernet-sync';
-const syncTaskParamSneakernets = 'sneakernets';
+const syncTaskParamSsid = 'sneakernet-ssid';
 const syncTaskParamLibraryPath = 'libraryPath';
 
 @pragma(
@@ -127,16 +127,15 @@ void callbackDispatcher() {
 
       case syncTaskName:
         // validate invocation
-        final sneakernets = inputData?[syncTaskParamSneakernets];
-        if (sneakernets == null)
-          return Future.error("<$syncTaskParamSneakernets> param not found");
-        final libraryPath = inputData?[syncTaskParamLibraryPath];
-        if (libraryPath == null)
-          return Future.error("<$syncTaskParamLibraryPath> param not found");
+        final ssid = inputData?[syncTaskParamSsid];
+        if (ssid == null) {
+          return Future.error("<$syncTaskParamSsid> param not found");
+        }
 
-        // synchronize with the nodes
-        final library = Library(Directory(libraryPath));
-        await SneakerNet.syncAll(sneakernets, library);
+        // final libraryPath = inputData?[syncTaskParamLibraryPath];
+        // if (libraryPath == null)
+        //   return Future.error("<$syncTaskParamLibraryPath> param not found");
+        await SneakerNet.sync(ssid);
         return true;
 
       default:
