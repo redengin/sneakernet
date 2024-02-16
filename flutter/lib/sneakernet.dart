@@ -71,40 +71,46 @@ class SneakerNet {
     final unwantedFilenames = library.unwantedFiles.list();
     final flaggedFilenames = library.flaggedFiles.list();
 
-    // get the offered files list
     final remoteCatalog = await restClient.catalogGet();
     if (remoteCatalog != null) {
-      List<String> remoteFilenames =
-          remoteCatalog.map((e) => e.filename).toList(growable: false);
-
       // remove the flagged content
-      // TODO
+      for (var entry in remoteCatalog) {
+        if (flaggedFilenames.contains(entry.filename)) {
+          // announce the deletion
+          flutterLocalNotificationsPlugin.show(
+              SNEAKERNET_SYNC_ID,
+              notificationLabel,
+              "removing $entry.filename",
+              notificationDetails);
+          restClient.catalogFilenameDelete(entry.filename);
+        }
+      }
 
-      // download the offered files
-      // ignore unwanted files
-      remoteFilenames
-          .removeWhere((filename) => unwantedFilenames.contains(filename));
-      // ignore flagged files
-      remoteFilenames
-          .removeWhere((filename) => flaggedFilenames.contains(filename));
-      for (var filename in remoteFilenames) {
-        // announce the download
-        flutterLocalNotificationsPlugin.show(SNEAKERNET_SYNC_ID,
-            notificationLabel, "downloading $filename", notificationDetails);
-        final Response get =
-            await restClient.catalogFilenameGetWithHttpInfo(filename);
-        if (get.statusCode == 200) {
-          // find the entry to retrieve the timestamp
-          var entry =
-              remoteCatalog.firstWhere((entry) => entry.filename == filename);
-          final timestamp = (entry.timestamp != null)
-              ? DateTime(entry.timestamp!)
-              : DateTime.now();
-          library.add(filename, get.bodyBytes, timestamp);
+      // download new files
+      for (var entry in remoteCatalog) {
+        if (localFilenames.contains(entry.filename) == false) {
+          // announce the download
+          flutterLocalNotificationsPlugin.show(
+              SNEAKERNET_SYNC_ID,
+              notificationLabel,
+              "downloading $entry.filename",
+              notificationDetails);
+          final Response get =
+              await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
+          if (get.statusCode == 200) {
+            // find the entry to retrieve the timestamp
+            var entry = remoteCatalog
+                .firstWhere((entry) => entry.filename == entry.filename);
+            final timestamp = (entry.timestamp != null)
+                ? DateTime(entry.timestamp!)
+                : DateTime.now();
+            library.add(entry.filename, get.bodyBytes, timestamp);
+          }
         }
       }
 
       // send local files
+      final remoteFilenames = remoteCatalog.map((e) => e.filename).toList(growable: false);
       for (var file in localCatalog) {
         final filename = p.basename(file.path);
         if (remoteFilenames.contains(filename) == false) {

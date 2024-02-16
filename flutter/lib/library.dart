@@ -18,10 +18,12 @@ class Library {
     flaggedFiles = StringListFile(File(p.join(libraryDir.path, 'flagged.lst')));
   }
 
+  final inworkSuffix = ".INWORK";
   List<File> files() {
     var files = catalogDir.listSync();
     // remove non-files from list
     files.removeWhere((item) => item is! File);
+    files.removeWhere((item) => item.path.endsWith(inworkSuffix));
     return files.map((e) => e as File).toList(growable: false);
   }
 
@@ -39,7 +41,7 @@ class Library {
 
   bool add(String filename, Uint8List data, DateTime timestamp) {
     // create an inwork file
-    final inWorkFile = File(p.join(catalogDir.path, filename));
+    final inWorkFile = File(p.join(catalogDir.path, filename, inworkSuffix));
     try {
       inWorkFile.writeAsBytesSync(data);
       inWorkFile.setLastModified(timestamp);
@@ -47,7 +49,8 @@ class Library {
       inWorkFile.delete();
       return false;
     }
-
+    // rename it to the actual file name
+    inWorkFile.rename(p.join(catalogDir.path, filename));
     return true;
   }
 
