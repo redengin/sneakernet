@@ -1,12 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:wifi_scan/wifi_scan.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:workmanager/workmanager.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:wifi_scan/wifi_scan.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:workmanager/workmanager.dart';
 import 'package:path/path.dart' as p;
 import 'dart:async';
 import 'dart:io';
@@ -15,7 +14,7 @@ import 'library.dart';
 import 'settings.dart';
 import 'notifications.dart';
 import 'sneakernet.dart';
-// import 'pages/settings.dart.bak';
+// import 'pages/settings.dart';
 import 'pages/about.dart';
 import 'pages/library.dart';
 import 'pages/location_permissions_request.dart';
@@ -28,7 +27,8 @@ Future<void> main() async {
   settings = Settings(preferences: preferences);
 
   // use a non-backed up storage for library content
-  library = Library(await getTemporaryDirectory());
+  final libraryPath = await getTemporaryDirectory();
+  library = Library(libraryPath);
 
   // create background tasks
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);

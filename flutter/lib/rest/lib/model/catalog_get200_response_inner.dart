@@ -38,9 +38,9 @@ class CatalogGet200ResponseInner {
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is CatalogGet200ResponseInner &&
-     other.filename == filename &&
-     other.size == size &&
-     other.timestamp == timestamp;
+    other.filename == filename &&
+    other.size == size &&
+    other.timestamp == timestamp;
 
   @override
   int get hashCode =>

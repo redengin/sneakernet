@@ -23,8 +23,8 @@ class FirmwareGet200Response {
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is FirmwareGet200Response &&
-     other.filename == filename &&
-     other.version == version;
+    other.filename == filename &&
+    other.version == version;
 
   @override
   int get hashCode =>

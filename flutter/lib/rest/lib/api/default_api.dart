@@ -196,7 +196,7 @@ class DefaultApi {
       final responseBody = await _decodeBodyBytes(response);
       return (await apiClient.deserializeAsync(responseBody, 'List<CatalogGet200ResponseInner>') as List)
         .cast<CatalogGet200ResponseInner>()
-        .toList();
+        .toList(growable: false);
 
     }
     return null;

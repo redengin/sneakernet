@@ -1,8 +1,6 @@
+// Openapi Generator last run: : 2024-02-23T23:16:11.456568
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 
-// to generate use:
-//    dart run build_runner clean
-//    dart run build_runner build --delete-conflicting-outputs
 @Openapi(
     additionalProperties: AdditionalProperties(pubName: 'sneakernet_rest'),
     alwaysRun: true,

@@ -29,9 +29,9 @@ dependencies:
   shared_preferences: ^2.1.2
 
   auto_start_flutter: ^0.1.1
-  permission_handler: ^10.3.0
+  permission_handler: ^11.0.1
   wifi_scan: ^0.4.0
-  flutter_local_notifications: ^14.1.1
+  flutter_local_notifications: ^16.3.2
   workmanager: ^0.5.1
   plugin_wifi_connect: # ^1.0.2 FIXME published version doesn't match repos
     git:
@@ -45,17 +45,18 @@ dependencies:
 
   flutter_file_dialog: ^3.0.1
   path_provider: ^2.0.15
-  path: ^1.8.3
   share: ^2.0.4
   ebook:
     git: https://github.com/redengin/dart-ebook.git
   open_filex: ^4.3.2
-  url_launcher: ^6.1.12
+  url_launcher: ^6.2.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  # path bound to ^1.8.3 by flutter_test
+  path: ^1.8.3
+  flutter_lints: ^3.0.1
 
   # REST API generator
   #   dart run build_runner build openapi_generator --delete-conflicting-outputs
