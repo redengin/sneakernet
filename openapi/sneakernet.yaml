@@ -8,7 +8,8 @@ info:
 security: []
 
 servers: [
-  url: http://sneakernet.monster/api
+  # android doesn't resolve (needs absolute IP)
+  url: http://192.168.4.1/api
 ]
 
 paths:

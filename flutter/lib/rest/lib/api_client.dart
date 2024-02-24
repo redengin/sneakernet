@@ -11,7 +11,7 @@
 part of openapi.api;
 
 class ApiClient {
-  ApiClient({this.basePath = 'http://sneakernet.monster/api', this.authentication,});
+  ApiClient({this.basePath = 'http://192.168.4.1/api', this.authentication,});
 
   final String basePath;
   final Authentication? authentication;

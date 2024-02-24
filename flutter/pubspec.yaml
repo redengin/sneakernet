@@ -34,9 +34,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+  # generate REST API
+  openapi_generator_annotations: ^4.11.0
+
+  # easy access to app permissions
   permission_handler: ^10.3.0
   wifi_scan: ^0.4.0
-  openapi_generator_annotations: ^4.11.0
   workmanager: ^0.5.1
   flutter_local_notifications: ^14.1.1
   settings_ui: ^2.0.2

@@ -15,7 +15,7 @@ import 'library.dart';
 import 'settings.dart';
 import 'notifications.dart';
 import 'sneakernet.dart';
-import 'pages/settings.dart';
+// import 'pages/settings.dart.bak';
 import 'pages/about.dart';
 import 'pages/library.dart';
 import 'pages/location_permissions_request.dart';
@@ -43,12 +43,12 @@ Future<void> main() async {
     if (sneakerNetNodes.isNotEmpty) {
       var ssids = sneakerNetNodes.map((_) => _.ssid).toList();
 
-      if (settings.getDoNotify()) {
+      // if (settings.getDoNotify()) {
         flutterLocalNotificationsPlugin.show(SNEAKERNETS_FOUND_ID,
             'SneakerNets found', ssids.join(','), notificationDetails);
-      }
+      // }
 
-      if (settings.getAutoSync()) {
+      // if (settings.getAutoSync()) {
         ssids.forEach((ssid) {
           // TODO only supports android
           Workmanager().registerOneOffTask(syncTaskName, ssid,
@@ -63,7 +63,7 @@ Future<void> main() async {
         //       syncTaskParamSneakernets: ssids,
         //       syncTaskParamLibraryPath: libraryDir.path,
         //     });
-      }
+      // }
     }
   });
   // start the wifi scan background task
@@ -96,7 +96,7 @@ Future<void> main() async {
     initialRoute: initialRoute,
     routes: <String, WidgetBuilder>{
       LibraryPage.routeName: (_) => const LibraryPage(),
-      SettingsPage.routeName: (_) => const SettingsPage(),
+      // SettingsPage.routeName: (_) => const SettingsPage(),
       AboutPage.routeName: (_) => const AboutPage(),
       LocationPermissionsRequest.routeName: (_) => LocationPermissionsRequest(),
       // HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
