@@ -26,18 +26,8 @@ void main() {
       // TODO
     });
 
-    // String sha256
-    test('to test the property `sha256`', () async {
-      // TODO
-    });
-
-    // List<String> identifiers (default value: const [])
-    test('to test the property `identifiers`', () async {
-      // TODO
-    });
-
-    // bool sneakernetSigned
-    test('to test the property `sneakernetSigned`', () async {
+    // int timestamp
+    test('to test the property `timestamp`', () async {
       // TODO
     });
 

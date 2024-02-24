@@ -17,7 +17,7 @@ void main() {
   // final instance = DefaultApi();
 
   group('tests for DefaultApi', () {
-    // remove file from catalog
+    // remove file
     //
     //Future catalogFilenameDelete(String filename) async
     test('test catalogFilenameDelete', () async {
@@ -31,14 +31,14 @@ void main() {
       // TODO
     });
 
-    // add file to catalog
+    // add file
     //
     //Future catalogFilenamePut(String filename, { MultipartFile body }) async
     test('test catalogFilenamePut', () async {
       // TODO
     });
 
-    // Returns a list of content objects
+    // Returns a list of content
     //
     //Future<List<CatalogGet200ResponseInner>> catalogGet() async
     test('test catalogGet', () async {

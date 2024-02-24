@@ -2,7 +2,7 @@ name: sneakernet
 description: SneakerNet App
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -16,40 +16,33 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.0.0
+version: 0.0.1
 
 environment:
   sdk: '>=3.0.2 <4.0.0'
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
 
-  # generate REST API
-  openapi_generator_annotations: ^4.11.0
-
-  # easy access to app permissions
-  permission_handler: ^10.3.0
-  wifi_scan: ^0.4.0
-  workmanager: ^0.5.1
-  flutter_local_notifications: ^14.1.1
   settings_ui: ^2.0.2
   shared_preferences: ^2.1.2
+
+  auto_start_flutter: ^0.1.1
+  permission_handler: ^10.3.0
+  wifi_scan: ^0.4.0
+  flutter_local_notifications: ^14.1.1
+  workmanager: ^0.5.1
   plugin_wifi_connect: # ^1.0.2 FIXME published version doesn't match repos
     git:
       #      url: https://github.com/CadisRaziel/plugin_wifi_connect.git
       url: https://github.com/redengin/plugin_wifi_connect.git
       ref: redengin-patch-1
-  url_launcher: ^6.2.4
+  openapi_generator_annotations: ^4.11.0
+  sneakernet_rest:
+    path: lib/rest
+  version: ^3.0.2
+
   flutter_file_dialog: ^3.0.1
   path_provider: ^2.0.15
   path: ^1.8.3
@@ -57,55 +50,25 @@ dependencies:
   ebook:
     git: https://github.com/redengin/dart-ebook.git
   open_filex: ^4.3.2
+  url_launcher: ^6.1.12
 
 dev_dependencies:
-  auto_start_flutter: ^0.1.1
-
   flutter_test:
     sdk: flutter
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^2.0.0
-# disabled as it only need to be run once, and conflicts with epubx
-#  flutter_launcher_icons: ^0.13.1
-# NOTE: to generate new icons
-#     dart run flutter_launcher_icons
+
+  # REST API generator
+  #   dart run build_runner build openapi_generator --delete-conflicting-outputs
   build_runner: ^2.4.6
   openapi_generator: ^4.11.0
-  sneakernet_rest:
-    path: lib/rest
-  version: ^3.0.2
-  url_launcher: ^6.1.12
+
+  # Generate launcher icons
+  #     dart run flutter_launcher_icons
+  flutter_launcher_icons: ^0.13.1
   multi_select_flutter: ^4.1.3
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "icon.png"
-#  min_sdk_android: 21 # android min sdk min:16, default 21
-  web:
-    generate: true
-    image_path: "icon.png"
-    background_color: "#hexcode"
-    theme_color: "#hexcode"
-  windows:
-    generate: true
-    image_path: "icon.png"
-    icon_size: 48 # min:48, max:256, default: 48
-  macos:
-    generate: true
-    image_path: "icon.png"
-
-
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
-
   assets:
      - firmware/esp32-sneakernet.bin
