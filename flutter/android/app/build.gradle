@@ -32,11 +32,6 @@ android {
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
     defaultConfig {
         applicationId "monster.sneakernet"
 //        minSdkVersion flutter.minSdkVersion
@@ -45,8 +40,6 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode 3
         versionName flutterVersionName
-        // support desugaring for flutter_local_notifications
-        multiDexEnabled true
     }
 
     signingConfigs {
@@ -74,6 +67,4 @@ flutter {
 }
 
 dependencies {
-    // support desugaring for flutter_local_notifications
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }
