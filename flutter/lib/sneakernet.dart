@@ -12,26 +12,21 @@ import '../notifications.dart';
 const sneakerNetPrefix = "SneakerNet";
 
 class SneakerNet {
-  static sync(ssid) async {
-    if (await PluginWifiConnect.connect(ssid, saveNetwork: false) ?? false) {
-      final notificationLabel = ssid;
-      flutterLocalNotificationsPlugin.show(SNEAKERNET_SYNC_ID,
-          notificationLabel, 'syncing...', notificationDetails);
-
+  static sync(ssid, library) async {
+    if (await PluginWifiConnect.connect(ssid, saveNetwork: true) ?? false) {
       final restClient = DefaultApi();
 
       // attempt to update the firmware first
-      if (false == await _syncFirmware(notificationLabel, restClient)) {
+      if (false == await _syncFirmware(restClient)) {
         // if firmware is up to date, sync files
-        _syncFiles(notificationLabel, restClient);
+        _syncFiles(library, restClient);
       }
 
       PluginWifiConnect.disconnect();
     }
   }
 
-  static Future<bool> _syncFirmware(
-      String notificationLabel, restClient) async {
+  static Future<bool> _syncFirmware(restClient) async {
     final remoteFirmware = await restClient.firmwareGet();
     if (remoteFirmware == null) return false;
 
@@ -55,16 +50,13 @@ class SneakerNet {
         body:
             MultipartFile.fromBytes('', newFirmwareData.buffer.asUint8List()));
     if (response.statusCode == 200) {
-      flutterLocalNotificationsPlugin.show(SNEAKERNET_SYNC_ID,
-          notificationLabel, "updated firmware", notificationDetails);
       return true;
     }
-    flutterLocalNotificationsPlugin.show(SNEAKERNET_SYNC_ID, notificationLabel,
-        "firmware update failed", notificationDetails);
     return false;
   }
 
-  static _syncFiles(String notificationLabel, DefaultApi restClient) async {
+  static _syncFiles(
+      Library library, DefaultApi restClient) async {
     final List<File> localCatalog = library.files();
     final List<String> localFilenames =
         localCatalog.map((e) => p.basename(e.path)).toList(growable: false);
@@ -76,12 +68,6 @@ class SneakerNet {
       // remove the flagged content
       for (var entry in remoteCatalog) {
         if (flaggedFilenames.contains(entry.filename)) {
-          // announce the deletion
-          flutterLocalNotificationsPlugin.show(
-              SNEAKERNET_SYNC_ID,
-              notificationLabel,
-              "removing $entry.filename",
-              notificationDetails);
           restClient.catalogFilenameDelete(entry.filename);
         }
       }
@@ -89,12 +75,6 @@ class SneakerNet {
       // download new files
       for (var entry in remoteCatalog) {
         if (localFilenames.contains(entry.filename) == false) {
-          // announce the download
-          flutterLocalNotificationsPlugin.show(
-              SNEAKERNET_SYNC_ID,
-              notificationLabel,
-              "downloading $entry.filename",
-              notificationDetails);
           final Response get =
               await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
           if (get.statusCode == 200) {
@@ -110,13 +90,11 @@ class SneakerNet {
       }
 
       // send local files
-      final remoteFilenames = remoteCatalog.map((e) => e.filename).toList(growable: false);
+      final remoteFilenames =
+          remoteCatalog.map((e) => e.filename).toList(growable: false);
       for (var file in localCatalog) {
         final filename = p.basename(file.path);
         if (remoteFilenames.contains(filename) == false) {
-          // announce the upload
-          flutterLocalNotificationsPlugin.show(SNEAKERNET_SYNC_ID,
-              notificationLabel, "sending $filename", notificationDetails);
           final body = await MultipartFile.fromPath('', file.path);
           await restClient.catalogFilenamePutWithHttpInfo(filename, body: body);
         }

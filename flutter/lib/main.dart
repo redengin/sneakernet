@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -29,26 +31,22 @@ Future<void> main() async {
   settings = Settings(preferences: preferences);
 
   // use a non-backed up storage for library content
-  final libraryPath = await getTemporaryDirectory();
-  library = Library(libraryPath);
+  final libraryDir = await getTemporaryDirectory();
+  library = Library(libraryDir);
 
   // enable notifications
-  await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.requestNotificationsPermission();
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
-  // FIXME - display a notification
-  await flutterLocalNotificationsPlugin.show(
-      0, 'plain title', 'plain body', notificationDetails,
-      payload: 'item x');
-  await flutterLocalNotificationsPlugin.show(
-      0, 'plain title', 'plain body 1', notificationDetails,
-      payload: 'item x 1');
 
   // create background tasks
   Workmanager().initialize(callbackDispatcher);
 
   // subscribe to wifi scans
+  await WiFiScan.instance.canStartScan();
   final scanSubscription =
       WiFiScan.instance.onScannedResultsAvailable.listen((results) {
     var sneakerNetNodes = results
@@ -56,18 +54,20 @@ Future<void> main() async {
         .toList(growable: false);
 
     if (sneakerNetNodes.isNotEmpty) {
-      // var ssids = sneakerNetNodes.map((_) => _.ssid).toList();
+      var ssids = sneakerNetNodes.map((_) => _.ssid).toList();
+      // display a notification
+      flutterLocalNotificationsPlugin.show(notificationFoundSneakerNetsId,
+          'Found Sneakernet(s)', ssids.join("\n"), notificationDetails);
 
-      // if (settings.getAutoSync()) {
-      //   ssids.forEach((ssid) {
-      //     Workmanager().registerOneOffTask(syncTaskName, ssid,
-      //         existingWorkPolicy: ExistingWorkPolicy.append,
-      //         inputData: {
-      //           syncTaskParamSsid: ssid,
-      //           syncTaskParamLibraryPath: libraryPath,
-      //         });
-      //   });
-      // }
+      // queue up background sync tasks
+      ssids.forEach((ssid) {
+        Workmanager().registerOneOffTask(syncTaskName, ssid,
+            existingWorkPolicy: ExistingWorkPolicy.append,
+            inputData: {
+              syncTaskParamSsid: ssid,
+              syncTaskParamLibraryPath: libraryDir.path,
+            });
+      });
     }
   });
 
@@ -105,16 +105,14 @@ Future<void> main() async {
   ));
 }
 
-
-void onDidReceiveNotificationResponse(NotificationResponse details) {
-}
+void onDidReceiveNotificationResponse(NotificationResponse details) {}
 
 /*------------------------------------------------------------------------------
 WorkManager Helpers
 ------------------------------------------------------------------------------*/
 const syncTaskName = 'sneakernet-sync';
 const syncTaskParamSsid = 'sneakernet-ssid';
-const syncTaskParamLibraryPath = 'libraryPath';
+const syncTaskParamLibraryPath = 'libraryDir';
 
 @pragma(
     'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
@@ -125,18 +123,22 @@ void callbackDispatcher() {
         // validate invocation
         final ssid = inputData?[syncTaskParamSsid];
         if (ssid == null) {
+          // abort the task with error
           return Future.error("<$syncTaskParamSsid> param not found");
         }
 
-        // final libraryPath = inputData?[syncTaskParamLibraryPath];
-        // if (libraryPath == null)
-        //   return Future.error("<$syncTaskParamLibraryPath> param not found");
-        await SneakerNet.sync(ssid);
+        final libraryPath = inputData?[syncTaskParamLibraryPath];
+        if (libraryPath == null) {
+          // abort the task with error
+          return Future.error("<$syncTaskParamLibraryPath> param not found");
+        }
+        // final library = Library(Directory(libraryPath));
+        // await SneakerNet.sync(ssid, library);
         return true;
 
       default:
+        // abort the task with error
         return Future.error("unknown task");
     }
   });
 }
-

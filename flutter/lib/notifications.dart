@@ -17,5 +17,4 @@ const AndroidNotificationDetails androidNotificationDetails =
 const NotificationDetails notificationDetails =
     NotificationDetails(android: androidNotificationDetails);
 
-
-const SNEAKERNET_SYNC_ID = 100;
+const notificationFoundSneakerNetsId = 0;
