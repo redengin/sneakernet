@@ -41,8 +41,8 @@ class Library {
     return file.exists();
   }
 
-  // Future<bool> add(String filename, Uint8List data, DateTime? timestamp) async {
-  Future<bool> add(String filename, Uint8List data) async {
+  // Future<bool> add(String filename, Uint8List data) async {
+  Future<bool> add(String filename, Uint8List data, int? timestamp_s) async {
     // create an inwork file
     final inWorkFile = File(p.join(catalogDir.path, filename + inworkSuffix));
     try {
@@ -53,7 +53,9 @@ class Library {
     }
     // rename it to the actual file name
     final file = await inWorkFile.rename(p.join(catalogDir.path, filename));
-    // file.setLastModified(timestamp);
+    if(timestamp_s != null) {
+      await file.setLastModified(DateTime.fromMillisecondsSinceEpoch(timestamp_s * 1000));
+    }
     return true;
   }
 

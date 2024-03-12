@@ -74,14 +74,7 @@ class SneakerNet {
           final Response get =
               await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
           if (get.statusCode == 200) {
-            // find the entry to retrieve the timestamp
-            var remoteEntry = remoteCatalog
-                .firstWhere((remoteEntry) => remoteEntry.filename == entry.filename);
-            // final timestamp = (remoteEntry.timestamp != null)
-            //     ? DateTime(entry.timestamp!)
-            //     : DateTime.now();
-            // await library.add(entry.filename, get.bodyBytes, remoteEntry.timestamp as DateTime?);
-            library.add(entry.filename, get.bodyBytes);
+            await library.add(entry.filename, get.bodyBytes, entry.timestamp);
           }
         }
       }
