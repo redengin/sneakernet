@@ -10,6 +10,7 @@ class Library {
   late final Directory catalogDir;
   late final StringListFile unwantedFiles;
   late final StringListFile flaggedFiles;
+
   Library(this.libraryDir) {
     catalogDir = Directory(p.join(libraryDir.path, 'catalog'));
     catalogDir.create(recursive: true);
@@ -19,6 +20,7 @@ class Library {
   }
 
   final inworkSuffix = ".INWORK";
+
   List<File> files() {
     var files = catalogDir.listSync();
     // remove non-files from list
@@ -39,18 +41,19 @@ class Library {
     return file.exists();
   }
 
-  bool add(String filename, Uint8List data, DateTime timestamp) {
+  // Future<bool> add(String filename, Uint8List data, DateTime? timestamp) async {
+  Future<bool> add(String filename, Uint8List data) async {
     // create an inwork file
-    final inWorkFile = File(p.join(catalogDir.path, filename, inworkSuffix));
+    final inWorkFile = File(p.join(catalogDir.path, filename + inworkSuffix));
     try {
       inWorkFile.writeAsBytesSync(data);
-      inWorkFile.setLastModified(timestamp);
     } catch (e) {
       inWorkFile.delete();
       return false;
     }
     // rename it to the actual file name
-    inWorkFile.rename(p.join(catalogDir.path, filename));
+    final file = await inWorkFile.rename(p.join(catalogDir.path, filename));
+    // file.setLastModified(timestamp);
     return true;
   }
 
@@ -59,9 +62,21 @@ class Library {
     file.deleteSync();
   }
 
+  bool acceptable(String filename) {
+    final unwantedFilenames = unwantedFiles.list();
+    final flaggedFilenames = flaggedFiles.list();
+    return !flaggedFilenames.contains(filename) ||
+        !unwantedFilenames.contains(filename);
+  }
+
   void flag(File file) {
     flaggedFiles.add(p.basename(file.path));
     file.deleteSync();
+  }
+
+  bool isFlagged(String filename) {
+    final flaggedFilenames = flaggedFiles.list();
+    return flaggedFilenames.contains(filename);
   }
 }
 
@@ -73,8 +88,7 @@ class StringListFile {
   List<String> list() {
     try {
       return file.readAsLinesSync();
-    }
-    catch(e) {
+    } catch (e) {
       return [];
     }
   }
@@ -104,5 +118,4 @@ class StringListFile {
     }
     ofile.closeSync();
   }
-
 }

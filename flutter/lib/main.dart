@@ -11,7 +11,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 
 import 'package:workmanager/workmanager.dart';
-import 'package:path/path.dart' as p;
 
 import 'library.dart';
 import 'settings.dart';
@@ -43,33 +42,38 @@ Future<void> main() async {
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
 
   // create background tasks
-  Workmanager().initialize(callbackDispatcher);
+  await Workmanager().initialize(callbackDispatcher);
 
   // subscribe to wifi scans
-  await WiFiScan.instance.canStartScan();
-  final scanSubscription =
-      WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-    var sneakerNetNodes = results
-        .where((_) => _.ssid.startsWith(sneakerNetPrefix))
-        .toList(growable: false);
+  switch (await WiFiScan.instance.canGetScannedResults()) {
+    case CanGetScannedResults.yes:
+      final scanSubscription =
+          WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+        var sneakerNetNodes = results
+            .where((_) => _.ssid.startsWith(sneakerNetPrefix))
+            .toList(growable: false);
 
-    if (sneakerNetNodes.isNotEmpty) {
-      var ssids = sneakerNetNodes.map((_) => _.ssid).toList();
-      // display a notification
-      flutterLocalNotificationsPlugin.show(notificationFoundSneakerNetsId,
-          'Found Sneakernet(s)', ssids.join("\n"), notificationDetails);
+        if (sneakerNetNodes.isNotEmpty) {
+          var ssids = sneakerNetNodes.map((_) => _.ssid).toList();
+          // display a notification
+          flutterLocalNotificationsPlugin.show(notificationFoundSneakerNetsId,
+              'Found Sneakernet(s)', ssids.join("\n"), notificationDetails);
 
-      // queue up background sync tasks
-      ssids.forEach((ssid) {
-        Workmanager().registerOneOffTask(syncTaskName, ssid,
-            existingWorkPolicy: ExistingWorkPolicy.append,
-            inputData: {
-              syncTaskParamSsid: ssid,
-              syncTaskParamLibraryPath: libraryDir.path,
-            });
+          // queue up background sync tasks
+          ssids.forEach((ssid) async {
+            await Workmanager().registerOneOffTask(ssid, syncTaskName,
+                existingWorkPolicy: ExistingWorkPolicy.append,
+                inputData: {
+                  syncTaskParamSsid: ssid,
+                  syncTaskParamLibraryPath: libraryDir.path,
+                });
+          });
+        }
       });
-    }
-  });
+      WiFiScan.instance.startScan();
+      break;
+    default: /* do nothing */
+  }
 
   // decide which page to start based upon how we were launched
   // final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
@@ -132,13 +136,13 @@ void callbackDispatcher() {
           // abort the task with error
           return Future.error("<$syncTaskParamLibraryPath> param not found");
         }
-        // final library = Library(Directory(libraryPath));
-        // await SneakerNet.sync(ssid, library);
+        final library = Library(Directory(libraryPath));
+        await SneakerNet.sync(ssid, library);
         return true;
 
       default:
         // abort the task with error
-        return Future.error("unknown task");
+        return Future.error("unknown task ${taskName}");
     }
   });
 }

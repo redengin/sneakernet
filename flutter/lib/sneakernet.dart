@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:sneakernet/library.dart';
-import 'package:plugin_wifi_connect/plugin_wifi_connect.dart';
-import 'package:sneakernet/rest/lib/api.dart';
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
 import 'package:version/version.dart';
+import 'package:wifi_iot/wifi_iot.dart';
+import 'package:sneakernet/library.dart';
+import 'package:sneakernet/rest/lib/api.dart';
 
 import '../notifications.dart';
 
@@ -13,16 +13,19 @@ const sneakerNetPrefix = "SneakerNet";
 
 class SneakerNet {
   static sync(ssid, library) async {
-    if (await PluginWifiConnect.connect(ssid, saveNetwork: true) ?? false) {
-      final restClient = DefaultApi();
+    if (await WiFiForIoTPlugin.connect(ssid)) {
+      if (await WiFiForIoTPlugin.forceWifiUsage(true)) {
+        final restClient = DefaultApi();
 
-      // attempt to update the firmware first
-      if (false == await _syncFirmware(restClient)) {
-        // if firmware is up to date, sync files
-        _syncFiles(library, restClient);
+        // attempt to update the firmware first
+        if (false == await _syncFirmware(restClient)) {
+          // if firmware is up to date, sync files
+          await _syncFiles(library, restClient);
+        }
+
+        WiFiForIoTPlugin.forceWifiUsage(false);
       }
-
-      PluginWifiConnect.disconnect();
+      WiFiForIoTPlugin.disconnect();
     }
   }
 
@@ -55,41 +58,36 @@ class SneakerNet {
     return false;
   }
 
-  static _syncFiles(
-      Library library, DefaultApi restClient) async {
-    final List<File> localCatalog = library.files();
-    final List<String> localFilenames =
-        localCatalog.map((e) => p.basename(e.path)).toList(growable: false);
-    final unwantedFilenames = library.unwantedFiles.list();
-    final flaggedFilenames = library.flaggedFiles.list();
-
+  static _syncFiles(Library library, DefaultApi restClient) async {
     final remoteCatalog = await restClient.catalogGet();
     if (remoteCatalog != null) {
       // remove the flagged content
       for (var entry in remoteCatalog) {
-        if (flaggedFilenames.contains(entry.filename)) {
+        if (library.isFlagged(entry.filename)) {
           restClient.catalogFilenameDelete(entry.filename);
         }
       }
 
       // download new files
       for (var entry in remoteCatalog) {
-        if (localFilenames.contains(entry.filename) == false) {
+        if (library.acceptable(entry.filename)) {
           final Response get =
               await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
           if (get.statusCode == 200) {
             // find the entry to retrieve the timestamp
-            var entry = remoteCatalog
-                .firstWhere((entry) => entry.filename == entry.filename);
-            final timestamp = (entry.timestamp != null)
-                ? DateTime(entry.timestamp!)
-                : DateTime.now();
-            library.add(entry.filename, get.bodyBytes, timestamp);
+            var remoteEntry = remoteCatalog
+                .firstWhere((remoteEntry) => remoteEntry.filename == entry.filename);
+            // final timestamp = (remoteEntry.timestamp != null)
+            //     ? DateTime(entry.timestamp!)
+            //     : DateTime.now();
+            // await library.add(entry.filename, get.bodyBytes, remoteEntry.timestamp as DateTime?);
+            library.add(entry.filename, get.bodyBytes);
           }
         }
       }
 
       // send local files
+      final List<File> localCatalog = library.files();
       final remoteFilenames =
           remoteCatalog.map((e) => e.filename).toList(growable: false);
       for (var file in localCatalog) {

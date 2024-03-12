@@ -609,15 +609,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
-  plugin_wifi_connect:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: redengin-patch-1
-      resolved-ref: "416738305beb2474d656dcb9520caa06df9b14c7"
-      url: "https://github.com/redengin/plugin_wifi_connect.git"
-    source: git
-    version: "1.0.2"
   pointycastle:
     dependency: transitive
     description:
@@ -942,6 +933,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
+  wifi_iot:
+    dependency: "direct main"
+    description:
+      name: wifi_iot
+      sha256: "27a9b77ea589f089f94a65c937bcb8e2910e6cf9190583e117b76b8a8d592c03"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.19"
   wifi_scan:
     dependency: "direct main"
     description:
