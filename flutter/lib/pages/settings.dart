@@ -21,10 +21,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _doNotify = settings.getDoNotify();
-    _autoSync = settings.getAutoSync();
   }
 
   @override
@@ -42,29 +39,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: const Text('Start Automatically'),
                   description: const Text('enable SneakerNet to AutoStart'),
                   onPressed: (_) => getAutoStartPermission(),
-                ),
-                SettingsTile.switchTile(
-                  leading: const Icon(Icons.notification_add),
-                  title: const Text(
-                      'Notify upon entering into a SneakerNet space'),
-                  initialValue: _doNotify,
-                  onToggle: (_) => setState(() {
-                    _doNotify = _;
-                    settings.setDoNotify(_);
-                  }),
-                ),
-                SettingsTile.switchTile(
-                  leading: const Icon(Icons.sync_alt),
-                  title: const Text('Automatically sync'),
-                  description: const Text(
-                      'Upon entering within a SneakerNet space, your '
-                      'wifi will switch to SnearkerNet during the sync. \n'
-                      'NOTE: internet access may be disrupted during the transfer.'),
-                  initialValue: _autoSync,
-                  onToggle: (_) => setState(() {
-                    _autoSync = _;
-                    settings.setAutoSync(_);
-                  }),
                 ),
                 SettingsTile.navigation(
                   leading: const Icon(Icons.delete_outline),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// import '../pages/settings.dart.bak';
+import '../pages/settings.dart';
 import '../pages/about.dart';
 
 class SneakerNetDrawer extends StatelessWidget {
@@ -9,20 +9,20 @@ class SneakerNetDrawer extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             const SizedBox(
-              height: 100,
+              height: 125,
               child: DrawerHeader(
                 decoration: BoxDecoration(color: Colors.blue),
                 child: Text('SneakerNet',
                     style: TextStyle(fontSize: 30, color: Colors.white)),
               ),
             ),
-            // ListTile(
-            //     leading: const Icon(Icons.settings),
-            //     title: const Text('Settings'),
-            //     onTap: () {
-            //       Navigator.pop(context);
-            //       Navigator.pushNamed(context, SettingsPage.routeName);
-            //     }),
+            ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Settings'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, SettingsPage.routeName);
+                }),
             ListTile(
                 leading: const Icon(Icons.contact_page_outlined),
                 title: const Text('Contact Us'),

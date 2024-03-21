@@ -931,13 +931,6 @@
             </list>
           </value>
         </entry>
-        <entry key="workmanager">
-          <value>
-            <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/workmanager-0.5.1/lib" />
-            </list>
-          </value>
-        </entry>
         <entry key="xdg_directories">
           <value>
             <list>
@@ -1101,7 +1094,6 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/wifi_iot-0.3.19/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/wifi_scan-0.4.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/win32-5.1.1/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/workmanager-0.5.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/xdg_directories-1.0.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/xml-6.3.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/yaml-3.1.2/lib" />

@@ -53,8 +53,9 @@ class Library {
     }
     // rename it to the actual file name
     final file = await inWorkFile.rename(p.join(catalogDir.path, filename));
-    if(timestamp_s != null) {
-      await file.setLastModified(DateTime.fromMillisecondsSinceEpoch(timestamp_s * 1000));
+    if (timestamp_s != null) {
+      await file.setLastModified(
+          DateTime.fromMillisecondsSinceEpoch(timestamp_s * 1000));
     }
     return true;
   }
@@ -64,11 +65,25 @@ class Library {
     file.deleteSync();
   }
 
-  bool acceptable(String filename) {
-    final unwantedFilenames = unwantedFiles.list();
+  bool isWanted(String filename, int? timestamp) {
     final flaggedFilenames = flaggedFiles.list();
-    return !flaggedFilenames.contains(filename) ||
-        !unwantedFilenames.contains(filename);
+    if (flaggedFilenames.contains(filename)) {
+      return false;
+    }
+    final unwantedFilenames = unwantedFiles.list();
+    if (unwantedFilenames.contains(filename)) {
+      return false;
+    }
+    final localFiles = files();
+    try {
+      final localFile = localFiles.firstWhere((e) => p.basename(e.path) == filename);
+      // TODO compore timestamp
+      return false;
+    }
+    on StateError catch (e) {
+      // no local file match
+      return true;
+    }
   }
 
   void flag(File file) {

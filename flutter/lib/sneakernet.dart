@@ -13,16 +13,13 @@ const sneakerNetPrefix = "SneakerNet";
 
 class SneakerNet {
   static sync(ssid, library) async {
-    if (await WiFiForIoTPlugin.connect(ssid)) {
+    if (await WiFiForIoTPlugin.connect(ssid, timeoutInSeconds: 15)) {
       if (await WiFiForIoTPlugin.forceWifiUsage(true)) {
         final restClient = DefaultApi();
-
         // attempt to update the firmware first
         if (false == await _syncFirmware(restClient)) {
-          // if firmware is up to date, sync files
           await _syncFiles(library, restClient);
         }
-
         WiFiForIoTPlugin.forceWifiUsage(false);
       }
       WiFiForIoTPlugin.disconnect();
@@ -70,7 +67,7 @@ class SneakerNet {
 
       // download new files
       for (var entry in remoteCatalog) {
-        if (library.acceptable(entry.filename)) {
+        if (library.isWanted(entry.filename, entry.timestamp)) {
           final Response get =
               await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
           if (get.statusCode == 200) {

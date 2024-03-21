@@ -33,7 +33,7 @@ dependencies:
   wifi_scan: ^0.4.1
   wifi_iot: ^0.3.19
   flutter_local_notifications: ^16.3.2
-  workmanager: ^0.5.1
+#  workmanager: ^0.5.1
 
   openapi_generator_annotations: ^4.11.0
   sneakernet_rest:
