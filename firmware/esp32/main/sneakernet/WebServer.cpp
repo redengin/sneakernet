@@ -185,8 +185,8 @@ esp_err_t GET_CATALOG(httpd_req_t *request)
     {
         cJSON *const item = cJSON_CreateObject();
         cJSON_AddStringToObject(item, "filename", content.filename.c_str());
-        const int64_t timestamp = 0; // FIXME
-        cJSON_AddNumberToObject(item, "timestamp", timestamp);
+        const int64_t timestampMs = std::chrono::duration_cast<std::chrono::milliseconds>(content.timestamp.time_since_epoch()).count();
+        cJSON_AddNumberToObject(item, "timestampMs", timestampMs);
         cJSON_AddNumberToObject(item, "size", content.size);
         cJSON_AddItemToArray(items, item);
     }
