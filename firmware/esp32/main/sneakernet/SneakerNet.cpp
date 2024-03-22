@@ -108,8 +108,9 @@ std::vector<SneakerNet::content_t> SneakerNet::contents()
         if(entry.is_directory()) continue;
         if(entry.path().string().ends_with(INWORK_SUFFIX)) continue;
         ret.emplace_back(entry.path().filename(),
-                         entry.file_size(),
-                         std::chrono::system_clock::to_time_t(std::chrono::file_clock::to_sys(entry.last_write_time()))
+                         entry.last_write_time(),
+                         entry.file_size()
+                        //  std::chrono::system_clock::to_time_t(std::chrono::file_clock::to_sys(entry.last_write_time()))
         );
     }
     closedir(dfd);

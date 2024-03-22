@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <filesystem>
 
 class SneakerNet {
 public:
@@ -11,8 +12,8 @@ public:
 
     typedef struct {
         std::string filename;
+        std::filesystem::file_time_type timestamp;
         size_t size;
-        time_t timestamp;
     } content_t;
     std::vector<content_t> contents();
 

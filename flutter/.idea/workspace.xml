@@ -9,16 +9,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="fixing refresh indicator">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/library.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/.openapi-generator/FILES" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/doc/CatalogGet200ResponseInner.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/CatalogGet200ResponseInner.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/lib/api/default_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/api/default_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/lib/model/catalog_get200_response_inner.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/model/catalog_get200_response_inner.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../openapi/sneakernet.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../openapi/sneakernet.yaml" afterDir="false" />
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="fixing timestamps">
+      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -393,7 +387,15 @@
       <option name="project" value="LOCAL" />
       <updated>1711077982425</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="fixing timestamps">
+      <option name="closed" value="true" />
+      <created>1711085054060</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1711085054060</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -408,7 +410,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="user chooses who to open content" />
     <MESSAGE value="calling it quits on formatting library" />
     <MESSAGE value="removing bad placement of rest api" />
     <MESSAGE value="code complete for sync (now needs testing)" />
@@ -433,6 +434,7 @@
     <MESSAGE value="all working, sending to google" />
     <MESSAGE value="updating version code to satisfy google" />
     <MESSAGE value="fixing refresh indicator" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixing refresh indicator" />
+    <MESSAGE value="fixing timestamps" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixing timestamps" />
   </component>
 </project>
