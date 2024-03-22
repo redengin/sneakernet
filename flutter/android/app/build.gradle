@@ -38,8 +38,9 @@ android {
 //        minSdkVersion 16 // min required for wifi-scan
         minSdkVersion 19 // min required for flutter_file_dialog
         targetSdkVersion flutter.targetSdkVersion
-        versionCode 3
         versionName flutterVersionName
+        // FIXME have to update for every release
+        versionCode 4
     }
 
     signingConfigs {

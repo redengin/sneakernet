@@ -30,33 +30,33 @@ class _LibraryPageState extends State<LibraryPage> {
         (a, b) => a.lastAccessedSync().isAfter(b.lastAccessedSync()) ? 1 : -1);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SneakerNet Library'),
-      ),
-      drawer: SneakerNetDrawer(),
-      body: (files.isEmpty)
-          ? Center(
-              child: Text('no files yet...\n(find some sneakernets)',
-                  style: Theme.of(context).textTheme.headlineLarge))
-          : RefreshIndicator(
-              child: ListView.builder(
-                itemExtent: 120,
-                itemCount: files.length,
-                itemBuilder: _itemBuilder,
-              ),
-              onRefresh: () async {
-                setState(() {});
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () async {
-          if (await library.import(FlutterFileDialog.pickFile())) {
-            setState(() {});
-          }
-        },
-      ),
-    );
+        appBar: AppBar(
+          title: const Text('SneakerNet Library'),
+        ),
+        drawer: SneakerNetDrawer(),
+        body: RefreshIndicator(
+            child: (files.isEmpty)
+                ? ListView(children: [
+                    Center(
+                        child: Text('no files yet...',
+                            style: Theme.of(context).textTheme.headlineLarge))
+                  ])
+                : ListView.builder(
+                    itemExtent: 120,
+                    itemCount: files.length,
+                    itemBuilder: _itemBuilder,
+                  ),
+            onRefresh: () async {
+              setState(() {});
+            }),
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () async {
+            if (await library.import(FlutterFileDialog.pickFile())) {
+              setState(() {});
+            }
+          },
+        ));
   }
 
   Widget? _itemBuilder(BuildContext context, int index) {
@@ -94,8 +94,8 @@ class _LibraryPageState extends State<LibraryPage> {
                       icon: const Icon(Icons.share),
                       tooltip: 'share content',
                       onPressed: () => setState(() {
-                        Share.shareFiles([file.path]);
-                      })),
+                            Share.shareFiles([file.path]);
+                          })),
                 ],
               ),
             ),

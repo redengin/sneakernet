@@ -9,9 +9,12 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="all working, sending to google">
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="updating version code to satisfy google">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/library.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/sync.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/sync.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../openapi/sneakernet.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../openapi/sneakernet.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -370,7 +373,15 @@
       <option name="project" value="LOCAL" />
       <updated>1710991222607</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="updating version code to satisfy google">
+      <option name="closed" value="true" />
+      <created>1710993330480</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1710993330480</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -385,7 +396,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fixing flutter project" />
     <MESSAGE value="working library cards" />
     <MESSAGE value="user chooses who to open content" />
     <MESSAGE value="calling it quits on formatting library" />
@@ -410,6 +420,7 @@
     <MESSAGE value="code complete... now to test" />
     <MESSAGE value="refactoring" />
     <MESSAGE value="all working, sending to google" />
-    <option name="LAST_COMMIT_MESSAGE" value="all working, sending to google" />
+    <MESSAGE value="updating version code to satisfy google" />
+    <option name="LAST_COMMIT_MESSAGE" value="updating version code to satisfy google" />
   </component>
 </project>
