@@ -27,12 +27,13 @@ paths:
                   type: object
                   required:
                     - filename
+                    - timestampMs
                   properties:
                     filename:
                       type: string
-                    size:
+                    timestampMs:
                       type: integer
-                    timestamp:
+                    size:
                       type: integer
         '408': # used for esp32 that doesn't support 429
           description: Too Many Requests (try again)
@@ -51,6 +52,10 @@ paths:
       responses:
         '200':
           description: transferring file
+          headers:
+            X-FileTimestamp-MS:
+              schema:
+                type: integer
           content:
              application/octet-stream: {}
         '404':
@@ -61,6 +66,12 @@ paths:
           description: Too Many Requests (try again)
     put:
       description: add file
+      parameters:
+        - in: query
+          name: timestamp_ms
+          schema:
+            type: integer
+          required: true
       requestBody:
         content:
           # must set HTTP:Content-Length

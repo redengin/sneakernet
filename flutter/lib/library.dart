@@ -41,8 +41,7 @@ class Library {
     return file.exists();
   }
 
-  // Future<bool> add(String filename, Uint8List data) async {
-  Future<bool> add(String filename, Uint8List data, int? timestamp_s) async {
+  Future<bool> add(String filename, Uint8List data, DateTime timestamp) async {
     // create an inwork file
     final inWorkFile = File(p.join(catalogDir.path, filename + inworkSuffix));
     try {
@@ -53,10 +52,7 @@ class Library {
     }
     // rename it to the actual file name
     final file = await inWorkFile.rename(p.join(catalogDir.path, filename));
-    if (timestamp_s != null) {
-      await file.setLastModified(
-          DateTime.fromMillisecondsSinceEpoch(timestamp_s * 1000));
-    }
+    await file.setLastModified(timestamp);
     return true;
   }
 
@@ -65,7 +61,7 @@ class Library {
     file.deleteSync();
   }
 
-  bool isWanted(String filename, int? timestamp) {
+  bool isWanted(String filename, DateTime timestamp) {
     final flaggedFilenames = flaggedFiles.list();
     if (flaggedFilenames.contains(filename)) {
       return false;
@@ -76,9 +72,9 @@ class Library {
     }
     final localFiles = files();
     try {
-      final localFile = localFiles.firstWhere((e) => p.basename(e.path) == filename);
-      // TODO compore timestamp
-      return false;
+      final localFile = localFiles.firstWhere((e) =>
+      p.basename(e.path) == filename);
+      return (localFile.lastModifiedSync().isBefore(timestamp)) ? true : false;
     }
     on StateError catch (e) {
       // no local file match

@@ -14,11 +14,13 @@ class CatalogGet200ResponseInner {
   /// Returns a new [CatalogGet200ResponseInner] instance.
   CatalogGet200ResponseInner({
     required this.filename,
+    required this.timestampMs,
     this.size,
-    this.timestamp,
   });
 
   String filename;
+
+  int timestampMs;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -28,42 +30,30 @@ class CatalogGet200ResponseInner {
   ///
   int? size;
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  int? timestamp;
-
   @override
   bool operator ==(Object other) => identical(this, other) || other is CatalogGet200ResponseInner &&
     other.filename == filename &&
-    other.size == size &&
-    other.timestamp == timestamp;
+    other.timestampMs == timestampMs &&
+    other.size == size;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (filename.hashCode) +
-    (size == null ? 0 : size!.hashCode) +
-    (timestamp == null ? 0 : timestamp!.hashCode);
+    (timestampMs.hashCode) +
+    (size == null ? 0 : size!.hashCode);
 
   @override
-  String toString() => 'CatalogGet200ResponseInner[filename=$filename, size=$size, timestamp=$timestamp]';
+  String toString() => 'CatalogGet200ResponseInner[filename=$filename, timestampMs=$timestampMs, size=$size]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
       json[r'filename'] = this.filename;
+      json[r'timestampMs'] = this.timestampMs;
     if (this.size != null) {
       json[r'size'] = this.size;
     } else {
       json[r'size'] = null;
-    }
-    if (this.timestamp != null) {
-      json[r'timestamp'] = this.timestamp;
-    } else {
-      json[r'timestamp'] = null;
     }
     return json;
   }
@@ -88,8 +78,8 @@ class CatalogGet200ResponseInner {
 
       return CatalogGet200ResponseInner(
         filename: mapValueOfType<String>(json, r'filename')!,
+        timestampMs: mapValueOfType<int>(json, r'timestampMs')!,
         size: mapValueOfType<int>(json, r'size'),
-        timestamp: mapValueOfType<int>(json, r'timestamp'),
       );
     }
     return null;
@@ -138,6 +128,7 @@ class CatalogGet200ResponseInner {
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
     'filename',
+    'timestampMs',
   };
 }
 

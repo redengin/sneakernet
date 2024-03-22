@@ -9,8 +9,8 @@ import 'package:sneakernet_rest/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **filename** | **String** |  | 
+**timestampMs** | **int** |  | 
 **size** | **int** |  | [optional] 
-**timestamp** | **int** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -67,11 +67,12 @@ class SneakerNet {
 
       // download new files
       for (var entry in remoteCatalog) {
-        if (library.isWanted(entry.filename, entry.timestamp)) {
+        final timestamp = DateTime.fromMillisecondsSinceEpoch(entry.timestampMs, isUtc: true);
+        if (library.isWanted(entry.filename, timestamp)) {
           final Response get =
               await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
           if (get.statusCode == 200) {
-            await library.add(entry.filename, get.bodyBytes, entry.timestamp);
+            await library.add(entry.filename, get.bodyBytes, timestamp);
           }
         }
       }
@@ -83,8 +84,9 @@ class SneakerNet {
       for (var file in localCatalog) {
         final filename = p.basename(file.path);
         if (remoteFilenames.contains(filename) == false) {
+          final timestampMs = file.lastModifiedSync().toUtc().millisecondsSinceEpoch;
           final body = await MultipartFile.fromPath('', file.path);
-          await restClient.catalogFilenamePutWithHttpInfo(filename, body: body);
+          await restClient.catalogFilenamePutWithHttpInfo(filename, timestampMs, body: body);
         }
       }
     }

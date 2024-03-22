@@ -114,8 +114,10 @@ class DefaultApi {
   ///
   /// * [String] filename (required):
   ///
+  /// * [int] timestampMs (required):
+  ///
   /// * [MultipartFile] body:
-  Future<Response> catalogFilenamePutWithHttpInfo(String filename, { MultipartFile? body, }) async {
+  Future<Response> catalogFilenamePutWithHttpInfo(String filename, int timestampMs, { MultipartFile? body, }) async {
     // ignore: prefer_const_declarations
     final path = r'/catalog/{filename}'
       .replaceAll('{filename}', filename);
@@ -126,6 +128,8 @@ class DefaultApi {
     final queryParams = <QueryParam>[];
     final headerParams = <String, String>{};
     final formParams = <String, String>{};
+
+      queryParams.addAll(_queryParams('', 'timestamp_ms', timestampMs));
 
     const contentTypes = <String>['application/octet-stream'];
 
@@ -147,9 +151,11 @@ class DefaultApi {
   ///
   /// * [String] filename (required):
   ///
+  /// * [int] timestampMs (required):
+  ///
   /// * [MultipartFile] body:
-  Future<void> catalogFilenamePut(String filename, { MultipartFile? body, }) async {
-    final response = await catalogFilenamePutWithHttpInfo(filename,  body: body, );
+  Future<void> catalogFilenamePut(String filename, int timestampMs, { MultipartFile? body, }) async {
+    final response = await catalogFilenamePutWithHttpInfo(filename, timestampMs,  body: body, );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }
