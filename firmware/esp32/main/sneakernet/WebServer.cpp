@@ -26,7 +26,7 @@ extern "C" esp_err_t PUT_FIRMWARE(httpd_req_t *req);
 // TODO increase size for efficiency (window size:5744)
 static constexpr size_t CHUNK_SZ = 1048;
 
-static std::string urlDecode(const std::string &url)
+static std::string getFilename(const std::string &url)
 {
     std::string ret;
     for (int i = 0; i < url.length(); i++)
@@ -35,11 +35,15 @@ static std::string urlDecode(const std::string &url)
         {
             if (url[i] == '+')
                 ret += ' ';
+            else if(url[i] == '?')
+                // stop at query parameters
+                break;
             else
                 ret += url[i];
         }
         else
         {
+            // convert unicode
             int ii;
             sscanf(url.substr(i + 1, 2).c_str(), "%x", &ii);
             ret += static_cast<char>(ii);
@@ -185,9 +189,9 @@ esp_err_t GET_CATALOG(httpd_req_t *request)
     {
         cJSON *const item = cJSON_CreateObject();
         cJSON_AddStringToObject(item, "filename", content.filename.c_str());
-        // const int64_t timestampMs = std::chrono::duration_cast<std::chrono::milliseconds>(content.timestamp.time_since_epoch()).count();
-        // cJSON_AddNumberToObject(item, "timestampMs", timestampMs);
-        // cJSON_AddStringToObject(item, "timestamp", timestamp);
+        // FIXME should convert content.timestamp
+        std::string timestamp = "2002-02-27T19:00:00Z";
+        cJSON_AddStringToObject(item, "timestamp", timestamp.c_str());
         cJSON_AddNumberToObject(item, "size", content.size);
         cJSON_AddItemToArray(items, item);
     }
@@ -211,7 +215,7 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
-    const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
+    const std::string filename = getFilename(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     if (false == isValidContentName(filename))
         return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
@@ -223,6 +227,8 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
     std::ifstream fis = self->sneakernet.readContent(filename);
     if (false == fis.is_open())
         return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+    // FIXME should set header X-FileTimestamp
 
     httpd_resp_set_type(request, "application/octet-stream");
     while (true)
@@ -242,11 +248,14 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
-    const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
+    // require a valid filename
+    const std::string filename = getFilename(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     if (false == isValidContentName(filename))
         return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "illegal filename");
 
-    // validate there is data
+    // FIXME should require timestamp parameter
+
+    // require data
     if (request->content_len <= 0)
         return httpd_resp_send_err(request, HTTPD_411_LENGTH_REQUIRED, "Length required");
 
@@ -256,6 +265,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
 
+    // use the buffer to read in the file data
     const size_t file_sz = request->content_len;
     SneakerNet::InWorkContent content = self->sneakernet.newContent(filename, file_sz);
     // receive the data
@@ -282,6 +292,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
 
     if (ret == ESP_OK)
     {
+        // complete the file transaction
         content.done();
         // send an empty 200 response
         return httpd_resp_send(request, nullptr, 0);
@@ -293,7 +304,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
 esp_err_t DELETE_CATALOG_FILE(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
-    const std::string filename = urlDecode(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
+    const std::string filename = getFilename(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     if (isValidContentName(filename))
     {
         self->sneakernet.removeContent(filename);

@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: SneakerNet
   description: REST API for SneakerNet
@@ -9,7 +9,7 @@ security: []
 
 servers: [
     # android doesn't resolve (needs absolute IP)
-    url: http://192.168.4.1/api,
+    url: http://192.168.4.1/api
   ]
 
 paths:
@@ -27,6 +27,7 @@ paths:
                   type: object
                   required:
                     - filename
+                    - timestamp
                   properties:
                     filename:
                       type: string
@@ -52,7 +53,7 @@ paths:
         "200":
           description: transferring file
           headers:
-            X-FileTimestamp-S:
+            X-FileTimestamp:
               schema:
                 type: string # ISO 8601 Z (aka UTC time)
           content:
