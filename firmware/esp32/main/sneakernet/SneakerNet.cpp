@@ -5,7 +5,6 @@
 #include <esp_log.h>
 #include <filesystem>
 #include <dirent.h> /* workaround for incomplete ESP32 filesystem support */
-#include <time.h>
 
 
 static const char *TAG = "sneakernet";
@@ -20,29 +19,22 @@ SneakerNet::SneakerNet()
 
     // mount the sd card
     mount_sdcard();
-
     // cleanup contents and set system time per newest file
-    struct timeval newest_ts{};
+// FIXME ESP32 doesn't support directory_iterator (it's always empty)
+    // for(const std::filesystem::directory_entry entry : std::filesystem::directory_iterator(MOUNT_DIR))
+// Workaround - use C iterator
     DIR *dfd = opendir(MOUNT_DIR);
     const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
     for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
         // transmute pEntry into a directory entry
         std::filesystem::directory_entry entry(path/(pEntry->d_name));
+        // ignore directories
         if(entry.is_directory()) continue;
-
+        // remove aborted work
         if(entry.path().string().ends_with(INWORK_SUFFIX))
             std::filesystem::remove(entry);
-        else {
-            // find newest file
-            const std::time_t ts = std::chrono::system_clock::to_time_t(
-                    std::chrono::file_clock::to_sys(entry.last_write_time())
-            );
-            if(newest_ts.tv_sec < ts)
-                newest_ts.tv_sec = ts;
-        }
     }
     closedir(dfd);
-    settimeofday(&newest_ts, DST_NONE);
 }
 
 void SneakerNet::mount_sdcard()
@@ -97,7 +89,7 @@ void SneakerNet::mount_sdcard()
 std::vector<SneakerNet::content_t> SneakerNet::contents()
 {
     std::vector<SneakerNet::content_t> ret;
-    // FIXME ESP32 doesn't support directory_iterator (it's always empty)
+// FIXME ESP32 doesn't support directory_iterator (it's always empty)
     // for(const std::filesystem::directory_entry entry : std::filesystem::directory_iterator(MOUNT_DIR))
 // Workaround - use C iterator
     DIR *dfd = opendir(MOUNT_DIR);
@@ -110,7 +102,6 @@ std::vector<SneakerNet::content_t> SneakerNet::contents()
         ret.emplace_back(entry.path().filename(),
                          entry.last_write_time(),
                          entry.file_size()
-                        //  std::chrono::system_clock::to_time_t(std::chrono::file_clock::to_sys(entry.last_write_time()))
         );
     }
     closedir(dfd);
