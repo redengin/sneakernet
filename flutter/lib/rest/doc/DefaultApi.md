@@ -102,7 +102,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **catalogFilenamePut**
-> catalogFilenamePut(filename, timestampMs, body)
+> catalogFilenamePut(filename, timestamp, body)
 
 
 
@@ -114,11 +114,11 @@ import 'package:sneakernet_rest/api.dart';
 
 final api_instance = DefaultApi();
 final filename = filename_example; // String | 
-final timestampMs = 56; // int | 
+final timestamp = timestamp_example; // String | 
 final body = MultipartFile(); // MultipartFile | 
 
 try {
-    api_instance.catalogFilenamePut(filename, timestampMs, body);
+    api_instance.catalogFilenamePut(filename, timestamp, body);
 } catch (e) {
     print('Exception when calling DefaultApi->catalogFilenamePut: $e\n');
 }
@@ -129,7 +129,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **filename** | **String**|  | 
- **timestampMs** | **int**|  | 
+ **timestamp** | **String**|  | 
  **body** | **MultipartFile**|  | [optional] 
 
 ### Return type

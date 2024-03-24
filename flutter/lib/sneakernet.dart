@@ -36,7 +36,7 @@ class SneakerNet {
       case "esp32-sneakernet.bin":
 
         /// TODO update each time new esp32 firmware is added as an asset
-        final esp32FirmwareVersion = Version.parse("1.0.0");
+        final esp32FirmwareVersion = Version.parse("0.1.1");
         if (esp32FirmwareVersion > Version.parse(remoteFirmware.version)) {
           newFirmwareData =
               await rootBundle.load('firmware/esp32-sneakernet.bin');
@@ -67,7 +67,7 @@ class SneakerNet {
 
       // download new files
       for (var entry in remoteCatalog) {
-        final timestamp = DateTime.fromMillisecondsSinceEpoch(entry.timestampMs, isUtc: true);
+        final timestamp = DateTime.parse(entry.timestamp);
         if (library.isWanted(entry.filename, timestamp)) {
           final Response get =
               await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
@@ -84,9 +84,9 @@ class SneakerNet {
       for (var file in localCatalog) {
         final filename = p.basename(file.path);
         if (remoteFilenames.contains(filename) == false) {
-          final timestampMs = file.lastModifiedSync().toUtc().millisecondsSinceEpoch;
+          final timestamp = file.lastModifiedSync().toUtc().toIso8601String();
           final body = await MultipartFile.fromPath('', file.path);
-          await restClient.catalogFilenamePutWithHttpInfo(filename, timestampMs, body: body);
+          await restClient.catalogFilenamePutWithHttpInfo(filename, timestamp, body: body);
         }
       }
     }

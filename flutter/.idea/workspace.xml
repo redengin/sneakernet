@@ -10,9 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="fixing timestamps">
-      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/SneakerNet.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/esp32/main/sneakernet/WebServer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/doc/CatalogGet200ResponseInner.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/CatalogGet200ResponseInner.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/lib/api/default_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/api/default_api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/rest/lib/model/catalog_get200_response_inner.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/model/catalog_get200_response_inner.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

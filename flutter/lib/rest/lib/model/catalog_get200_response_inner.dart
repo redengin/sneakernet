@@ -14,13 +14,13 @@ class CatalogGet200ResponseInner {
   /// Returns a new [CatalogGet200ResponseInner] instance.
   CatalogGet200ResponseInner({
     required this.filename,
-    required this.timestampMs,
+    required this.timestamp,
     this.size,
   });
 
   String filename;
 
-  int timestampMs;
+  String timestamp;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -33,23 +33,23 @@ class CatalogGet200ResponseInner {
   @override
   bool operator ==(Object other) => identical(this, other) || other is CatalogGet200ResponseInner &&
     other.filename == filename &&
-    other.timestampMs == timestampMs &&
+    other.timestamp == timestamp &&
     other.size == size;
 
   @override
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (filename.hashCode) +
-    (timestampMs.hashCode) +
+    (timestamp.hashCode) +
     (size == null ? 0 : size!.hashCode);
 
   @override
-  String toString() => 'CatalogGet200ResponseInner[filename=$filename, timestampMs=$timestampMs, size=$size]';
+  String toString() => 'CatalogGet200ResponseInner[filename=$filename, timestamp=$timestamp, size=$size]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
       json[r'filename'] = this.filename;
-      json[r'timestampMs'] = this.timestampMs;
+      json[r'timestamp'] = this.timestamp;
     if (this.size != null) {
       json[r'size'] = this.size;
     } else {
@@ -78,7 +78,7 @@ class CatalogGet200ResponseInner {
 
       return CatalogGet200ResponseInner(
         filename: mapValueOfType<String>(json, r'filename')!,
-        timestampMs: mapValueOfType<int>(json, r'timestampMs')!,
+        timestamp: mapValueOfType<String>(json, r'timestamp')!,
         size: mapValueOfType<int>(json, r'size'),
       );
     }
@@ -128,7 +128,7 @@ class CatalogGet200ResponseInner {
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
     'filename',
-    'timestampMs',
+    'timestamp',
   };
 }
 
