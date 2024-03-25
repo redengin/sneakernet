@@ -12,7 +12,8 @@ public:
 
     typedef struct {
         std::string filename;
-        std::filesystem::file_time_type timestamp;
+        // std::filesystem::file_time_type timestamp;
+        time_t timestamp;
         size_t size;
     } content_t;
     std::vector<content_t> contents();
@@ -25,15 +26,17 @@ public:
 
     class InWorkContent {
     public:
-        InWorkContent(const std::string& filename);
+        InWorkContent(const std::string& filename, const time_t& timestamp);
         bool write(const char buffer[], const size_t sz);
         void done();
         ~InWorkContent();
     private:
         const std::string& filename;
+        const time_t timestamp;
         std::ofstream ofs;
     };
-    InWorkContent newContent(const std::string& filename, const size_t file_size);
+    /// start a new content transfer
+    InWorkContent newContent(const std::string& filename, const size_t& file_size, const time_t& timestamp);
 
     /// firmware version
     const char* pVersion;

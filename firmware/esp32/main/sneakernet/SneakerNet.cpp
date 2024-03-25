@@ -5,7 +5,9 @@
 #include <esp_log.h>
 #include <filesystem>
 #include <dirent.h> /* workaround for incomplete ESP32 filesystem support */
-
+#include <sys/stat.h>
+#include <utime.h>
+#include <string.h>
 
 static const char *TAG = "sneakernet";
 constexpr char MOUNT_DIR[] = "/sdcard";
@@ -99,8 +101,15 @@ std::vector<SneakerNet::content_t> SneakerNet::contents()
         std::filesystem::directory_entry entry(path/(pEntry->d_name));
         if(entry.is_directory()) continue;
         if(entry.path().string().ends_with(INWORK_SUFFIX)) continue;
+        struct stat statBuffer;
+        if(0 != stat(entry.path().c_str(), &statBuffer))
+        {
+            ESP_LOGW(TAG, "Unable to stat %s [%s]",
+                    entry.path().c_str(), strerror(errno));
+        }
         ret.emplace_back(entry.path().filename(),
-                         entry.last_write_time(),
+                         // entry.last_write_time(),
+                         statBuffer.st_mtime,
                          entry.file_size()
         );
     }
@@ -163,7 +172,7 @@ off_t SneakerNet::delete_oldest_content()
     else return 0;
 }
 
-SneakerNet::InWorkContent SneakerNet::newContent(const std::string& filename, const size_t file_size)
+SneakerNet::InWorkContent SneakerNet::newContent(const std::string& filename, const size_t& file_size, const time_t& timestamp)
 {
     // make room for new content (delete oldest files)
     uint64_t remaining;
@@ -171,15 +180,16 @@ SneakerNet::InWorkContent SneakerNet::newContent(const std::string& filename, co
     while(remaining < file_size) {
         const off_t freed = delete_oldest_content();
         if(freed == 0)
-            return SneakerNet::InWorkContent("/dev/null");
+            return SneakerNet::InWorkContent("/dev/null", 0);
         remaining -= freed;
     }
 
-    return SneakerNet::InWorkContent(filename);
+    return SneakerNet::InWorkContent(filename, timestamp);
 }
 
-SneakerNet::InWorkContent::InWorkContent(const std::string& filename)
+SneakerNet::InWorkContent::InWorkContent(const std::string& filename, const time_t& timestamp)
     : filename(filename)
+     ,timestamp(timestamp)
 {
     const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
     ofs = std::ofstream(path/(filename + INWORK_SUFFIX),
@@ -200,6 +210,13 @@ void SneakerNet::InWorkContent::done()
     if(std::filesystem::exists(path/filename))
         std::filesystem::remove(path/filename);
     std::filesystem::rename(path/(filename + INWORK_SUFFIX), path/filename);
+    const struct utimbuf utimbuf{timestamp, timestamp};
+    if(0 != utime((path/filename).c_str(), &utimbuf))
+    {
+        ESP_LOGW(TAG, "unable to change file time of %s : %s",
+                (path/filename).c_str(), strerror(errno));
+
+    }
 }
 
 SneakerNet::InWorkContent::~InWorkContent()

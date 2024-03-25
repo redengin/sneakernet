@@ -23,33 +23,50 @@ static const std::string FIRMWARE_URI("/api/firmware");
 extern "C" esp_err_t GET_FIRMWARE(httpd_req_t *req);
 extern "C" esp_err_t PUT_FIRMWARE(httpd_req_t *req);
 
+constexpr char ISO_8601_FORMAT[] = "%FT%T";
+
 // TODO increase size for efficiency (window size:5744)
 static constexpr size_t CHUNK_SZ = 1048;
 
-static std::string getFilename(const std::string &url)
+
+static char httpTokenDecode(const char* const token, size_t& nextTokenOffset)
 {
-    std::string ret;
-    for (int i = 0; i < url.length(); i++)
+    switch(token[0])
     {
-        if (url[i] != '%')
+        case '%':
         {
-            if (url[i] == '+')
-                ret += ' ';
-            else if(url[i] == '?')
-                // stop at query parameters
-                break;
-            else
-                ret += url[i];
+            int c;
+            sscanf(token+1, "%2x", &c);
+            nextTokenOffset += 3;
+            return c;
         }
-        else
+        case '+':
         {
-            // convert unicode
-            int ii;
-            sscanf(url.substr(i + 1, 2).c_str(), "%x", &ii);
-            ret += static_cast<char>(ii);
-            i = i + 2;
+            nextTokenOffset += 1;
+            return ' ';
+        }
+        default:
+        {
+            nextTokenOffset += 1;
+            return token[0];
         }
     }
+}
+static std::string getFilename(const char* const url)
+{
+    std::string ret;
+    size_t tokenOffset = 0;
+    while((url[tokenOffset] != '\0') && (url[tokenOffset] != '?'))
+        ret += httpTokenDecode(url+tokenOffset, tokenOffset);
+    return ret;
+}
+
+static std::string httpDecode(const char* const url)
+{
+    std::string ret;
+    size_t tokenOffset = 0;
+    while(url[tokenOffset] != '\0')
+        ret += httpTokenDecode(url+tokenOffset, tokenOffset);
     return ret;
 }
 
@@ -189,9 +206,11 @@ esp_err_t GET_CATALOG(httpd_req_t *request)
     {
         cJSON *const item = cJSON_CreateObject();
         cJSON_AddStringToObject(item, "filename", content.filename.c_str());
-        // FIXME should convert content.timestamp
-        std::string timestamp = "2002-02-27T19:00:00Z";
-        cJSON_AddStringToObject(item, "timestamp", timestamp.c_str());
+        struct tm tm;
+        gmtime_r(&content.timestamp, &tm);
+        char timestamp[30] = "";
+        strftime(timestamp, sizeof(timestamp), ISO_8601_FORMAT, &tm);
+        cJSON_AddStringToObject(item, "timestamp", timestamp);
         cJSON_AddNumberToObject(item, "size", content.size);
         cJSON_AddItemToArray(items, item);
     }
@@ -253,7 +272,18 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
     if (false == isValidContentName(filename))
         return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "illegal filename");
 
-    // FIXME should require timestamp parameter
+    // require timestamp query parameter
+    const char* const query_start = strchr(request->uri, '?');
+    if(nullptr == query_start)
+    {
+        return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "no timestamp query parameter");
+    }
+    char timestampHttp[30];
+    if(ESP_OK != httpd_query_key_value(query_start + 1, "timestamp", timestampHttp, sizeof(timestampHttp)))
+    {
+        return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "no timestamp query parameter");
+    }
+    const std::string timestampString = httpDecode(timestampHttp);
 
     // require data
     if (request->content_len <= 0)
@@ -267,7 +297,10 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
 
     // use the buffer to read in the file data
     const size_t file_sz = request->content_len;
-    SneakerNet::InWorkContent content = self->sneakernet.newContent(filename, file_sz);
+    struct tm tm{};
+    strptime(timestampString.c_str(), ISO_8601_FORMAT, &tm);
+    const time_t timestamp = mktime(&tm);
+    SneakerNet::InWorkContent content = self->sneakernet.newContent(filename, file_sz, timestamp);
     // receive the data
     esp_err_t ret = ESP_OK;
     for (size_t remaining = request->content_len; remaining > 0;)
@@ -294,6 +327,8 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
     {
         // complete the file transaction
         content.done();
+        // ESP_LOGI(TAG, "Added %s with timestamp %s [%lld]",
+        //         filename.c_str(), timestampParameter, timestamp);
         // send an empty 200 response
         return httpd_resp_send(request, nullptr, 0);
     }
