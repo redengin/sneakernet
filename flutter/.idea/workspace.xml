@@ -9,13 +9,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="fixing timestamps">
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="setting firmware">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/doc/CatalogGet200ResponseInner.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/CatalogGet200ResponseInner.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/DefaultApi.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/lib/api/default_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/api/default_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/lib/model/catalog_get200_response_inner.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/model/catalog_get200_response_inner.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firmware/esp32-sneakernet.bin" beforeDir="false" afterPath="$PROJECT_DIR$/firmware/esp32-sneakernet.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/library.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -398,7 +396,15 @@
       <option name="project" value="LOCAL" />
       <updated>1711085054060</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="setting firmware">
+      <option name="closed" value="true" />
+      <created>1711252992954</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1711252992954</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -413,7 +419,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="calling it quits on formatting library" />
     <MESSAGE value="removing bad placement of rest api" />
     <MESSAGE value="code complete for sync (now needs testing)" />
     <MESSAGE value="working book icons" />
@@ -438,6 +443,7 @@
     <MESSAGE value="updating version code to satisfy google" />
     <MESSAGE value="fixing refresh indicator" />
     <MESSAGE value="fixing timestamps" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixing timestamps" />
+    <MESSAGE value="setting firmware" />
+    <option name="LAST_COMMIT_MESSAGE" value="setting firmware" />
   </component>
 </project>

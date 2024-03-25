@@ -72,11 +72,10 @@ class Library {
     }
     final localFiles = files();
     try {
-      final localFile = localFiles.firstWhere((e) =>
-      p.basename(e.path) == filename);
+      final localFile =
+          localFiles.firstWhere((e) => p.basename(e.path) == filename);
       return (localFile.lastModifiedSync().isBefore(timestamp)) ? true : false;
-    }
-    on StateError catch (e) {
+    } on StateError catch (e) {
       // no local file match
       return true;
     }

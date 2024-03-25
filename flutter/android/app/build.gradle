@@ -40,7 +40,7 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionName flutterVersionName
         // FIXME have to update for every release
-        versionCode 4
+        versionCode 6
     }
 
     signingConfigs {
