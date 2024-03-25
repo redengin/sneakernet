@@ -28,7 +28,8 @@ constexpr char ISO_8601_FORMAT[] = "%FT%T";
 // TODO increase size for efficiency (window size:5744)
 static constexpr size_t CHUNK_SZ = 1048;
 
-
+// FIXME this code is not secure
+//--------------------------------------------------------------------------------
 static char httpTokenDecode(const char* const token, size_t& nextTokenOffset)
 {
     switch(token[0])
@@ -69,6 +70,7 @@ static std::string httpDecode(const char* const url)
         ret += httpTokenDecode(url+tokenOffset, tokenOffset);
     return ret;
 }
+//--------------------------------------------------------------------------------
 
 WebServer::WebServer(SneakerNet &sneakernet)
     : sneakernet(sneakernet)
