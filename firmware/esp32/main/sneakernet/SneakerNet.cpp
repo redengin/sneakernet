@@ -135,6 +135,19 @@ std::ifstream SneakerNet::readContent(const std::string& filename)
     return std::ifstream();
 }
 
+time_t SneakerNet::getFiletime(const std::string& filename)
+{
+    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+    std::filesystem::directory_entry entry(path/filename);
+    struct stat statBuffer;
+    if(0 != stat(entry.path().c_str(), &statBuffer))
+    {
+        ESP_LOGW(TAG, "Unable to stat %s [%s]",
+                entry.path().c_str(), strerror(errno));
+    }
+    return statBuffer.st_mtime;
+}
+
 void SneakerNet::removeContent(const std::string& filename)
 {
     if(isValidContentName(filename)) {

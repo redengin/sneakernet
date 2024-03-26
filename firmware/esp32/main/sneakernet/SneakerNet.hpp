@@ -21,6 +21,7 @@ public:
     /// @return open file stream for stored file
     /// @details if the file isn't available, returns a null istream
     std::ifstream readContent(const std::string& filename);
+    time_t getFiletime(const std::string& filename);
 
     void removeContent(const std::string& filename);
 

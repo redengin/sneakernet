@@ -57,8 +57,12 @@ static std::string getFilename(const char* const url)
 {
     std::string ret;
     size_t tokenOffset = 0;
-    while((url[tokenOffset] != '\0') && (url[tokenOffset] != '?'))
+    while((url[tokenOffset] != '\0')
+       && (url[tokenOffset] != '?')
+       && (url[tokenOffset] != '#'))
+    {
         ret += httpTokenDecode(url+tokenOffset, tokenOffset);
+    }
     return ret;
 }
 
@@ -249,7 +253,13 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
     if (false == fis.is_open())
         return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
-    // FIXME should set header X-FileTimestamp
+    // set header X-FileTimestamp
+    const time_t filetime = self->sneakernet.getFiletime(filename);
+    struct tm tm;
+    gmtime_r(&filetime, &tm);
+    char timestamp[30] = "";
+    strftime(timestamp, sizeof(timestamp), ISO_8601_FORMAT, &tm);
+    httpd_resp_set_hdr(request, "X-FileTimestamp", timestamp);
 
     httpd_resp_set_type(request, "application/octet-stream");
     while (true)
