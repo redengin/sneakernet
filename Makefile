@@ -5,42 +5,20 @@ SOURCE_DIR := $(dir $(mkfile_path))
 # setup user identification
 UID ?= $(shell id -u)
 GID ?= $(shell id -g)
+DOCKER_USER = ${UID}:${GID}
+DOCKER_COMPOSE ?= docker compose
 
-.PHONY: angular-init
-angular-init:
-	@docker run --rm -it \
-		--user $(UID):$(GID) \
-		--volume $(abspath $(SOURCE_DIR)):/tmp/ng \
-		--env HOME=/tmp/ng \
-		--workdir /tmp/ng/angular \
-		$(NG_DOCKER_IMAGE) \
-			npm install
+.PHONY: angular-shell
+angular-shell:
+	DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm angular \
+		sh
 
-.PHONY: build-webapp
-build-webapp: angular-init
-	@docker run --rm -it \
-		--user $(UID):$(GID) \
-		--volume $(abspath $(SOURCE_DIR)):/tmp/ng \
-		--env HOME=/tmp/ng \
-		--workdir /tmp/ng/angular \
-		$(NG_DOCKER_IMAGE) \
-			ng build --deploy-url "/app/"
+.PHONY: angular-serve
+angular-serve:
+	DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm --service-ports --workdir /angular/sneakernet angular \
+		ng serve
 
-.PHONY: live-edit-webapp
-live-edit-webapp: 
-	@docker run --rm -it \
-		--network host \
-		--user $(UID):$(GID) \
-		--volume $(abspath $(SOURCE_DIR)):/tmp/ng \
-		--workdir /tmp/ng/angular \
-		$(NG_DOCKER_IMAGE) \
-			ng serve
-
-#-------------------------------------------------------------------------------
-# Docker Images
-#-------------------------------------------------------------------------------
-NG_DOCKER_IMAGE ?= angular/alpine
-.PHONY: $(NG_DOCKER_IMAGE)
-$(NG_DOCKER_IMAGE):
-	@docker build -t $@ \
-		tools/Docker/angular/
+.PHONY: angular-build
+angular-build:
+	DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm --service-ports --workdir /angular/sneakernet angular \
+    ng build --deploy-url "/app"
