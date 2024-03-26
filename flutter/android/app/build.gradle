@@ -1,7 +1,7 @@
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
 }
 
 def localProperties = new Properties()
@@ -12,19 +12,22 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    throw new GradleException("Flutter project versionName not found")
+    flutterVersionName = '1.0'
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = flutterVersionName.tokenize(".")[0]
+}
+
 
 android {
     namespace "com.example.sneakernet"
@@ -32,15 +35,27 @@ android {
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
     defaultConfig {
         applicationId "monster.sneakernet"
-//        minSdkVersion flutter.minSdkVersion
-//        minSdkVersion 16 // min required for wifi-scan
+        // minSdkVersion flutter.minSdkVersion
+        // minSdkVersion 16 // min required for wifi-scan
         minSdkVersion 19 // min required for flutter_file_dialog
         targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        // FIXME have to update for every release
-        versionCode 6
     }
 
     signingConfigs {
@@ -54,18 +69,13 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.release
         }
     }
 }
-// include symbol table for native code
-android.buildTypes.release.ndk.debugSymbolLevel = 'SYMBOL_TABLE'
 
 flutter {
     source '../..'
 }
 
-dependencies {
-}
+dependencies {}
