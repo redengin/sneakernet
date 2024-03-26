@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
-import 'package:auto_start_flutter/auto_start_flutter.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import '../settings.dart';
 import '../library.dart';
@@ -33,13 +32,13 @@ class _SettingsPageState extends State<SettingsPage> {
         body: SettingsList(
           sections: [
             SettingsSection(
-              tiles: <SettingsTile>[
-                SettingsTile.navigation(
-                  leading: const Icon(Icons.star_border_outlined),
-                  title: const Text('Start Automatically'),
-                  description: const Text('enable SneakerNet to AutoStart'),
-                  onPressed: (_) => getAutoStartPermission(),
-                ),
+              tiles: [
+                // SettingsTile.navigation(
+                //   leading: const Icon(Icons.star_border_outlined),
+                //   title: const Text('Start Automatically'),
+                //   description: const Text('enable SneakerNet to AutoStart'),
+                //   onPressed: (_) => getAutoStartPermission(),
+                // ),
                 SettingsTile.navigation(
                   leading: const Icon(Icons.delete_outline),
                   title: const Text('Manage unwanted files'),
