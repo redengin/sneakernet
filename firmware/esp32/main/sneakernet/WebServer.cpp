@@ -114,24 +114,24 @@ WebServer::WebServer(SneakerNet &sneakernet)
         ESP_ERROR_CHECK(httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_redirect));
     }
     // support angular app
-    // {
-    //     httpd_uri_t hook = {
-    //         .uri = APP_URI.c_str(),
-    //         .method = HTTP_GET,
-    //         .handler = APP_INDEX,
-    //         .user_ctx = self,
-    //     };
-    //     ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
-    // }
-    // {
-    //     httpd_uri_t hook = {
-    //         .uri = APP_FILE_URI.c_str(),
-    //         .method = HTTP_GET,
-    //         .handler = GET_APP_FILE,
-    //         .user_ctx = self,
-    //     };
-    //     ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
-    // }
+    {
+        httpd_uri_t hook = {
+            .uri = APP_URI.c_str(),
+            .method = HTTP_GET,
+            .handler = APP_INDEX,
+            .user_ctx = self,
+        };
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
+    }
+    {
+        httpd_uri_t hook = {
+            .uri = APP_FILE_URI.c_str(),
+            .method = HTTP_GET,
+            .handler = GET_APP_FILE,
+            .user_ctx = self,
+        };
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
+    }
     // CATALOG
     // support catalog listing
     {
@@ -221,69 +221,39 @@ esp_err_t http_redirect(httpd_req_t *request, httpd_err_code_t err)
 }
 
 /// App INDEX handler
-extern "C" const char appIndexHtml_start[] asm("_binary_index_html_start");
-extern "C" const char appIndexHtml_end[] asm("_binary_index_html_end");
 esp_err_t APP_INDEX(httpd_req_t *request)
 {
-    ESP_LOGI(TAG, "Serving app/index.html");
-    const size_t appIndexHtml_sz = appIndexHtml_end - appIndexHtml_start;
-    httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
-    httpd_resp_set_type(request, "text/html");
-    return httpd_resp_send(request, appIndexHtml_start, appIndexHtml_sz);
+    // FIXME serve from filesystem
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 }
 
 /// App GET handler
-extern "C" const char favicon_start[] asm("_binary_favicon_ico_start");
-extern "C" const char favicon_end[] asm("_binary_favicon_ico_end");
-extern "C" const char appMainJs_start[] asm("_binary_main_js_start");
-extern "C" const char appMainJs_end[] asm("_binary_main_js_end");
-extern "C" const char appPollyfillsJs_start[] asm("_binary_polyfills_js_start");
-extern "C" const char appPollyfillsJs_end[] asm("_binary_polyfills_js_end");
-extern "C" const char appStylesCss_start[] asm("_binary_styles_css_start");
-extern "C" const char appStylesCss_end[] asm("_binary_styles_css_end");
 esp_err_t GET_APP_FILE(httpd_req_t *request)
 {
     httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
     const std::string filename = getFilename(request->uri + APP_FILE_URI.size() - sizeof('*'));
     if(filename.compare("favicon.ico") == 0)
     {
-        const size_t sz = favicon_end - favicon_start;
-        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
-        httpd_resp_set_type(request, "image/x-icon");
-        return httpd_resp_send(request, favicon_start, sz);
+        // FIXME serve from filesystem
     }
     if(filename.compare("index.html") == 0)
     {
-        const size_t sz = appIndexHtml_end - appIndexHtml_start;
-        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
-        httpd_resp_set_type(request, "text/html");
-        return httpd_resp_send(request, appIndexHtml_start, sz);
+        // FIXME serve from filesystem
     }
     if(filename.compare("main.js") == 0)
     {
-        const size_t sz = appMainJs_end - appMainJs_start;
-        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
-        httpd_resp_set_type(request, "text/javascript");
-        return httpd_resp_send(request, appMainJs_start, sz);
+        // FIXME serve from filesystem
     }
     if(filename.compare("pollyfills.js") == 0)
     {
-        const size_t sz = appPollyfillsJs_end - appPollyfillsJs_start;
-        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
-        httpd_resp_set_type(request, "text/javascript");
-        return httpd_resp_send(request, appPollyfillsJs_start, sz);
+        // FIXME serve from filesystem
     }
     if(filename.compare("styles.css") == 0)
     {
-        const size_t sz = appStylesCss_end - appStylesCss_start;
-        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
-        httpd_resp_set_type(request, "text/css");
-        return httpd_resp_send(request, appStylesCss_start, sz);
+        // FIXME serve from filesystem
     }
 
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
-
-    // ESP_LOGI(TAG, "Serving app/index.html");
 }
 
 
