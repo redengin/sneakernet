@@ -5,5 +5,5 @@ idf_component_register(
        "sneakernet/SneakerNet.cpp"
        "sneakernet/WebServer.cpp"
     EMBED_TXTFILES
-        "index.html"
+        "welcome.html"
 )
