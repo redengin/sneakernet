@@ -21,4 +21,4 @@ angular-serve:
 .PHONY: angular-build
 angular-build:
 	DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm --service-ports --workdir /angular/sneakernet angular \
-    ng build --deploy-url "/app"
+    ng build --deploy-url "/app" --output-hashing none

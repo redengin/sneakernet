@@ -11,6 +11,10 @@ static constexpr char TAG[] = "webserver";
 static const std::string INDEX_URI("/");
 extern "C" esp_err_t INDEX(httpd_req_t *);
 extern "C" esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err);
+static const std::string APP_URI("/app");
+extern "C" esp_err_t APP_INDEX(httpd_req_t *req);
+static const std::string APP_FILE_URI(APP_URI + "/*");
+extern "C" esp_err_t GET_APP_FILE(httpd_req_t *req);
 
 // REST API
 static const std::string CATALOG_URI("/api/catalog");
@@ -109,6 +113,25 @@ WebServer::WebServer(SneakerNet &sneakernet)
         // provide 404 redirect to support captive portal
         ESP_ERROR_CHECK(httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_redirect));
     }
+    // support angular app
+    // {
+    //     httpd_uri_t hook = {
+    //         .uri = APP_URI.c_str(),
+    //         .method = HTTP_GET,
+    //         .handler = APP_INDEX,
+    //         .user_ctx = self,
+    //     };
+    //     ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
+    // }
+    // {
+    //     httpd_uri_t hook = {
+    //         .uri = APP_FILE_URI.c_str(),
+    //         .method = HTTP_GET,
+    //         .handler = GET_APP_FILE,
+    //         .user_ctx = self,
+    //     };
+    //     ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
+    // }
     // CATALOG
     // support catalog listing
     {
@@ -173,28 +196,97 @@ WebServer::WebServer(SneakerNet &sneakernet)
     }
 }
 
-/// INDEX handler
-extern "C" const char indexHtml_start[] asm("_binary_index_html_start");
-extern "C" const char indexHtml_end[] asm("_binary_index_html_end");
-esp_err_t INDEX(httpd_req_t *req)
+// Portal handler
+extern "C" const char indexHtml_start[] asm("_binary_welcome_html_start");
+extern "C" const char indexHtml_end[] asm("_binary_welcome_html_end");
+esp_err_t INDEX(httpd_req_t *request)
 {
     ESP_LOGI(TAG, "Serving index.html");
     const size_t indexHtml_sz = indexHtml_end - indexHtml_start;
-    httpd_resp_set_type(req, "text/html");
-    return httpd_resp_send(req, indexHtml_start, indexHtml_sz);
+    httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
+    httpd_resp_set_type(request, "text/html");
+    return httpd_resp_send(request, indexHtml_start, indexHtml_sz);
 }
 
 /// provides captive portal redirect
-esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err)
+esp_err_t http_redirect(httpd_req_t *request, httpd_err_code_t err)
 {
     // Set status
-    httpd_resp_set_status(req, "302 Temporary Redirect");
+    httpd_resp_set_status(request, "302 Temporary Redirect");
     // Redirect to the "/" root directory
-    httpd_resp_set_hdr(req, "Location", INDEX_URI.c_str());
+    httpd_resp_set_hdr(request, "Location", INDEX_URI.c_str());
     // iOS requires content in the response to detect a captive portal, simply redirecting is not sufficient.
-    httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(request, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
+
+/// App INDEX handler
+extern "C" const char appIndexHtml_start[] asm("_binary_index_html_start");
+extern "C" const char appIndexHtml_end[] asm("_binary_index_html_end");
+esp_err_t APP_INDEX(httpd_req_t *request)
+{
+    ESP_LOGI(TAG, "Serving app/index.html");
+    const size_t appIndexHtml_sz = appIndexHtml_end - appIndexHtml_start;
+    httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
+    httpd_resp_set_type(request, "text/html");
+    return httpd_resp_send(request, appIndexHtml_start, appIndexHtml_sz);
+}
+
+/// App GET handler
+extern "C" const char favicon_start[] asm("_binary_favicon_ico_start");
+extern "C" const char favicon_end[] asm("_binary_favicon_ico_end");
+extern "C" const char appMainJs_start[] asm("_binary_main_js_start");
+extern "C" const char appMainJs_end[] asm("_binary_main_js_end");
+extern "C" const char appPollyfillsJs_start[] asm("_binary_polyfills_js_start");
+extern "C" const char appPollyfillsJs_end[] asm("_binary_polyfills_js_end");
+extern "C" const char appStylesCss_start[] asm("_binary_styles_css_start");
+extern "C" const char appStylesCss_end[] asm("_binary_styles_css_end");
+esp_err_t GET_APP_FILE(httpd_req_t *request)
+{
+    httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
+    const std::string filename = getFilename(request->uri + APP_FILE_URI.size() - sizeof('*'));
+    if(filename.compare("favicon.ico") == 0)
+    {
+        const size_t sz = favicon_end - favicon_start;
+        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
+        httpd_resp_set_type(request, "image/x-icon");
+        return httpd_resp_send(request, favicon_start, sz);
+    }
+    if(filename.compare("index.html") == 0)
+    {
+        const size_t sz = appIndexHtml_end - appIndexHtml_start;
+        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
+        httpd_resp_set_type(request, "text/html");
+        return httpd_resp_send(request, appIndexHtml_start, sz);
+    }
+    if(filename.compare("main.js") == 0)
+    {
+        const size_t sz = appMainJs_end - appMainJs_start;
+        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
+        httpd_resp_set_type(request, "text/javascript");
+        return httpd_resp_send(request, appMainJs_start, sz);
+    }
+    if(filename.compare("pollyfills.js") == 0)
+    {
+        const size_t sz = appPollyfillsJs_end - appPollyfillsJs_start;
+        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
+        httpd_resp_set_type(request, "text/javascript");
+        return httpd_resp_send(request, appPollyfillsJs_start, sz);
+    }
+    if(filename.compare("styles.css") == 0)
+    {
+        const size_t sz = appStylesCss_end - appStylesCss_start;
+        httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
+        httpd_resp_set_type(request, "text/css");
+        return httpd_resp_send(request, appStylesCss_start, sz);
+    }
+
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+    // ESP_LOGI(TAG, "Serving app/index.html");
+}
+
+
 
 /// JSON listing of content
 esp_err_t GET_CATALOG(httpd_req_t *request)
