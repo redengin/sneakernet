@@ -10,9 +10,6 @@ class SneakerNet {
 public:
     SneakerNet();
 
-    /// get the web-application path
-    std::filesystem::path getWebAppDir();
-
     typedef struct {
         std::string filename;
         // std::filesystem::file_time_type timestamp;

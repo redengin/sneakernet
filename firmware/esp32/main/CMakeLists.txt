@@ -6,4 +6,10 @@ idf_component_register(
        "sneakernet/WebServer.cpp"
     EMBED_TXTFILES
         "welcome.html"
+        "app/index.html"
+        "app/main.js"
+        "app/polyfills.js"
+        "app/styles.css"
+    EMBED_FILES
+        "app/favicon.ico"
 )
