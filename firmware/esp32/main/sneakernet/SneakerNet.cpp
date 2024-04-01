@@ -87,6 +87,9 @@ void SneakerNet::mount_sdcard()
     sdmmc_card_print_info(stdout, pCard);
 }
 
+std::filesystem::path SneakerNet::getWebAppDir() {
+    return std::filesystem::path(MOUNT_DIR)/"app";
+}
 
 std::vector<SneakerNet::content_t> SneakerNet::contents()
 {

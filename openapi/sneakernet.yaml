@@ -111,10 +111,10 @@ paths:
               schema:
                 type: object
                 required:
-                  - filename
+                  - hardware
                   - version
                 properties:
-                  filename:
+                  hardware:
                     type: string
                   version:
                     type: string

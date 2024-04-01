@@ -192,7 +192,7 @@ void dns_server_task(void *pvParameters)
 
         while (1) {
             ESP_LOGI(TAG, "Waiting for data");
-            struct sockaddr_in6 source_addr; // Large enough for both IPv4 or IPv6
+            struct sockaddr_in source_addr; // Large enough for both IPv4 or IPv6
             socklen_t socklen = sizeof(source_addr);
             char rx_buffer[128];
             int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
@@ -206,10 +206,10 @@ void dns_server_task(void *pvParameters)
             // Data received
             else {
                 // Get the sender's ip address as string
-                if (source_addr.sin6_family == PF_INET) {
+                if (source_addr.sin_family == PF_INET) {
                     inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr.s_addr, addr_str, sizeof(addr_str) - 1);
-                } else if (source_addr.sin6_family == PF_INET6) {
-                    inet6_ntoa_r(source_addr.sin6_addr, addr_str, sizeof(addr_str) - 1);
+                } else if (source_addr.sin_family == PF_INET6) {
+                    inet_ntoa_r(source_addr.sin_addr, addr_str, sizeof(addr_str) - 1);
                 }
 
                 // Null-terminate whatever we received and treat like a string...

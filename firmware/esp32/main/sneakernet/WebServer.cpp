@@ -24,7 +24,7 @@ extern "C" esp_err_t GET_CATALOG_FILE(httpd_req_t *req);
 extern "C" esp_err_t PUT_CATALOG_FILE(httpd_req_t *req);
 extern "C" esp_err_t DELETE_CATALOG_FILE(httpd_req_t *req);
 static const std::string FIRMWARE_URI("/api/firmware");
-extern "C" esp_err_t GET_FIRMWARE(httpd_req_t *req);
+extern "C" esp_err_t GET_FIRMWARE_VERSION(httpd_req_t *req);
 extern "C" esp_err_t PUT_FIRMWARE(httpd_req_t *req);
 
 constexpr char ISO_8601_FORMAT[] = "%FT%T";
@@ -32,7 +32,7 @@ constexpr char ISO_8601_FORMAT[] = "%FT%T";
 // TODO increase size for efficiency (window size:5744)
 static constexpr size_t CHUNK_SZ = 1048;
 
-// FIXME this code is not secure
+// FIXME this code is not secure - should stop at length
 //--------------------------------------------------------------------------------
 static char httpTokenDecode(const char* const token, size_t& nextTokenOffset)
 {
@@ -57,6 +57,7 @@ static char httpTokenDecode(const char* const token, size_t& nextTokenOffset)
         }
     }
 }
+//--------------------------------------------------------------------------------
 static std::string getFilename(const char* const url)
 {
     std::string ret;
@@ -78,7 +79,27 @@ static std::string httpDecode(const char* const url)
         ret += httpTokenDecode(url+tokenOffset, tokenOffset);
     return ret;
 }
-//--------------------------------------------------------------------------------
+
+static bool isValidContentName(const std::string &filename)
+{
+    // make sure it's only a name (no path)
+    return filename.find(std::filesystem::path::preferred_separator) == filename.npos;
+}
+
+static esp_err_t httpSendData(httpd_req_t *request, std::ifstream& fis, std::unique_ptr<char[]>& buf) 
+{
+    while (true)
+    {
+        const size_t chunk_sz = fis.readsome(buf.get(), CHUNK_SZ);
+        if (ESP_OK != httpd_resp_send_chunk(request, buf.get(), chunk_sz))
+        {
+            ESP_LOGW(TAG, "failed to send file");
+            return ESP_FAIL;
+        }
+        if (chunk_sz == 0)
+            return ESP_OK;
+    }
+}
 
 WebServer::WebServer(SneakerNet &sneakernet)
     : sneakernet(sneakernet)
@@ -93,6 +114,7 @@ WebServer::WebServer(SneakerNet &sneakernet)
 
     // Start the http server
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.max_uri_handlers = 10;
     config.max_open_sockets = 13;
     config.uri_match_fn = httpd_uri_match_wildcard;
     config.stack_size = 6 * 1024; // increase stack size
@@ -179,7 +201,7 @@ WebServer::WebServer(SneakerNet &sneakernet)
         httpd_uri_t hook = {
             .uri = FIRMWARE_URI.c_str(),
             .method = HTTP_GET,
-            .handler = GET_FIRMWARE,
+            .handler = GET_FIRMWARE_VERSION,
             .user_ctx = self,
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
@@ -224,6 +246,10 @@ esp_err_t http_redirect(httpd_req_t *request, httpd_err_code_t err)
 esp_err_t APP_INDEX(httpd_req_t *request)
 {
     // FIXME serve from filesystem
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
+    const std::filesystem::path appPath = self->sneakernet.getWebAppDir();
+    auto ifs = std::ifstream(appPath/"index.html", std::ios_base::in | std::ios_base::binary);
+
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 }
 
@@ -292,12 +318,6 @@ esp_err_t GET_CATALOG(httpd_req_t *request)
     return ESP_OK;
 }
 
-static bool isValidContentName(const std::string &filename)
-{
-    // make sure it's only a name (no path)
-    return filename.find(std::filesystem::path::preferred_separator) == filename.npos;
-}
-
 esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
@@ -324,17 +344,7 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
     httpd_resp_set_hdr(request, "X-FileTimestamp", timestamp);
 
     httpd_resp_set_type(request, "application/octet-stream");
-    while (true)
-    {
-        const size_t chunk_sz = fis.readsome(buf.get(), CHUNK_SZ);
-        if (ESP_OK != httpd_resp_send_chunk(request, buf.get(), chunk_sz))
-        {
-            ESP_LOGW(TAG, "failed to send file");
-            return ESP_FAIL;
-        }
-        if (chunk_sz == 0)
-            return ESP_OK;
-    }
+    return httpSendData(request, fis, buf);
 }
 
 esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
@@ -424,7 +434,7 @@ esp_err_t DELETE_CATALOG_FILE(httpd_req_t *request)
         return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "illegal filename");
 }
 
-esp_err_t GET_FIRMWARE(httpd_req_t *request)
+esp_err_t GET_FIRMWARE_VERSION(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
@@ -433,7 +443,7 @@ esp_err_t GET_FIRMWARE(httpd_req_t *request)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
 
-    cJSON_AddStringToObject(item, "filename", "esp32-sneakernet.bin");
+    cJSON_AddStringToObject(item, "hardware", "esp32");
     cJSON_AddStringToObject(item, "version", self->sneakernet.pVersion);
     char *const response = cJSON_PrintUnformatted(item);
     cJSON_Delete(item);
