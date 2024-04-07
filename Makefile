@@ -8,17 +8,34 @@ GID ?= $(shell id -g)
 DOCKER_USER = ${UID}:${GID}
 DOCKER_COMPOSE ?= docker compose
 
-.PHONY: angular-shell
-angular-shell:
-	DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm angular \
-		sh
-
 .PHONY: angular-serve
 angular-serve:
-	DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm --service-ports --workdir /angular/sneakernet angular \
-		ng serve
+	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+		--service-ports \
+		--volume $(abspath angular/sneakernet):/angular \
+		--env \
+			HOME=/angular \
+		--workdir /angular \
+			angular \
+	ng serve
 
 .PHONY: angular-build
 angular-build:
-	DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm --service-ports --workdir /angular/sneakernet angular \
-    ng build --deploy-url "/app" --output-hashing none
+	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+		--volume $(abspath angular/sneakernet):/angular \
+		--env \
+			HOME=/angular \
+		--workdir /angular \
+			angular \
+    ng build --deploy-url "/app/" --output-hashing none
+
+.PHONY: angular-shell
+angular-shell:
+	DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+		--volume $(abspath angular/sneakernet):/angular \
+		--env \
+			HOME=/angular \
+		--workdir /angular \
+			angular \
+	sh
+

@@ -1,11 +1,8 @@
 services:
   angular:
     build:
-      dockerfile: tools/Dokcer/angular/Dockerfile
+      dockerfile: tools/Docker/angular/Dockerfile
     network_mode: host
     ports:
       - 4200:4200
-    volumes:
-      - ./angular:/angular
-    working_dir: /angular
     user: ${DOCKER_USER:? (to fix) export DOCKER_USER="$(id -u):$(id -g)")}
