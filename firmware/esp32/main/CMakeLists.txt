@@ -4,12 +4,11 @@ idf_component_register(
        "dns_server.c"
        "sneakernet/SneakerNet.cpp"
        "sneakernet/WebServer.cpp"
-    EMBED_TXTFILES
+    EMBED_FILES
         "welcome.html"
+        "app/favicon.ico"
         "app/index.html"
         "app/main.js"
         "app/polyfills.js"
         "app/styles.css"
-    EMBED_FILES
-        "app/favicon.ico"
 )

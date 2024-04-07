@@ -247,6 +247,7 @@ extern "C" const char appIndexHtml_start[] asm("_binary_index_html_start");
 extern "C" const char appIndexHtml_end[] asm("_binary_index_html_end");
 esp_err_t APP_INDEX(httpd_req_t *request)
 {
+    ESP_LOGI(TAG, "Serving /app/index.html");
     const size_t sz = appIndexHtml_end - appIndexHtml_start;
     // tell the browser to only cache the files for atmost one hour
     httpd_resp_set_hdr(request, "Cache-Control", "max-age=3600");
@@ -265,9 +266,10 @@ extern "C" const char styles_css_start[] asm("_binary_styles_css_start");
 extern "C" const char styles_css_end[] asm("_binary_styles_css_end");
 esp_err_t GET_APP_FILE(httpd_req_t *request)
 {
-    // tell the browser to only cache the files for atmost one hour
-    httpd_resp_set_hdr(request, "Cache-Control", "max-age=3600");
+    // tell the browser to only cache the files for at most 10 minutes
+    httpd_resp_set_hdr(request, "Cache-Control", "max-age=600");
     const std::string filename = getFilename(request->uri + APP_FILE_URI.size() - sizeof('*'));
+    ESP_LOGI(TAG, "Serving /app/%s", filename.c_str());
     if(filename.compare("favicon.ico") == 0)
     {
         const size_t sz = favicon_end - favicon_start;
@@ -286,7 +288,7 @@ esp_err_t GET_APP_FILE(httpd_req_t *request)
         httpd_resp_set_type(request, "text/javascript");
         return httpd_resp_send(request, main_js_start, sz);
     }
-    if(filename.compare("pollyfills.js") == 0)
+    if(filename.compare("polyfills.js") == 0)
     {
         const size_t sz = polyfills_js_end - polyfills_js_start;
         httpd_resp_set_type(request, "text/javascript");
