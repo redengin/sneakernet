@@ -1,15 +1,41 @@
-<mat-toolbar class="title-toolbar">
+<mat-toolbar color="primary">
   <mat-toolbar-row>
-    <mat-icon fontIcon="home"></mat-icon>
+    <mat-icon>home</mat-icon>
     <span>{{ title }}</span>
+    <span class="spacer"></span>
   </mat-toolbar-row>
 </mat-toolbar>
+<input #fileSelect type="file" class="file-input" (change)="upload($event)"/>
 
+<div style="padding:10%;">
+  <mat-card style="max-width:400px;">
+    <mat-card-header>Nothing here yet...</mat-card-header>
+    <mat-card-content>Leave some files for the next person...</mat-card-content>
+    <mat-card-actions>
+      <span class="spacer"></span>
+      <mat-icon (click)="fileSelect.click()">attach_file</mat-icon>
+    </mat-card-actions>
+  </mat-card>
+</div>
 
+<div style="margin-bottom: 50px;">
 <mat-list role="list">
-  <mat-list-item role="listitem" *ngFor="let entry of getCatalog() | async as SneakerNetFile;">
-    <a href="catalog/{{entry.filename}}">{{entry.filename}}</a>
-    <!-- ({{entry.size}}) -->
-    <mat-icon fontIcon="delete" (click)="delete(entry.filename)"></mat-icon>
+  <!-- <mat-list-item role="listitem" *ngFor="let entry of getCatalog() | async as SneakerNetFile;"> -->
+  <mat-list-item role="listitem" *ngFor="let entry of catalog;">
+      <a href="catalog/{{entry.filename}}">{{entry.filename}}</a>
+      <mat-icon (click)="delete(entry.filename)" style="float:right;">delete</mat-icon>
   </mat-list-item>
 </mat-list>
+</div>
+
+<button mat-fab color="primary" (click)="fileSelect.click()" class="fab">
+  <mat-icon>attach_file</mat-icon>
+</button>
+
+<div class="progress">
+  <mat-progress-bar class="progress-bar" mode="determinate"
+                    [value]="uploadProgress" *ngIf="uploadProgress">
+  </mat-progress-bar>
+  <mat-icon class="cancel-upload" (click)="cancelUpload()" 
+            *ngIf="uploadProgress">delete_forever</mat-icon>
+</div>

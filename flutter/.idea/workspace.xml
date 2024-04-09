@@ -9,11 +9,12 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="cleaning up gradle (kotlin version complaints)">
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="removing ios support">
+      <change beforePath="$PROJECT_DIR$/../Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pages/settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/settings.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -420,7 +421,15 @@
       <option name="project" value="LOCAL" />
       <updated>1711417496073</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="removing ios support">
+      <option name="closed" value="true" />
+      <created>1711417777827</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1711417777827</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -435,7 +444,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="code complete for sync (now needs testing)" />
     <MESSAGE value="working book icons" />
     <MESSAGE value="code complete" />
     <MESSAGE value="working firmware update" />
@@ -460,6 +468,7 @@
     <MESSAGE value="fixing timestamps" />
     <MESSAGE value="setting firmware" />
     <MESSAGE value="cleaning up gradle (kotlin version complaints)" />
-    <option name="LAST_COMMIT_MESSAGE" value="cleaning up gradle (kotlin version complaints)" />
+    <MESSAGE value="removing ios support" />
+    <option name="LAST_COMMIT_MESSAGE" value="removing ios support" />
   </component>
 </project>

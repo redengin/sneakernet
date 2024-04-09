@@ -36,7 +36,7 @@ class SneakerNet {
       case "esp32-sneakernet.bin":
 
         /// TODO update each time new esp32 firmware is added as an asset
-        final esp32FirmwareVersion = Version.parse("0.1.1");
+        final esp32FirmwareVersion = Version.parse("1.0.0");
         if (esp32FirmwareVersion > Version.parse(remoteFirmware.version)) {
           newFirmwareData =
               await rootBundle.load('firmware/esp32-sneakernet.bin');
