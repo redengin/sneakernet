@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {OnInit} from '@angular/core'; 
 
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
@@ -9,9 +10,9 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {NgFor} from '@angular/common'; 
 
-import {HttpClient, HttpClientModule, HttpParams} from '@angular/common/http';
-import {tap} from 'rxjs/operators';
-import {Observable, Subscription, finalize, lastValueFrom } from 'rxjs';
+import {HttpClientModule, HttpClient, HttpParams, HttpEvent, HttpEventType, HttpUploadProgressEvent} from '@angular/common/http';
+import {repeat, map} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
 import {CommonModule} from '@angular/common';
 
 @Component({
@@ -19,6 +20,8 @@ import {CommonModule} from '@angular/common';
   standalone: true,
   imports: [
       CommonModule,
+      HttpClientModule,
+      NgFor,
       MatToolbarModule,
       MatIconModule,
       MatButtonModule,
@@ -26,35 +29,37 @@ import {CommonModule} from '@angular/common';
       MatCardModule,
       MatDialogModule,
       MatProgressBarModule,
-      HttpClientModule,
-      NgFor,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'SneakerNet';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  // FIXME - test use only
-  catalog = [
-    {'filename': 'test1'},
-    {'filename': 'test2'},
-    {'filename': 'test3'},
-    {'filename': 'test4'},
-  ]
-
-  getCatalog() : Observable<SneakerNetFile[]> {
-    return this.http.get<SneakerNetFile[]>('/catalog', {responseType:'json'});
-  }
-
-  delete(filename: string)
+  catalog: SneakerNetFile[] = [
+    // FIXME - test use only
+    {'filename': 'test1', 'timestamp': "none", size: 0},
+  ];
+  ngOnInit()
   {
-    this.http.delete('/catalog/' + filename);
+    this.http.get<SneakerNetFile[]>('/catalog')
+        .pipe(
+          repeat({delay:30000}) // refresh once a minute
+        )
+        .subscribe(body => this.catalog = body);
   }
 
-  uploadSub: Subscription | undefined;
+  delete(catalogIndex: number)
+  {
+    this.http.delete(`/catalog/${this.catalog[catalogIndex].filename}`)
+        .subscribe();
+    this.catalog.splice(catalogIndex, 1);
+  }
+
+  uploadSub !: Subscription;
+  uploadProgress: number = 0;
   upload(event : Event) {
     const fileSelect = event.target as HTMLInputElement;
     const file = fileSelect.files ? fileSelect.files[0] : null;
@@ -66,13 +71,20 @@ export class AppComponent {
         file.arrayBuffer,
         { params:new HttpParams().set('timestamp', timestamp),
           reportProgress:true,
-        });
+        })
+        .pipe(
+            map(eventObject => {
+              const event = eventObject as HttpEvent<any>;
+              switch(event.type) {
+                  case HttpEventType.UploadProgress:
+                      this.uploadProgress = event.total ? Math.round(100 * event.loaded / event.total) : 0;
+                  return;
+              }
+            })
+        );
+      this.uploadSub = upload.subscribe();
     }
   }
-  uploadProgress: number | undefined;
-  // updateProgress(message)
-  // {
-  // }
   cancelUpload() {
     this.uploadSub?.unsubscribe();
   }
