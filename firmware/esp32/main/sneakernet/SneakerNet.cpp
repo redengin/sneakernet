@@ -14,6 +14,7 @@ constexpr char MOUNT_DIR[] = "/sdcard";
 constexpr char INWORK_SUFFIX[] = ".inwork";
 
 SneakerNet::SneakerNet()
+    : mountPath(std::filesystem::path(MOUNT_DIR))
 {
     const esp_app_desc_t* const pDesc = esp_app_get_description();
     pVersion = pDesc->version;
@@ -26,10 +27,10 @@ SneakerNet::SneakerNet()
     // for(const std::filesystem::directory_entry entry : std::filesystem::directory_iterator(MOUNT_DIR))
 // Workaround - use C iterator
     DIR *dfd = opendir(MOUNT_DIR);
-    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+    // const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
     for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
         // transmute pEntry into a directory entry
-        std::filesystem::directory_entry entry(path/(pEntry->d_name));
+        std::filesystem::directory_entry entry(mountPath/(pEntry->d_name));
         // ignore directories
         if(entry.is_directory()) continue;
         // remove aborted work

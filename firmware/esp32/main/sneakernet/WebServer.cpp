@@ -256,55 +256,26 @@ esp_err_t APP_INDEX(httpd_req_t *request)
 }
 
 // App GET handler
-extern "C" const char favicon_start[] asm("_binary_favicon_ico_start");
-extern "C" const char favicon_end[] asm("_binary_favicon_ico_end");
-extern "C" const char main_js_start[] asm("_binary_main_js_start");
-extern "C" const char main_js_end[] asm("_binary_main_js_end");
-extern "C" const char polyfills_js_start[] asm("_binary_polyfills_js_start");
-extern "C" const char polyfills_js_end[] asm("_binary_polyfills_js_end");
-extern "C" const char styles_css_start[] asm("_binary_styles_css_start");
-extern "C" const char styles_css_end[] asm("_binary_styles_css_end");
 esp_err_t GET_APP_FILE(httpd_req_t *request)
 {
+    WebServer* const self = static_cast<WebServer *>(request->user_ctx);
+
     // tell the browser to only cache the files for at most 10 minutes
     httpd_resp_set_hdr(request, "Cache-Control", "max-age=600");
     const std::string filename = getFilename(request->uri + APP_FILE_URI.size() - sizeof('*'));
     ESP_LOGI(TAG, "Serving /app/%s", filename.c_str());
-    if(filename.compare("favicon.ico") == 0)
-    {
-        const size_t sz = favicon_end - favicon_start;
-        httpd_resp_set_type(request, "image/vnd.microsoft.icon");
-        return httpd_resp_send(request, favicon_start, sz);
-    }
-    if(filename.compare("index.html") == 0)
-    {
-        const size_t sz = appIndexHtml_end - appIndexHtml_start;
-        httpd_resp_set_type(request, "text/html");
-        return httpd_resp_send(request, appIndexHtml_start, sz);
-    }
-    if(filename.compare("main.js") == 0)
-    {
-        const size_t sz = main_js_end - main_js_start;
-        httpd_resp_set_type(request, "text/javascript");
-        return httpd_resp_send(request, main_js_start, sz);
-    }
-    if(filename.compare("polyfills.js") == 0)
-    {
-        const size_t sz = polyfills_js_end - polyfills_js_start;
-        httpd_resp_set_type(request, "text/javascript");
-        return httpd_resp_send(request, polyfills_js_start, sz);
-    }
-    if(filename.compare("styles.css") == 0)
-    {
-        const size_t sz = styles_css_end - styles_css_start;
-        httpd_resp_set_type(request, "text/css");
-        return httpd_resp_send(request, styles_css_start, sz);
-    }
 
-    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+    std::unique_ptr<char[]> buf(new char[CHUNK_SZ]);
+    if (!buf)
+        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
+
+    std::ifstream fis = std::ifstream(self->sneakernet.mountPath/"app"/filename, std::ios_base::in | std::ios_base::binary);
+    if (false == fis.is_open())
+        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+    return httpSendData(request, fis, buf);
 }
-
-
 
 /// JSON listing of content
 esp_err_t GET_CATALOG(httpd_req_t *request)

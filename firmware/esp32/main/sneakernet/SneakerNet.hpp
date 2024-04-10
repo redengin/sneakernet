@@ -42,6 +42,9 @@ public:
     /// firmware version
     const char* pVersion;
 
+    // mount point
+    std::filesystem::path mountPath;
+
 private:
     sdmmc_card_t *pCard;
     void mount_sdcard();
