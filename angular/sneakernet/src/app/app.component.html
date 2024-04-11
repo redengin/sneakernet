@@ -1,41 +1,33 @@
-<mat-toolbar color="primary">
-  <mat-toolbar-row>
-    <mat-icon fontSet="material-symbols-outlined"><!--footprint--></mat-icon>
-    <span>{{ title }}</span>
-    <span class="spacer"></span>
-  </mat-toolbar-row>
-</mat-toolbar>
+<div id="toolbar">
+  <span class="material-symbols-outlined">footprint</span>
+  {{ title }}
+</div>
 <input #fileSelect type="file" class="file-input" (change)="upload($event)"/>
 
-<div *ngIf="catalog.length == 0" style="padding:10%;">
-  <mat-card style="max-width:400px;">
-    <mat-card-header>Nothing here yet...</mat-card-header>
-    <mat-card-content>Leave some files for the next person...</mat-card-content>
-    <mat-card-actions>
-      <span class="spacer"></span>
-      <mat-icon (click)="fileSelect.click()">attach_file</mat-icon>
-    </mat-card-actions>
-  </mat-card>
+<div id="noContentDialog" *ngIf="catalog.length == 0" style="padding:10%;">
+  <h3>Nothing here yet</h3>
+  Leave some files for the next person...
+  <div class="container">
+    <span class="spacer"></span>
+    <span class="material-symbols-outlined" (click)="fileSelect.click()">attach_file</span>
+  </div>
 </div>
 
-<div style="margin-bottom: 50px;">
-<mat-list role="list">
-  <mat-list-item role="listitem" *ngFor="let entry of catalog; index as i">
+<div id="catalog" style="margin-bottom: 50px;">
+  <div class="container catalogItem" *ngFor="let entry of catalog; index as i">
       <a href="catalog/{{entry.filename}}">{{entry.filename}}</a>
-      <mat-icon (click)="delete(i)" style="float:right;">delete</mat-icon>
-  </mat-list-item>
-</mat-list>
+      <span class="spacer"></span>
+      <span class="material-symbols-outlined" (click)="delete(i)">delete</span>
+  </div>
 </div>
 
-<button mat-fab color="primary" (click)="fileSelect.click()" class="fab">
-  <mat-icon>attach_file</mat-icon>
-</button>
+<span class="fab material-symbols-outlined" (click)="fileSelect.click()">attach_file</span>
 
-<div class="progress" *ngIf="uploadProgress > 0">
+<!-- <div class="progress" *ngIf="uploadProgress > 0">
   <mat-progress-bar class="progress-bar" mode="determinate"
                     [value]="uploadProgress">
   </mat-progress-bar>
   <mat-icon class="cancel-upload" (click)="cancelUpload()">
     delete_forever
   </mat-icon>
-</div>
+</div> -->

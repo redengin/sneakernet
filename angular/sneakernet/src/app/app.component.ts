@@ -1,32 +1,29 @@
-import {Component} from '@angular/core';
-import {OnInit} from '@angular/core'; 
+import {Component, OnInit} from '@angular/core';
+import {NgFor,NgIf} from '@angular/common'; 
 
-import {MatToolbarModule} from '@angular/material/toolbar';
-import {MatIconModule} from '@angular/material/icon';
-import {MatButtonModule} from '@angular/material/button';
-import {MatListModule} from '@angular/material/list'; 
-import {MatCardModule} from '@angular/material/card';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {NgFor} from '@angular/common'; 
+// import {MatToolbarModule} from '@angular/material/toolbar';
+// import {MatIconModule} from '@angular/material/icon';
+// import {MatButtonModule} from '@angular/material/button';
+// import {MatListModule} from '@angular/material/list'; 
+// import {MatCardModule} from '@angular/material/card';
+// import {MatProgressBarModule} from '@angular/material/progress-bar';
 
-import {HttpClientModule, HttpClient, HttpParams, HttpEvent, HttpEventType, HttpUploadProgressEvent} from '@angular/common/http';
+import {HttpClientModule, HttpClient, HttpParams, HttpEvent, HttpEventType} from '@angular/common/http';
 import {repeat, map} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
-import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-      CommonModule,
       HttpClientModule,
-      NgFor,
-      MatToolbarModule,
-      MatIconModule,
-      MatButtonModule,
-      MatListModule,
-      MatCardModule,
-      MatProgressBarModule,
+      NgFor, NgIf,
+      // MatToolbarModule,
+      // MatIconModule,
+      // MatButtonModule,
+      // MatListModule,
+      // MatCardModule,
+      // MatProgressBarModule,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -38,7 +35,8 @@ export class AppComponent implements OnInit {
 
   catalog: SneakerNetFile[] = [
     // FIXME - test use only
-    {'filename': 'test1', 'timestamp': "none", size: 0},
+    // {'filename': 'test1', 'timestamp': "none", size: 0},
+    // {'filename': 'very long file name that just doesnt end test1', 'timestamp': "none", size: 0},
   ];
   ngOnInit()
   {
