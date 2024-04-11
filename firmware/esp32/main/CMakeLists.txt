@@ -11,6 +11,4 @@ idf_component_register(
         "app/main.js"
         "app/polyfills.js"
         "app/styles.css"
-        # "app/chunk-IGQZRBJ4.js"
-        # "app/chunk-2DZBRAUX.js"
 )
