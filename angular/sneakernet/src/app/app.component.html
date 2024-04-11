@@ -1,5 +1,5 @@
 <div id="toolbar">
-  <span class="material-symbols-outlined">footprint</span>
+  <img src="assets/footprint.svg"/>
   {{ title }}
 </div>
 <input #fileSelect type="file" class="file-input" (change)="upload($event)"/>
@@ -9,7 +9,7 @@
   Leave some files for the next person...
   <div class="container">
     <span class="spacer"></span>
-    <span class="material-symbols-outlined" (click)="fileSelect.click()">attach_file</span>
+    <img src="assets/attach_file.svg" (click)="fileSelect.click()"/>
   </div>
 </div>
 
@@ -17,11 +17,11 @@
   <div class="container catalogItem" *ngFor="let entry of catalog; index as i">
       <a href="catalog/{{entry.filename}}">{{entry.filename}}</a>
       <span class="spacer"></span>
-      <span class="material-symbols-outlined" (click)="delete(i)">delete</span>
+      <img src="assets/delete.svg" (click)="delete(i)"/>
   </div>
 </div>
 
-<span class="fab material-symbols-outlined" (click)="fileSelect.click()">attach_file</span>
+<img class="fab" src="assets/attach_file.svg" (click)="fileSelect.click()"/>
 
 <!-- <div class="progress" *ngIf="uploadProgress > 0">
   <mat-progress-bar class="progress-bar" mode="determinate"

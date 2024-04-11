@@ -11,4 +11,7 @@ idf_component_register(
         "app/main.js"
         "app/polyfills.js"
         "app/styles.css"
+        "app/assets/attach_file.svg"
+        "app/assets/delete.svg"
+        "app/assets/footprint.svg"
 )

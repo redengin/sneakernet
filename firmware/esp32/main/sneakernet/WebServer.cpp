@@ -264,6 +264,12 @@ extern "C" const char polyfills_js_start[] asm("_binary_polyfills_js_start");
 extern "C" const char polyfills_js_end[] asm("_binary_polyfills_js_end");
 extern "C" const char styles_css_start[] asm("_binary_styles_css_start");
 extern "C" const char styles_css_end[] asm("_binary_styles_css_end");
+extern "C" const char attach_file_svg_start[] asm("_binary_attach_file_svg_start");
+extern "C" const char attach_file_svg_end[] asm("_binary_attach_file_svg_end");
+extern "C" const char delete_svg_start[] asm("_binary_delete_svg_start");
+extern "C" const char delete_svg_end[] asm("_binary_delete_svg_end");
+extern "C" const char footprint_svg_start[] asm("_binary_footprint_svg_start");
+extern "C" const char footprint_svg_end[] asm("_binary_footprint_svg_end");
 esp_err_t GET_APP_FILE(httpd_req_t *request)
 {
     // tell the browser to only cache the files for at most one hour
@@ -300,6 +306,24 @@ esp_err_t GET_APP_FILE(httpd_req_t *request)
         const size_t sz = styles_css_end - styles_css_start;
         httpd_resp_set_type(request, "text/css");
         return httpd_resp_send(request, styles_css_start, sz);
+    }
+    if(filename.compare("assets/attach_file.svg") == 0)
+    {
+        const size_t sz = attach_file_svg_end - attach_file_svg_start;
+        httpd_resp_set_type(request, "image/svg+xml");
+        return httpd_resp_send(request, attach_file_svg_start, sz);
+    }
+    if(filename.compare("assets/delete.svg") == 0)
+    {
+        const size_t sz = delete_svg_end - delete_svg_start;
+        httpd_resp_set_type(request, "image/svg+xml");
+        return httpd_resp_send(request, delete_svg_start, sz);
+    }
+    if(filename.compare("assets/footprint.svg") == 0)
+    {
+        const size_t sz = footprint_svg_end - footprint_svg_start;
+        httpd_resp_set_type(request, "image/svg+xml");
+        return httpd_resp_send(request, footprint_svg_start, sz);
     }
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 }
