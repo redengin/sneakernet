@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
   {
     this.http.get<SneakerNetFile[]>('/api/catalog')
         .pipe(
-          repeat({delay:30000}), // refresh once a minute
+          repeat({delay:10000}), // refresh every 10 seconds
           retry({delay:1000})
         )
         .subscribe(body => this.catalog = body);
@@ -65,7 +65,7 @@ export class AppComponent implements OnInit {
               switch(event.type) {
                   case HttpEventType.UploadProgress:
                       this.uploadProgress = event.total ? Math.round(100 * event.loaded / event.total) : 0;
-                  return;
+                      return;
               }
             })
         );
