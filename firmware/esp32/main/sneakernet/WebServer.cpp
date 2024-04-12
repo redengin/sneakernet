@@ -7,7 +7,7 @@ static constexpr char TAG[] = "webserver";
 #include <cJSON.h>
 #include <filesystem>
 
-// static content
+// static uri
 static const std::string INDEX_URI("/");
 extern "C" esp_err_t INDEX(httpd_req_t *);
 extern "C" esp_err_t http_redirect(httpd_req_t *req, httpd_err_code_t err);
@@ -15,8 +15,11 @@ static const std::string APP_URI("/app");
 extern "C" esp_err_t APP_INDEX(httpd_req_t *req);
 static const std::string APP_FILE_URI(APP_URI + "/*");
 extern "C" esp_err_t GET_APP_FILE(httpd_req_t *req);
+static const std::string APK_URI("/apk/*");
+extern "C" esp_err_t GET_APK(httpd_req_t *req);
 
-// REST API
+
+// REST API uri
 static const std::string CATALOG_URI("/api/catalog");
 extern "C" esp_err_t GET_CATALOG(httpd_req_t *req);
 static const std::string CATALOG_FILE_URI(CATALOG_URI + "/*");
@@ -123,7 +126,7 @@ WebServer::WebServer(SneakerNet &sneakernet)
 
     // link our hooks back to our instance
     void *const self = this;
-    // support index homepage (and captive portal)
+// captive portal)
     {
         httpd_uri_t hook = {
             .uri = INDEX_URI.c_str(),
@@ -135,7 +138,7 @@ WebServer::WebServer(SneakerNet &sneakernet)
         // provide 404 redirect to support captive portal
         ESP_ERROR_CHECK(httpd_register_err_handler(handle, HTTPD_404_NOT_FOUND, http_redirect));
     }
-    // support angular app
+// web app
     {
         httpd_uri_t hook = {
             .uri = APP_URI.c_str(),
@@ -154,7 +157,17 @@ WebServer::WebServer(SneakerNet &sneakernet)
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
-    // CATALOG
+// apk
+    {
+        httpd_uri_t hook = {
+            .uri = APK_URI.c_str(),
+            .method = HTTP_GET,
+            .handler = GET_APK,
+            .user_ctx = self,
+        };
+        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
+    }
+// API
     // support catalog listing
     {
         httpd_uri_t hook = {
@@ -195,7 +208,7 @@ WebServer::WebServer(SneakerNet &sneakernet)
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
     }
-    // FIRMWARE
+// FIRMWARE
     // support firmware check
     {
         httpd_uri_t hook = {
@@ -223,7 +236,7 @@ extern "C" const char indexHtml_start[] asm("_binary_welcome_html_start");
 extern "C" const char indexHtml_end[] asm("_binary_welcome_html_end");
 esp_err_t INDEX(httpd_req_t *request)
 {
-    ESP_LOGI(TAG, "Serving index.html");
+    ESP_LOGI(TAG, "Serving welcome.html");
     // instruct the browser to only cache for at most 5 minutes
     httpd_resp_set_hdr(request, "Cache-Control", "max-age=300");
     httpd_resp_set_type(request, "text/html");
@@ -328,6 +341,29 @@ esp_err_t GET_APP_FILE(httpd_req_t *request)
     }
     ESP_LOGW(TAG, "File-not-found %s", request->uri);
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+}
+
+/// APK GET handler
+esp_err_t GET_APK(httpd_req_t *request)
+{
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
+
+    ESP_LOGI(TAG, "Serving apk file %s", request->uri);
+    const std::string filename = getFilename(request->uri + APK_URI.size() - sizeof('*'));
+    if (false == isValidContentName(filename))
+        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+    std::unique_ptr<char[]> buf(new char[CHUNK_SZ]);
+    if (!buf)
+        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
+        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
+
+    std::ifstream fis = std::ifstream(self->sneakernet.mountPath / "apk" / filename);
+    if (false == fis.is_open())
+        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+    httpd_resp_set_type(request, "application/octet-stream");
+    return httpSendData(request, fis, buf);
 }
 
 /// JSON listing of content
