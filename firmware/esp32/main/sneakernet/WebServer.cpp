@@ -224,9 +224,10 @@ extern "C" const char indexHtml_end[] asm("_binary_welcome_html_end");
 esp_err_t INDEX(httpd_req_t *request)
 {
     ESP_LOGI(TAG, "Serving index.html");
-    const size_t indexHtml_sz = indexHtml_end - indexHtml_start;
-    httpd_resp_set_hdr(request, "Cache-Control", "no-cache");
+    // instruct the browser to only cache for at most 5 minutes
+    httpd_resp_set_hdr(request, "Cache-Control", "max-age=300");
     httpd_resp_set_type(request, "text/html");
+    const size_t indexHtml_sz = indexHtml_end - indexHtml_start;
     return httpd_resp_send(request, indexHtml_start, indexHtml_sz);
 }
 
@@ -249,10 +250,10 @@ extern "C" const char appIndexHtml_end[] asm("_binary_index_html_end");
 esp_err_t APP_INDEX(httpd_req_t *request)
 {
     ESP_LOGI(TAG, "Serving /app/index.html");
-    const size_t sz = appIndexHtml_end - appIndexHtml_start;
-    // tell the browser to only cache the files for at most one hour
-    httpd_resp_set_hdr(request, "Cache-Control", "max-age=3600");
+    // instruct the browser to only cache for at most 5 minutes
+    httpd_resp_set_hdr(request, "Cache-Control", "max-age=300");
     httpd_resp_set_type(request, "text/html");
+    const size_t sz = appIndexHtml_end - appIndexHtml_start;
     return httpd_resp_send(request, appIndexHtml_start, sz);
 }
 
@@ -273,10 +274,9 @@ extern "C" const char footprint_svg_start[] asm("_binary_footprint_svg_start");
 extern "C" const char footprint_svg_end[] asm("_binary_footprint_svg_end");
 esp_err_t GET_APP_FILE(httpd_req_t *request)
 {
-    // tell the browser to only cache the files for at most one hour
-    httpd_resp_set_hdr(request, "Cache-Control", "max-age=3600");
-
     ESP_LOGI(TAG, "Serving %s", request->uri);
+    // instruct the browser to only cache for at most 5 minutes
+    httpd_resp_set_hdr(request, "Cache-Control", "max-age=300");
     const std::string filename = getFilename(request->uri + APP_FILE_URI.size() - sizeof('*'));
     if(filename.compare("favicon.ico") == 0)
     {
@@ -334,15 +334,12 @@ esp_err_t GET_APP_FILE(httpd_req_t *request)
 esp_err_t GET_CATALOG(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
-
-    ESP_LOGI(TAG, "Serving catalog");
     cJSON *const items = cJSON_CreateArray();
     if (!items)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, nullptr);
 
-    // TODO use an iterator pattern
-    const std::vector<SneakerNet::content_t> contents = self->sneakernet.contents();
+    std::vector<SneakerNet::content_t> contents = self->sneakernet.contents();
     for (const auto &content : contents)
     {
         cJSON *const item = cJSON_CreateObject();
@@ -357,7 +354,9 @@ esp_err_t GET_CATALOG(httpd_req_t *request)
     }
     char *const response = cJSON_PrintUnformatted(items);
     cJSON_Delete(items);
-    ESP_LOGI(TAG, "returning \n %s", response);
+    ESP_LOGI(TAG, "returning catalog\n %s", response);
+    // instruct the browser to only cache for at most 5 minutes
+    httpd_resp_set_hdr(request, "Cache-Control", "max-age=300");
     httpd_resp_set_type(request, "application/json");
     httpd_resp_send(request, response, strlen(response));
     cJSON_free(response);
