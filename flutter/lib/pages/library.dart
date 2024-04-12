@@ -50,7 +50,7 @@ class _LibraryPageState extends State<LibraryPage> {
               setState(() {});
             }),
         floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.add),
+          child: const Icon(Icons.attach_file),
           onPressed: () async {
             if (await library.import(FlutterFileDialog.pickFile())) {
               setState(() {});

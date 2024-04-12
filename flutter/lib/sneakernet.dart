@@ -32,9 +32,8 @@ class SneakerNet {
 
     // see if we have newer firmware
     ByteData? newFirmwareData;
-    switch (remoteFirmware.filename) {
-      case "esp32-sneakernet.bin":
-
+    switch (remoteFirmware.hardware) {
+      case "esp32":
         /// TODO update each time new esp32 firmware is added as an asset
         final esp32FirmwareVersion = Version.parse("1.0.0");
         if (esp32FirmwareVersion > Version.parse(remoteFirmware.version)) {
