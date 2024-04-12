@@ -13,26 +13,25 @@ Human Factors
         connectivity)
 * Relevance - users want locally relevant content
     * each SneakerNet node's content is maintained by local users - able to
-        add and remove content to maximize relevance (curating content)
+        add and remove content to maximize relevance (aka curation)
 
 Roles
 ================================================================================
-* **Author** - content creator
 * **Reader** - content consumer
-* **Courier** - content distributor/curator
+* **Curator** - removal of objectionable content from SneakerNet
+* **Node Maintainer** - update of the SneakerNet node software
 
-The mobile app unifies the **Reader** and **Courier** roles by automatically
-gathering and distributing content during the user's travels. Additionally, the
-mobile app updates SneakerNet nodes to the latest firmware revision.
-
-
-Content Management (Curating Content)
+Curator
 --------------------------------------------------------------------------------
-The content of each SneakerNet node is dynamic and curated by **couriers**.
+SneakerNet implementations ensure that every `reader` is able to take on the
+`curator` role by deleting objectionable content from the node they are
+connected to.
 
-**Couriers** are able to both **add** and **remove** content from a SneakerNet
-node. In this way, each SneakerNet node's content reflects the judgement of the
-**couriers** in its vicinity.
+By using the **mobile application**, the flagged content will be automatically
+removed upon connection to any SneakerNet node.
 
-Mobile app users can flag content for **automatic removal** to increase the
-efficiency of content curation.
+Node Maintainer
+--------------------------------------------------------------------------------
+The **mobile application** will automatically upgrade node's software upon
+connection.
+
