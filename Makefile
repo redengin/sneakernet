@@ -27,7 +27,7 @@ angular-build:
 			HOME=/angular \
 		--workdir /angular \
 			angular \
-    ng build --deploy-url "/app/"
+    ng build --base-href "/app/"
 
 .PHONY: angular-shell
 angular-shell:

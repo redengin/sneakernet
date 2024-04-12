@@ -233,6 +233,7 @@ esp_err_t INDEX(httpd_req_t *request)
 /// provides captive portal redirect
 esp_err_t http_redirect(httpd_req_t *request, httpd_err_code_t err)
 {
+    ESP_LOGI(TAG, "Serving 302 redirect");
     // Set status
     httpd_resp_set_status(request, "302 Temporary Redirect");
     // Redirect to the "/" root directory
@@ -275,8 +276,8 @@ esp_err_t GET_APP_FILE(httpd_req_t *request)
     // tell the browser to only cache the files for at most one hour
     httpd_resp_set_hdr(request, "Cache-Control", "max-age=3600");
 
+    ESP_LOGI(TAG, "Serving %s", request->uri);
     const std::string filename = getFilename(request->uri + APP_FILE_URI.size() - sizeof('*'));
-    ESP_LOGI(TAG, "Serving /app/%s", filename.c_str());
     if(filename.compare("favicon.ico") == 0)
     {
         const size_t sz = favicon_end - favicon_start;
@@ -325,6 +326,7 @@ esp_err_t GET_APP_FILE(httpd_req_t *request)
         httpd_resp_set_type(request, "image/svg+xml");
         return httpd_resp_send(request, footprint_svg_start, sz);
     }
+    ESP_LOGW(TAG, "File-not-found %s", request->uri);
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 }
 
@@ -333,6 +335,7 @@ esp_err_t GET_CATALOG(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
+    ESP_LOGI(TAG, "Serving catalog");
     cJSON *const items = cJSON_CreateArray();
     if (!items)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
@@ -366,6 +369,7 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
+    ESP_LOGI(TAG, "Serving catalog file %s", request->uri);
     const std::string filename = getFilename(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     if (false == isValidContentName(filename))
         return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
@@ -395,6 +399,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
+    ESP_LOGI(TAG, "PUT catalog file %s", request->uri);
     // require a valid filename
     const std::string filename = getFilename(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     if (false == isValidContentName(filename))
@@ -467,6 +472,8 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
 esp_err_t DELETE_CATALOG_FILE(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
+
+    ESP_LOGI(TAG, "DELETE catalog file %s", request->uri);
     const std::string filename = getFilename(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     if (isValidContentName(filename))
     {
@@ -482,6 +489,7 @@ esp_err_t GET_FIRMWARE_VERSION(httpd_req_t *request)
 {
     WebServer *const self = static_cast<WebServer *>(request->user_ctx);
 
+    ESP_LOGI(TAG, "Serving firmware version");
     cJSON *const item = cJSON_CreateObject();
     if (!item)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
@@ -500,6 +508,8 @@ esp_err_t GET_FIRMWARE_VERSION(httpd_req_t *request)
 
 esp_err_t PUT_FIRMWARE(httpd_req_t *request)
 {
+    ESP_LOGI(TAG, "PUT firmware");
+
     // validate there is data
     if (request->content_len <= 0)
         return httpd_resp_send_err(request, HTTPD_411_LENGTH_REQUIRED, "Length required");

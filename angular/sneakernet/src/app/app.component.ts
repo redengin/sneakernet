@@ -1,15 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {NgFor,NgIf} from '@angular/common'; 
 
-// import {MatToolbarModule} from '@angular/material/toolbar';
-// import {MatIconModule} from '@angular/material/icon';
-// import {MatButtonModule} from '@angular/material/button';
-// import {MatListModule} from '@angular/material/list'; 
-// import {MatCardModule} from '@angular/material/card';
 // import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 import {HttpClientModule, HttpClient, HttpParams, HttpEvent, HttpEventType} from '@angular/common/http';
-import {repeat, map} from 'rxjs/operators';
+import {repeat, map, retry} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
 
 @Component({
@@ -18,11 +13,6 @@ import {Subscription} from 'rxjs';
   imports: [
       HttpClientModule,
       NgFor, NgIf,
-      // MatToolbarModule,
-      // MatIconModule,
-      // MatButtonModule,
-      // MatListModule,
-      // MatCardModule,
       // MatProgressBarModule,
   ],
   templateUrl: './app.component.html',
@@ -40,16 +30,17 @@ export class AppComponent implements OnInit {
   ];
   ngOnInit()
   {
-    this.http.get<SneakerNetFile[]>('/catalog')
+    this.http.get<SneakerNetFile[]>('/api/catalog')
         .pipe(
-          repeat({delay:30000}) // refresh once a minute
+          repeat({delay:30000}), // refresh once a minute
+          retry({delay:1000})
         )
         .subscribe(body => this.catalog = body);
   }
 
   delete(catalogIndex: number)
   {
-    this.http.delete(`/catalog/${this.catalog[catalogIndex].filename}`)
+    this.http.delete(`/api/catalog/${this.catalog[catalogIndex].filename}`)
         .subscribe();
     this.catalog.splice(catalogIndex, 1);
   }
@@ -63,7 +54,7 @@ export class AppComponent implements OnInit {
     {
       const timestamp = new Date(file.lastModified).toISOString();
       const upload = this.http.put(
-        `/catalog/${file.name}`,
+        `/api/catalog/${file.name}`,
         file.arrayBuffer,
         { params:new HttpParams().set('timestamp', timestamp),
           reportProgress:true,
