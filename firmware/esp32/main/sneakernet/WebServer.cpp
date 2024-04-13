@@ -15,9 +15,6 @@ static const std::string APP_URI("/app");
 extern "C" esp_err_t APP_INDEX(httpd_req_t *req);
 static const std::string APP_FILE_URI(APP_URI + "/*");
 extern "C" esp_err_t GET_APP_FILE(httpd_req_t *req);
-static const std::string APK_URI("/apk/*");
-extern "C" esp_err_t GET_APK(httpd_req_t *req);
-
 
 // REST API uri
 static const std::string CATALOG_URI("/api/catalog");
@@ -153,16 +150,6 @@ WebServer::WebServer(SneakerNet &sneakernet)
             .uri = APP_FILE_URI.c_str(),
             .method = HTTP_GET,
             .handler = GET_APP_FILE,
-            .user_ctx = self,
-        };
-        ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
-    }
-// apk
-    {
-        httpd_uri_t hook = {
-            .uri = APK_URI.c_str(),
-            .method = HTTP_GET,
-            .handler = GET_APK,
             .user_ctx = self,
         };
         ESP_ERROR_CHECK(httpd_register_uri_handler(handle, &hook));
@@ -343,38 +330,16 @@ esp_err_t GET_APP_FILE(httpd_req_t *request)
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 }
 
-/// APK GET handler
-esp_err_t GET_APK(httpd_req_t *request)
-{
-    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
-
-    ESP_LOGI(TAG, "Serving apk file %s", request->uri);
-    const std::string filename = getFilename(request->uri + APK_URI.size() - sizeof('*'));
-    if (false == isValidContentName(filename))
-        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
-
-    std::unique_ptr<char[]> buf(new char[CHUNK_SZ]);
-    if (!buf)
-        // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
-        return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
-
-    std::ifstream fis = std::ifstream(self->sneakernet.mountPath / "apk" / filename);
-    if (false == fis.is_open())
-        return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
-
-    httpd_resp_set_type(request, "application/octet-stream");
-    return httpSendData(request, fis, buf);
-}
 
 /// JSON listing of content
 esp_err_t GET_CATALOG(httpd_req_t *request)
 {
-    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
     cJSON *const items = cJSON_CreateArray();
     if (!items)
         // FIXME httpd_err_code_t doesn't support 429 Too Many Requests
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, nullptr);
 
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
     std::vector<SneakerNet::content_t> contents = self->sneakernet.contents();
     for (const auto &content : contents)
     {
@@ -432,8 +397,6 @@ esp_err_t GET_CATALOG_FILE(httpd_req_t *request)
 
 esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
 {
-    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
-
     ESP_LOGI(TAG, "PUT catalog file %s", request->uri);
     // require a valid filename
     const std::string filename = getFilename(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
@@ -468,6 +431,7 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
     struct tm tm{};
     strptime(timestampString.c_str(), ISO_8601_FORMAT, &tm);
     const time_t timestamp = mktime(&tm);
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
     SneakerNet::InWorkContent content = self->sneakernet.newContent(filename, file_sz, timestamp);
     // receive the data
     esp_err_t ret = ESP_OK;
@@ -506,12 +470,11 @@ esp_err_t PUT_CATALOG_FILE(httpd_req_t *request)
 
 esp_err_t DELETE_CATALOG_FILE(httpd_req_t *request)
 {
-    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
-
     ESP_LOGI(TAG, "DELETE catalog file %s", request->uri);
     const std::string filename = getFilename(request->uri + CATALOG_FILE_URI.size() - sizeof('*'));
     if (isValidContentName(filename))
     {
+        WebServer *const self = static_cast<WebServer *>(request->user_ctx);
         self->sneakernet.removeContent(filename);
         // send an empty 200 response
         return httpd_resp_send(request, nullptr, 0);
@@ -522,8 +485,6 @@ esp_err_t DELETE_CATALOG_FILE(httpd_req_t *request)
 
 esp_err_t GET_FIRMWARE_VERSION(httpd_req_t *request)
 {
-    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
-
     ESP_LOGI(TAG, "Serving firmware version");
     cJSON *const item = cJSON_CreateObject();
     if (!item)
@@ -531,6 +492,7 @@ esp_err_t GET_FIRMWARE_VERSION(httpd_req_t *request)
         return httpd_resp_send_err(request, HTTPD_408_REQ_TIMEOUT, "Too many requests (try-again)");
 
     cJSON_AddStringToObject(item, "hardware", "esp32");
+    WebServer *const self = static_cast<WebServer *>(request->user_ctx);
     cJSON_AddStringToObject(item, "version", self->sneakernet.pVersion);
     char *const response = cJSON_PrintUnformatted(item);
     cJSON_Delete(item);
