@@ -5,4 +5,13 @@ services:
     network_mode: host
     ports:
       - 4200:4200
+
+  espressif-idf:
+    image: espressif/idf
     user: ${DOCKER_USER:? (to fix) export DOCKER_USER="$(id -u):$(id -g)")}
+    environment:
+      - HOME=/tmp/sneakernet
+    volumes:
+      - ~/keystore/:/tmp/sneakernet/keystore
+      - .:/tmp/sneakernet/
+    working_dir: /tmp/sneakernet/firmware/esp32

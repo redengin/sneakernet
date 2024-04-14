@@ -17,7 +17,7 @@ angular-serve:
 			HOME=/angular \
 		--workdir /angular \
 			angular \
-	ng serve
+	  ng serve
 
 .PHONY: angular-build
 angular-build:
@@ -27,7 +27,7 @@ angular-build:
 			HOME=/angular \
 		--workdir /angular \
 			angular \
-    ng build --base-href "/app/"
+      ng build --base-href "/app/"
 
 .PHONY: angular-shell
 angular-shell:
@@ -37,5 +37,33 @@ angular-shell:
 			HOME=/angular \
 		--workdir /angular \
 			angular \
-	sh
+	  sh
 
+.PHONY: sneakernet.esp32
+sneakernet.esp32:
+	@echo in work \(does nothing for now\)
+	# @DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+	# 		espressif-idf \
+	# 	// TODO flash bootloader and app
+
+
+.PHONY: firmware/esp32.build
+firmware/esp32.build: angular-build
+	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+			espressif-idf \
+	  idf.py build
+
+.PHONY: firmware/esp32.flash
+# firmware/esp32.flash: firmware/esp32.build
+firmware/esp32.flash:
+	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+		--volume /dev:/dev \
+			espressif-idf \
+		idf.py flash
+
+.PHONY: firmware/esp32.monitor
+firmware/esp32.monitor:
+	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+		--volume /dev:/dev \
+			espressif-idf \
+		idf.py monitor
