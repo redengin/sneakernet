@@ -19,6 +19,7 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage> {
+  // FIXME rebuild upon change of library.files()
   var files;
 
   @override
