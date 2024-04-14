@@ -5,7 +5,8 @@
 
 #include "dns_server.h"
 #include "sneakernet/SneakerNet.hpp"
-#include "sneakernet/WebServer.hpp"
+// FIXME
+// #include "sneakernet/WebServer.hpp"
 
 static void start_wifi_ap(void);
 
@@ -21,7 +22,8 @@ void app_main(void)
 
     // serve the content
     ESP_ERROR_CHECK(esp_netif_init());
-    static WebServer webserver(sneakerNet);
+// FIXME
+//    static WebServer webserver(sneakerNet);
     start_wifi_ap();
 
     // accept working firmware

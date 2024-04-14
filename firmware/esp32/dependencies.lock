@@ -1,0 +1,15 @@
+dependencies:
+  espressif/esp-idf-cxx:
+    component_hash: 2fa63e4e725f0c2d3dd6d99da8a91d404b4b49667088b1be0f336eb9c13ff17f
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.0.2-beta
+  idf:
+    component_hash: null
+    source:
+      type: idf
+    version: 5.3.0
+manifest_hash: b5c21fff0add05da46dd9b58736fbaacd3bf462a6da78eefc8c4054324d52217
+target: esp32
+version: 1.0.0

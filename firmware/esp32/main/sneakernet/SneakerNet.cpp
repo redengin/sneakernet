@@ -3,7 +3,6 @@
 #include <esp_app_desc.h>
 #include <sdmmc_cmd.h>
 #include <esp_log.h>
-#include <filesystem>
 #include <dirent.h> /* workaround for incomplete ESP32 filesystem support */
 #include <sys/stat.h>
 #include <utime.h>
@@ -14,7 +13,8 @@ constexpr char MOUNT_DIR[] = "/sdcard";
 constexpr char INWORK_SUFFIX[] = ".inwork";
 
 SneakerNet::SneakerNet()
-    : mountPath(std::filesystem::path(MOUNT_DIR))
+// FIXME
+//    : mountPath(std::filesystem::path(MOUNT_DIR))
 {
     const esp_app_desc_t* const pDesc = esp_app_get_description();
     pVersion = pDesc->version;
@@ -26,18 +26,19 @@ SneakerNet::SneakerNet()
 // FIXME ESP32 doesn't support directory_iterator (it's always empty)
     // for(const std::filesystem::directory_entry entry : std::filesystem::directory_iterator(MOUNT_DIR))
 // Workaround - use C iterator
-    DIR *dfd = opendir(MOUNT_DIR);
-    // const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
-    for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
-        // transmute pEntry into a directory entry
-        std::filesystem::directory_entry entry(mountPath/(pEntry->d_name));
-        // ignore directories
-        if(entry.is_directory()) continue;
-        // remove aborted work
-        if(entry.path().string().ends_with(INWORK_SUFFIX))
-            std::filesystem::remove(entry);
-    }
-    closedir(dfd);
+// FIXME
+//     DIR *dfd = opendir(MOUNT_DIR);
+//     // const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+//     for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
+//         // transmute pEntry into a directory entry
+//         std::filesystem::directory_entry entry(mountPath/(pEntry->d_name));
+//         // ignore directories
+//         if(entry.is_directory()) continue;
+//         // remove aborted work
+//         if(entry.path().string().ends_with(INWORK_SUFFIX))
+//             std::filesystem::remove(entry);
+//     }
+//     closedir(dfd);
 }
 
 void SneakerNet::mount_sdcard()
@@ -67,7 +68,7 @@ void SneakerNet::mount_sdcard()
         .data7_io_num = UNUSED_IO,
         .max_transfer_sz = 0,   // 0: use full dma buffer support
         .flags = UNUSED,
-        .isr_cpu_id = INTR_CPU_ID_AUTO,
+        .isr_cpu_id = ESP_INTR_CPU_AFFINITY_AUTO,
         .intr_flags = UNUSED,
     };
     ESP_ERROR_CHECK(spi_bus_initialize(static_cast<spi_host_device_t>(host.slot),
@@ -94,95 +95,103 @@ std::vector<SneakerNet::content_t> SneakerNet::contents()
 // FIXME ESP32 doesn't support directory_iterator (it's always empty)
     // for(const std::filesystem::directory_entry entry : std::filesystem::directory_iterator(MOUNT_DIR))
 // Workaround - use C iterator
-    DIR *dfd = opendir(MOUNT_DIR);
-    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
-    for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
-        // transmute pEntry into a directory entry
-        std::filesystem::directory_entry entry(path/(pEntry->d_name));
-        if(entry.is_directory()) continue;
-        if(entry.path().string().ends_with(INWORK_SUFFIX)) continue;
-        struct stat statBuffer;
-        if(0 != stat(entry.path().c_str(), &statBuffer))
-        {
-            ESP_LOGW(TAG, "Unable to stat %s [%s]",
-                    entry.path().c_str(), strerror(errno));
-        }
-        ret.emplace_back(entry.path().filename(),
-                         // entry.last_write_time(),
-                         statBuffer.st_mtime,
-                         entry.file_size()
-        );
-    }
-    closedir(dfd);
+// FIXME
+//     DIR *dfd = opendir(MOUNT_DIR);
+//     const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+//     for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
+//         // transmute pEntry into a directory entry
+//         std::filesystem::directory_entry entry(path/(pEntry->d_name));
+//         if(entry.is_directory()) continue;
+//         if(entry.path().string().ends_with(INWORK_SUFFIX)) continue;
+//         struct stat statBuffer;
+//         if(0 != stat(entry.path().c_str(), &statBuffer))
+//         {
+//             ESP_LOGW(TAG, "Unable to stat %s [%s]",
+//                     entry.path().c_str(), strerror(errno));
+//         }
+//         ret.emplace_back(entry.path().filename(),
+//                          // entry.last_write_time(),
+//                          statBuffer.st_mtime,
+//                          entry.file_size()
+//         );
+//     }
+//     closedir(dfd);
     return ret;
 }
 
 static bool isValidContentName(const std::string& filename)
 {
     // make sure it's only a name (no path)
-    if(filename.find(std::filesystem::path::preferred_separator) != filename.npos) return false;
+// FIXME
+//     if(filename.find(std::filesystem::path::preferred_separator) != filename.npos) return false;
     return true;
 }
 
 std::ifstream SneakerNet::readContent(const std::string& filename)
 {
-    // validate filename
-    if(isValidContentName(filename)) {
-        const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
-        return std::ifstream(path/filename, std::ios_base::in | std::ios_base::binary);
-    }
+// FIXME
+//     // validate filename
+//     if(isValidContentName(filename)) {
+//         const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+//         return std::ifstream(path/filename, std::ios_base::in | std::ios_base::binary);
+//     }
     // else return a null stream
     return std::ifstream();
 }
 
 time_t SneakerNet::getFiletime(const std::string& filename)
 {
-    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
-    std::filesystem::directory_entry entry(path/filename);
-    struct stat statBuffer;
-    if(0 != stat(entry.path().c_str(), &statBuffer))
-    {
-        ESP_LOGW(TAG, "Unable to stat %s [%s]",
-                entry.path().c_str(), strerror(errno));
-    }
-    return statBuffer.st_mtime;
+// FIXME
+//     const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+//     std::filesystem::directory_entry entry(path/filename);
+//     struct stat statBuffer;
+//     if(0 != stat(entry.path().c_str(), &statBuffer))
+//     {
+//         ESP_LOGW(TAG, "Unable to stat %s [%s]",
+//                 entry.path().c_str(), strerror(errno));
+//     }
+//     return statBuffer.st_mtime;
+    return 0;
 }
 
 void SneakerNet::removeContent(const std::string& filename)
 {
-    if(isValidContentName(filename)) {
-        const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
-        std::filesystem::remove(path/filename);
-    }
+// FIXME
+//     if(isValidContentName(filename)) {
+//         const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+//         std::filesystem::remove(path/filename);
+//     }
 }
 
 off_t SneakerNet::delete_oldest_content()
 {
-    std::filesystem::directory_entry oldest;
-    DIR *dfd = opendir(MOUNT_DIR);
-    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
-    for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
-        // transmute pEntry into a directory entry
-        std::filesystem::directory_entry entry(path/(pEntry->d_name));
-        if(entry.is_directory()) continue;
-        if(entry.path().string().ends_with(INWORK_SUFFIX)) continue;
-        else {
-            // find oldest file
-            if(false == oldest.exists())
-                oldest = entry;
-            else if(entry.last_write_time() < oldest.last_write_time())
-                oldest = entry;
-        }
-    }
-    closedir(dfd);
+// FIXME
+//     std::filesystem::directory_entry oldest;
+//     DIR *dfd = opendir(MOUNT_DIR);
+//     const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+//     for(struct dirent *pEntry = readdir(dfd); pEntry != nullptr; pEntry = readdir(dfd)) {
+//         // transmute pEntry into a directory entry
+//         std::filesystem::directory_entry entry(path/(pEntry->d_name));
+//         if(entry.is_directory()) continue;
+//         if(entry.path().string().ends_with(INWORK_SUFFIX)) continue;
+//         else {
+//             // find oldest file
+//             if(false == oldest.exists())
+//                 oldest = entry;
+//             else if(entry.last_write_time() < oldest.last_write_time())
+//                 oldest = entry;
+//         }
+//     }
+//     closedir(dfd);
 
-    if(oldest.exists())
-    {
-        off_t sz = oldest.file_size();
-        std::filesystem::remove(oldest);
-        return sz;
-    }
-    else return 0;
+//     if(oldest.exists())
+//     {
+//         off_t sz = oldest.file_size();
+//         std::filesystem::remove(oldest);
+//         return sz;
+//     }
+//     else return 0;
+    return 0;
 }
 
 SneakerNet::InWorkContent SneakerNet::newContent(const std::string& filename, const size_t& file_size, const time_t& timestamp)
@@ -204,9 +213,10 @@ SneakerNet::InWorkContent::InWorkContent(const std::string& filename, const time
     : filename(filename)
      ,timestamp(timestamp)
 {
-    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
-    ofs = std::ofstream(path/(filename + INWORK_SUFFIX),
-                        std::ios_base::out | std::ios_base::binary);
+// FIXME
+//     const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+//     ofs = std::ofstream(path/(filename + INWORK_SUFFIX),
+//                         std::ios_base::out | std::ios_base::binary);
 }
 
 bool SneakerNet::InWorkContent::write(const char buffer[], const size_t sz)
@@ -218,18 +228,19 @@ bool SneakerNet::InWorkContent::write(const char buffer[], const size_t sz)
 void SneakerNet::InWorkContent::done()
 {
     ofs.close();
-    const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
-    // remove previous file if it exists
-    if(std::filesystem::exists(path/filename))
-        std::filesystem::remove(path/filename);
-    std::filesystem::rename(path/(filename + INWORK_SUFFIX), path/filename);
-    const struct utimbuf utimbuf{timestamp, timestamp};
-    if(0 != utime((path/filename).c_str(), &utimbuf))
-    {
-        ESP_LOGW(TAG, "unable to change file time of %s : %s",
-                (path/filename).c_str(), strerror(errno));
+// FIXME
+//     const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+//     // remove previous file if it exists
+//     if(std::filesystem::exists(path/filename))
+//         std::filesystem::remove(path/filename);
+//     std::filesystem::rename(path/(filename + INWORK_SUFFIX), path/filename);
+//     const struct utimbuf utimbuf{timestamp, timestamp};
+//     if(0 != utime((path/filename).c_str(), &utimbuf))
+//     {
+//         ESP_LOGW(TAG, "unable to change file time of %s : %s",
+//                 (path/filename).c_str(), strerror(errno));
 
-    }
+//     }
 }
 
 SneakerNet::InWorkContent::~InWorkContent()
@@ -238,7 +249,8 @@ SneakerNet::InWorkContent::~InWorkContent()
     if(ofs.is_open())
     {
         ofs.close();
-        const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
-        std::filesystem::remove(path/(filename + INWORK_SUFFIX));
+// FIXME
+//         const std::filesystem::path path = std::filesystem::path(MOUNT_DIR);
+//         std::filesystem::remove(path/(filename + INWORK_SUFFIX));
     }
 }

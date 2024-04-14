@@ -3,7 +3,7 @@ idf_component_register(
        "main.cpp"
        "dns_server.c"
        "sneakernet/SneakerNet.cpp"
-       "sneakernet/WebServer.cpp"
+    #    "sneakernet/WebServer.cpp"
     EMBED_FILES
         "welcome.html"
         "app/favicon.ico"

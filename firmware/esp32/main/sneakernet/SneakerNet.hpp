@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <filesystem>
+// FIXME
+// #include <filesystem>
 
 class SneakerNet {
 public:
@@ -43,7 +44,8 @@ public:
     const char* pVersion;
 
     // mount point
-    std::filesystem::path mountPath;
+// FIXME
+//     std::filesystem::path mountPath;
 
 private:
     sdmmc_card_t *pCard;
