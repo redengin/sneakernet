@@ -9,12 +9,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="removing ios support">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="upgrading to latest firmware">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pages/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/library.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/doc/FirmwareGet200Response.md" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/doc/FirmwareGet200Response.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/rest/lib/model/firmware_get200_response.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/rest/lib/model/firmware_get200_response.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firmware/esp32-sneakernet.bin" beforeDir="false" afterPath="$PROJECT_DIR$/firmware/esp32-sneakernet.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -430,7 +427,15 @@
       <option name="project" value="LOCAL" />
       <updated>1711417777827</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="upgrading to latest firmware">
+      <option name="closed" value="true" />
+      <created>1712897440620</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1712897440620</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -445,7 +450,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="working book icons" />
     <MESSAGE value="code complete" />
     <MESSAGE value="working firmware update" />
     <MESSAGE value="supporting AutoStart" />
@@ -470,6 +474,7 @@
     <MESSAGE value="setting firmware" />
     <MESSAGE value="cleaning up gradle (kotlin version complaints)" />
     <MESSAGE value="removing ios support" />
-    <option name="LAST_COMMIT_MESSAGE" value="removing ios support" />
+    <MESSAGE value="upgrading to latest firmware" />
+    <option name="LAST_COMMIT_MESSAGE" value="upgrading to latest firmware" />
   </component>
 </project>

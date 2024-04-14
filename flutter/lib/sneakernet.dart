@@ -35,7 +35,7 @@ class SneakerNet {
     switch (remoteFirmware.hardware) {
       case "esp32":
         /// TODO update each time new esp32 firmware is added as an asset
-        final esp32FirmwareVersion = Version.parse("1.0.0");
+        final esp32FirmwareVersion = Version.parse("1.0.1");
         if (esp32FirmwareVersion > Version.parse(remoteFirmware.version)) {
           newFirmwareData =
               await rootBundle.load('firmware/esp32-sneakernet.bin');
@@ -45,10 +45,13 @@ class SneakerNet {
     if (newFirmwareData == null) return false;
 
     // update the firmware
-    var response = await restClient.firmwarePutWithHttpInfo(
-        body:
-            MultipartFile.fromBytes('', newFirmwareData.buffer.asUint8List()));
-    if (response.statusCode == 200) {
+    //   if the firmware is accepted, the device will reboot before responding
+    //      causing await to throw an ApiException
+    HttpResponse response;
+    try {
+      response = await restClient.firmwarePutWithHttpInfo(
+          body: MultipartFile.fromBytes('', newFirmwareData.buffer.asUint8List()));
+    } on ApiException catch(e) {
       return true;
     }
     return false;
