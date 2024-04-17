@@ -65,6 +65,17 @@ angular-shell:
 			angular \
 	  sh
 
+.PHONY: firmware/rust.build
+firmware/rust.build:
+	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+			rust \
+	  cargo build
+
+
+
+
+
+
 
 .PHONY: firmware/esp32.build
 firmware/esp32.build: angular-build

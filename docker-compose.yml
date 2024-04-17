@@ -15,3 +15,12 @@ services:
       - ~/keystore/:/tmp/sneakernet/keystore
       - .:/tmp/sneakernet/
     working_dir: /tmp/sneakernet/firmware/esp32
+
+  rust:
+    # image: rust:latest
+    build:
+      dockerfile: tools/Docker/rust/Dockerfile
+    user: ${DOCKER_USER:? (to fix) export DOCKER_USER="$(id -u):$(id -g)")}
+    volumes:
+      - ./firmware/rust/:/tmp/sneakernet
+    working_dir: /tmp/sneakernet
