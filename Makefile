@@ -65,11 +65,12 @@ angular-shell:
 			angular \
 	  sh
 
-.PHONY: firmware/rust.build
-firmware/rust.build:
+
+.PHONY: firmware/rust.rp2040.build
+firmware/rust.rp2040.build:
 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
 			rust \
-	  cargo build
+	  cargo build --target thumbv6m-none-eabi
 
 
 
