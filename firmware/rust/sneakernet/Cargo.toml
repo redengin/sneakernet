@@ -6,8 +6,6 @@ readme = "README.md"
 version = "0.1.0"
 
 [dependencies]
-panic-abort = "0.3.2"
-
 embedded-sdmmc = "0.7"
 
 [dev-dependencies]
