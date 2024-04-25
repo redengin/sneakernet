@@ -69,10 +69,16 @@ angular-shell:
 .PHONY: firmware/rust.rp2040.build
 firmware/rust.rp2040.build:
 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+    	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
 			rust \
 	  cargo build --target thumbv6m-none-eabi
 
 
+# .PHONY: firmware/rust.esp32.build
+# firmware/rust.esp32.build:
+# 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+# 			rust \
+# 	  cargo build --target Xtensa
 
 
 

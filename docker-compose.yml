@@ -20,7 +20,6 @@ services:
     # image: rust:latest
     build:
       dockerfile: tools/Docker/rust/Dockerfile
-    user: ${DOCKER_USER:? (to fix) export DOCKER_USER="$(id -u):$(id -g)")}
     volumes:
-      - ./firmware/rust/:/tmp/sneakernet
-    working_dir: /tmp/sneakernet
+      - .:/tmp/sneakernet/
+    user: ${DOCKER_USER:? (to fix) export DOCKER_USER="$(id -u):$(id -g)")}

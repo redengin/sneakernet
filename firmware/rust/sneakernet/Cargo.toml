@@ -1,0 +1,25 @@
+[package]
+edition = "2021"
+name = "sneakernet"
+authors = ["Stephen Holstein"]
+readme = "README.md"
+version = "0.1.0"
+
+[dependencies]
+panic-abort = "0.3.2"
+
+embedded-sdmmc = "0.7"
+
+[dev-dependencies]
+panic-probe = { version = "0.3", features = ["print-defmt"] }
+
+# # this lets you use `cargo fix`!
+# [[bin]]
+# name = "sneakernet"
+# test = false
+# bench = false
+
+[profile.release]
+codegen-units = 1 # better optimizations
+debug = true # symbols are nice and they don't increase the size on Flash
+lto = true # better optimizations
