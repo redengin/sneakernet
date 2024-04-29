@@ -1059,6 +1059,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 
 [[package]]
+name = "panic-abort"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e20e6499bbbc412f280b04a42346b356c6fa0753d5fd22b7bd752ff34c778ee"
+
+[[package]]
 name = "panic-probe"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1386,6 +1392,7 @@ dependencies = [
 name = "sneakernet"
 version = "0.1.0"
 dependencies = [
+ "embassy-net",
  "embedded-sdmmc",
 ]
 
@@ -1402,6 +1409,8 @@ dependencies = [
  "embassy-executor",
  "embassy-net",
  "embassy-rp",
+ "heapless 0.8.0",
+ "panic-abort",
  "panic-probe",
  "portable-atomic",
  "sneakernet",

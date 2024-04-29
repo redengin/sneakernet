@@ -1,5 +1,5 @@
-FROM rust:latest
-# FROM rustlang/rust:nightly-slim
+# FROM rust:latest
+FROM rustlang/rust:nightly-slim
 
 # add OS packages
 RUN apt-get update && apt-get install -y \

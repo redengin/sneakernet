@@ -6,10 +6,10 @@ readme = "README.md"
 version = "0.1.0"
 
 [dependencies]
-# panic-abort = "0.3"
-panic-probe = { version = "0.3", features = ["print-defmt"] }
+panic-abort = "0.3"
 defmt = "0.3"
 defmt-rtt = "0.4"
+heapless = { version = "0.8.0", default-features = false }
 
 # RP2040 support
 embassy-rp.version = "0.1"   # rp2040 HAL
