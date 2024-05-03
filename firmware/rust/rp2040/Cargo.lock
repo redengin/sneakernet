@@ -1393,6 +1393,7 @@ name = "sneakernet"
 version = "0.1.0"
 dependencies = [
  "embassy-net",
+ "embassy-net-driver",
  "embedded-sdmmc",
 ]
 
