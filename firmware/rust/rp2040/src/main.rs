@@ -20,7 +20,8 @@ use heapless::Vec;
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Level, Output};
 use embassy_rp::pio::{InterruptHandler, Pio};
-use embassy_rp::peripherals::{DMA_CH0, PIO0};
+// use embassy_rp::peripherals::{DMA_CH0, PIO0};
+use embassy_rp::peripherals::{PIO0};
 use cyw43::{State};
 use cyw43_pio::PioSpi;
 
@@ -36,13 +37,13 @@ bind_interrupts!(struct Irqs {
 // }
 
 #[embassy_executor::main]
-async fn main(spawner: Spawner) {
+async fn main(_spawner: Spawner) {
     info!("SneakerNet starting....");
 
     // initialize RP2040 hardware
     let p = embassy_rp::init(Default::default());
 
-    // initialize RP2040 WiFi
+    // initialize RP2040 WiFi hardware
     let pwr = Output::new(p.PIN_23, Level::Low);
     let cs = Output::new(p.PIN_25, Level::High);
     let mut pio = Pio::new(p.PIO0, Irqs);
@@ -51,7 +52,7 @@ async fn main(spawner: Spawner) {
     let state = STATE.init(State::new());
     let fw = include_bytes!("../cyw43-firmware/43439A0.bin");
     let clm = include_bytes!("../cyw43-firmware/43439A0_clm.bin");
-    let (net_device, mut control, runner) = cyw43::new(state, pwr, spi, fw).await;
+    let (net_device, control, runner) = cyw43::new(state, pwr, spi, fw).await;
     runner.run().await;
     control.init(clm).await;
     control.set_power_management(cyw43::PowerManagementMode::PowerSave).await;
@@ -74,7 +75,7 @@ async fn main(spawner: Spawner) {
     ));
     stack.run().await;
 
-
+    // create an open WiFi access point
     // TODO choose an optimal channel
     let channel = 9;
     control.start_ap_open(
