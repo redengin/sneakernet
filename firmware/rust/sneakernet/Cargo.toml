@@ -9,6 +9,7 @@ version = "0.1.0"
 embassy-net = "0.4.0"
 embassy-net-driver = "0.2"
 
+
 embedded-sdmmc = "0.7"
 
 [dev-dependencies]
