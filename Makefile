@@ -71,8 +71,14 @@ firmware/rust.rp2040.build:
 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
     	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
 			rust \
-	  cargo build --target thumbv6m-none-eabi
+	  cargo build
 
+.PHONY: firmware/rust.rp2040.run
+firmware/rust.rp2040.run:
+	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+    	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
+			rust \
+	  cargo run
 
 # .PHONY: firmware/rust.esp32.build
 # firmware/rust.esp32.build:
