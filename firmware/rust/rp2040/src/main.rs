@@ -1,30 +1,29 @@
 #![no_std]
 #![no_main]
 
-use defmt::*;
 // use panic_abort as _; // requires nightly
 use panic_probe as _;
 // use defmt_rtt as _;
 
+use defmt::*;
 use heapless::Vec;
+use static_cell::StaticCell;
 
-use cyw43_pio::PioSpi;
 use embassy_executor::Spawner;
+use embassy_net::Stack;
+use embassy_net_driver::Driver;
+
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Level, Output};
 use embassy_rp::peripherals::{DMA_CH0, PIN_23, PIN_25, PIO0};
 use embassy_rp::pio::{InterruptHandler, Pio};
-// use embassy_time::{Duration, Timer};
-use static_cell::StaticCell;
-use embassy_net::{Config, Stack, StackResources};
-use embassy_net_driver::Driver;
 
 bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
 });
 
 #[embassy_executor::task]
-async fn wifi_task(runner: cyw43::Runner<'static, Output<'static, PIN_23>, PioSpi<'static, PIN_25, PIO0, 0, DMA_CH0>>) -> !
+async fn wifi_task(runner: cyw43::Runner<'static, Output<'static, PIN_23>, cyw43_pio::PioSpi<'static, PIN_25, PIO0, 0, DMA_CH0>>) -> !
 {
     runner.run().await
 }
@@ -58,7 +57,7 @@ async fn main(spawner: Spawner) {
     control.init(clm).await;
     control.set_power_management(cyw43::PowerManagementMode::PowerSave).await;
 
-    // memo the hardware address before giving the device to the stack
+    // memo the hardware address to create the ssid
     let hw_addr= &net_device.hardware_address();
 
     // Init network stack
