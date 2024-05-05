@@ -1,8 +1,10 @@
 #![no_std]
 #![no_main]
 
+// use panic_abort as _; // requires nightly
+use panic_probe as _;
 use defmt_rtt as _;
-use panic_abort as _;
+
 use heapless::Vec;
 
 use cyw43_pio::PioSpi;

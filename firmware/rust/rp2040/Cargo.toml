@@ -6,7 +6,8 @@ readme = "README.md"
 version = "0.1.0"
 
 [dependencies]
-panic-abort = "0.3"
+# panic-abort = "0.3"   // requires nightly
+panic-probe = { version = "0.3", features = ["print-defmt"] }
 defmt = "0.3"
 defmt-rtt = "0.4"
 heapless = { version = "0.8.0", default-features = false }
