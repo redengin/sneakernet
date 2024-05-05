@@ -1,14 +1,14 @@
 #![no_std]
 #![no_main]
 
+use defmt::*;
 // use panic_abort as _; // requires nightly
 use panic_probe as _;
-use defmt_rtt as _;
+// use defmt_rtt as _;
 
 use heapless::Vec;
 
 use cyw43_pio::PioSpi;
-use defmt::*;
 use embassy_executor::Spawner;
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Level, Output};
@@ -17,7 +17,7 @@ use embassy_rp::pio::{InterruptHandler, Pio};
 // use embassy_time::{Duration, Timer};
 use static_cell::StaticCell;
 use embassy_net::{Config, Stack, StackResources};
-
+use embassy_net_driver::Driver;
 
 bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
@@ -58,6 +58,9 @@ async fn main(spawner: Spawner) {
     control.init(clm).await;
     control.set_power_management(cyw43::PowerManagementMode::PowerSave).await;
 
+    // memo the hardware address before giving the device to the stack
+    let hw_addr= &net_device.hardware_address();
+
     // Init network stack
     let static_config_v4 = embassy_net::StaticConfigV4 {
        address: sneakernet::IP_ADDRESS,
@@ -67,7 +70,7 @@ async fn main(spawner: Spawner) {
     let config = embassy_net::Config::ipv4_static(static_config_v4);
     static STACK: StaticCell<embassy_net::Stack<cyw43::NetDriver<'static>>> = StaticCell::new();
     static RESOURCES: StaticCell<embassy_net::StackResources<2>> = StaticCell::new();
-    let seed = 0x0123_4567_89ab_cdef; // TODO wtf is this for?
+    let seed = 0x511E_A11E_19ab_cdef;
     let stack = &*STACK.init(embassy_net::Stack::new(
         net_device,
         config,
@@ -78,11 +81,15 @@ async fn main(spawner: Spawner) {
     spawner.spawn(net_task(stack)).unwrap();
 
     // create an open WiFi access point
-    // TODO choose an optimal channel
-    // let channel = 9;
-    // control.start_ap_open(
-    //     core::str::from_utf8(&sneakernet::essid(&net_device)).unwrap(),
-    //     channel)
-    //     .await;
+    if let embassy_net_driver::HardwareAddress::Ethernet(mac) = hw_addr
+    {
+        // TODO choose an optimal channel
+        let channel = 9;
+        control.start_ap_open(
+            core::str::from_utf8(&sneakernet::essid_from_mac(&mac)).unwrap(),
+            channel)
+        .await;
+    }
+    else { defmt::panic!("is not an ethernet device") }
 
 }

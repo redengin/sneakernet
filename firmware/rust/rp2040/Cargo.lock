@@ -1403,6 +1403,7 @@ dependencies = [
  "defmt-rtt",
  "embassy-executor",
  "embassy-net",
+ "embassy-net-driver",
  "embassy-rp",
  "heapless 0.8.0",
  "panic-probe",
