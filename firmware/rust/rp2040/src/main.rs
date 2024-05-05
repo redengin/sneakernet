@@ -16,16 +16,23 @@ use embassy_rp::peripherals::{DMA_CH0, PIN_23, PIN_25, PIO0};
 use embassy_rp::pio::{InterruptHandler, Pio};
 // use embassy_time::{Duration, Timer};
 use static_cell::StaticCell;
+use embassy_net::{Config, Stack, StackResources};
+
 
 bind_interrupts!(struct Irqs {
     PIO0_IRQ_0 => InterruptHandler<PIO0>;
 });
 
-
 #[embassy_executor::task]
-async fn wifi_task(runner: cyw43::Runner<'static, Output<'static, PIN_23>, PioSpi<'static, PIN_25, PIO0, 0, DMA_CH0>>)
+async fn wifi_task(runner: cyw43::Runner<'static, Output<'static, PIN_23>, PioSpi<'static, PIN_25, PIO0, 0, DMA_CH0>>) -> !
 {
     runner.run().await
+}
+
+#[embassy_executor::task]
+async fn net_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> !
+{
+    stack.run().await
 }
 
 
@@ -46,7 +53,8 @@ async fn main(spawner: Spawner) {
     let fw = include_bytes!("../cyw43-firmware/43439A0.bin");
     let clm = include_bytes!("../cyw43-firmware/43439A0_clm.bin");
     let (net_device, mut control, runner) = cyw43::new(state, pwr, spi, fw).await;
-    (spawner.spawn(wifi_task(runner))).unwrap();
+    // FIXME unwrap!(spawner.spawn(wifi_task(runner)));
+    spawner.spawn(wifi_task(runner)).unwrap();
     control.init(clm).await;
     control.set_power_management(cyw43::PowerManagementMode::PowerSave).await;
 
@@ -66,24 +74,15 @@ async fn main(spawner: Spawner) {
         RESOURCES.init(embassy_net::StackResources::<2>::new()),
         seed,
     ));
-    // stack.run().await;
+    // FIXME unwrap!(spawner.spawn(net_task(stack)));
+    spawner.spawn(net_task(stack)).unwrap();
 
-    // // create an open WiFi access point
-    // // TODO choose an optimal channel
+    // create an open WiFi access point
+    // TODO choose an optimal channel
     // let channel = 9;
     // control.start_ap_open(
-    //     core::str::from_utf8(&sneakernet::essid(net_device)).unwrap(),
+    //     core::str::from_utf8(&sneakernet::essid(&net_device)).unwrap(),
     //     channel)
     //     .await;
 
 }
-
-    // // create an open WiFi access point
-    // // TODO choose an optimal channel
-    // let channel = 9;
-    // control.start_ap_open(
-    //     core::str::from_utf8(&sneakernet::essid(net_device)).unwrap(),
-    //     channel)
-    //     .await;
-
-
