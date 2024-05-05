@@ -12,16 +12,14 @@ defmt-rtt = "0.4"
 heapless = { version = "0.8.0", default-features = false }
 
 # RP2040 support
-embassy-rp.version = "0.1"   # rp2040 HAL
-embassy-rp.features = ["critical-section-impl", "rom-func-cache", "intrinsics", "defmt"]
+embassy-rp = { version = "0.1",  features = ["critical-section-impl", "rom-func-cache", "intrinsics", "defmt"] }
 cyw43 = { version = "0.1", features = ["defmt", "firmware-logs"] }
 cyw43-pio = { version = "0.1", features = ["defmt", "overclock"] }
 
 # cortex-m support
 cortex-m = { version = "0.7", features = ["inline-asm"] }
 cortex-m-rt = "0.7"
-embassy-executor.version = "0.5"
-embassy-executor.features = ["arch-cortex-m", "executor-thread", "executor-interrupt"]
+embassy-executor = { version = "0.5", features = ["arch-cortex-m", "executor-thread", "executor-interrupt"] }
 
 # embassy support
 embassy-net = { version = "0.4.0", features = ["defmt", "medium-ip", "proto-ipv4", "dns", "tcp"] }
