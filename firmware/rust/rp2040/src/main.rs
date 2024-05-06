@@ -10,8 +10,9 @@ use heapless::Vec;
 use static_cell::StaticCell;
 
 use embassy_executor::Spawner;
-use embassy_net::Stack;
 use embassy_net_driver::Driver;
+use embassy_net::Stack;
+use embassy_net::udp::{PacketMetadata, UdpSocket};
 
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Level, Output};
@@ -33,6 +34,28 @@ async fn net_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> !
 {
     stack.run().await
 }
+
+// captive portal DNS
+#[embassy_executor::task]
+async fn dns_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> !
+{
+    const MAX_PACKET_SIZE:usize = 1300;
+    let mut rx_meta = [PacketMetadata::EMPTY; 16];
+    let mut rx_buf = [0; MAX_PACKET_SIZE];
+    let mut tx_meta = [PacketMetadata::EMPTY; 16];
+    let mut tx_buf = [0; MAX_PACKET_SIZE];
+    let mut captive_dns = UdpSocket::new(stack, &mut rx_meta, &mut rx_buf, &mut tx_meta, &mut tx_buf);
+    captive_dns.bind(53).unwrap();
+
+    loop {
+        let mut buf = [0; MAX_PACKET_SIZE];
+        let (n, ep) = captive_dns.recv_from(&mut buf).await.unwrap();
+        let mut reply = [0; MAX_PACKET_SIZE];
+        sneakernet::dns_reply(&buf[0..n], &mut reply);
+        captive_dns.send_to(&reply, ep).await.unwrap();
+    }
+}
+
 
 
 #[embassy_executor::main]
@@ -78,6 +101,9 @@ async fn main(spawner: Spawner) {
     ));
     // FIXME unwrap!(spawner.spawn(net_task(stack)));
     spawner.spawn(net_task(stack)).unwrap();
+
+    // create the captive portal DNS
+    spawner.spawn(dns_task(stack)).unwrap();
 
     // create an open WiFi access point
     if let embassy_net_driver::HardwareAddress::Ethernet(mac) = hw_addr

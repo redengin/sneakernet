@@ -1,5 +1,7 @@
 #![no_std]
 
+use core::time::Duration;
+
 
 pub static IP_ADDRESS:embassy_net::Ipv4Cidr =
     embassy_net::Ipv4Cidr::new(embassy_net::Ipv4Address::new(192, 168, 4, 1), 24);
@@ -28,4 +30,17 @@ fn hex(v:u8) -> u8
 {
     if v < 10 { b'0' + v }
     else { b'A' + (v - 10) }
+}
+
+pub fn dns_reply(
+    request: &[u8],
+    buf: &mut [u8],
+) -> usize
+{
+    let octets:[u8; 4] = IP_ADDRESS.address().as_bytes().try_into().unwrap();
+    return match edge_captive::reply(request, &octets, Duration::from_secs(60), buf)
+    {
+        Ok(len) => len,
+        _ => 0
+    }
 }
