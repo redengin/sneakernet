@@ -13,7 +13,7 @@ defmt-rtt = "0.4"
 heapless = { version = "0.8.0", default-features = false }
 
 # RP2040 support
-embassy-rp = { version = "0.1",  features = ["critical-section-impl", "rom-func-cache", "intrinsics", "defmt"] }
+embassy-rp = { version = "0.1",  features = ["time-driver", "critical-section-impl", "rom-func-cache", "intrinsics", "defmt"] }
 cyw43 = { version = "0.1", features = ["defmt", "firmware-logs"] }
 cyw43-pio = { version = "0.1", features = ["defmt", "overclock"] }
 

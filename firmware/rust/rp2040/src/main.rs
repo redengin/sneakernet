@@ -3,7 +3,7 @@
 
 // use panic_abort as _; // requires nightly
 use panic_probe as _;
-// use defmt_rtt as _;
+use defmt_rtt as _;
 
 use defmt::*;
 use heapless::Vec;
