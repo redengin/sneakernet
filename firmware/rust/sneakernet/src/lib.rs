@@ -32,6 +32,7 @@ fn hex(v:u8) -> u8
     else { b'A' + (v - 10) }
 }
 
+/// captive portal DNS response (always refer back to sneakernet::IP_ADDRESS)
 pub fn dns_reply(
     request: &[u8],
     buf: &mut [u8],
