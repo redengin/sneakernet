@@ -51,8 +51,8 @@ async fn dns_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> !
         let mut buf = [0; MAX_PACKET_SIZE];
         let (n, ep) = captive_dns.recv_from(&mut buf).await.unwrap();
         let mut reply = [0; MAX_PACKET_SIZE];
-        sneakernet::dns_reply(&buf[0..n], &mut reply);
-        captive_dns.send_to(&reply, ep).await.unwrap();
+        let len = sneakernet::dns_reply(&buf[..n], &mut reply);
+        captive_dns.send_to(&reply[..len], ep).await.unwrap();
     }
 }
 
