@@ -20,9 +20,10 @@ cyw43-pio = { version = "0.1", features = ["defmt", "overclock"] }
 # cortex-m support
 cortex-m = { version = "0.7", features = ["inline-asm"] }
 cortex-m-rt = "0.7"
-embassy-executor = { version = "0.5", features = ["arch-cortex-m", "executor-thread", "executor-interrupt"] }
 
 # embassy support
+embassy-executor = { version = "0.5", features = ["arch-cortex-m", "executor-thread", "executor-interrupt"] }
+embassy-time = { version = "0.3", features = ["generic-queue"] }
 embassy-net = { version = "0.4.0", features = ["defmt", "medium-ip", "proto-ipv4", "udp", "tcp"] }
 embassy-net-driver = { version = "0.2.0", features = ["defmt"] }
 static_cell = "2"
