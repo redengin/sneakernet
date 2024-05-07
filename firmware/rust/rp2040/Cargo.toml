@@ -35,7 +35,7 @@ sneakernet = { path="../sneakernet" }
 [dev-dependencies]
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 
-# # this lets you use `cargo fix`!
+# this lets you use `cargo fix`!
 # [[bin]]
 # name = "sneakernet"
 # test = false

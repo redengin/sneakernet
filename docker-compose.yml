@@ -17,7 +17,7 @@ services:
     working_dir: /tmp/sneakernet/firmware/esp32
 
   rust:
-    # image: rust:latest
+    image: rust:latest
     build:
       dockerfile: tools/Docker/rust/Dockerfile
     volumes:

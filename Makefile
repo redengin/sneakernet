@@ -75,10 +75,16 @@ firmware/rust.rp2040.build:
 
 .PHONY: firmware/rust.rp2040.run
 firmware/rust.rp2040.run:
-	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
-    	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
-			rust \
-	  cargo run
+	@docker run --rm -it \
+		--privileged \
+		--volume $(abspath .):/tmp/sneakernet \
+		--workdir /tmp/sneakernet/firmware/rust/rp2040 \
+		rust
+#	@DOCKER_USER=0 $(DOCKER_COMPOSE) run --rm \
+#    	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
+#			rust \
+#	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+#	  cargo embed --release
 
 # .PHONY: firmware/rust.esp32.build
 # firmware/rust.esp32.build:

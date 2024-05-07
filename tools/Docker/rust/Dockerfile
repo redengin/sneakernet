@@ -5,17 +5,20 @@ FROM rust:latest
 RUN apt-get update && apt-get install -y \
     curl \
     xz-utils \
+    librust-libudev-dev \
  && rm -rf /var/lib/apt/lists/*
 
 
 # add debug/flashing support
-RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/probe-rs/probe-rs/releases/latest/download/probe-rs-installer.sh | sh
+# RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/probe-rs/probe-rs/releases/latest/download/probe-rs-installer.sh | sh
+RUN cargo install probe-rs --features=cli
 
 
 # add the toolchains for sneakernet targets
 #-------------------------------------------------------------------------------
 # support for RP2040....
-RUN rustup target add thumbv6m-none-eabi
+RUN rustup target add thumbv6m-none-eabi \
+ && cargo install elf2uf2-rs
 
 
 # add support for ESP32 https://github.com/esp-rs/rust-build?tab=readme-ov-file
