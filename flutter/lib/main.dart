@@ -1,17 +1,15 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:workmanager/workmanager.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sneakernet/pages/sync.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 
-// import 'package:workmanager/workmanager.dart';
 
 import 'library.dart';
 import 'settings.dart';
@@ -60,7 +58,7 @@ Future<void> main() async {
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
 
   // create background tasks
-  // await Workmanager().initialize(callbackDispatcher);
+  await Workmanager().initialize(callbackDispatcher);
 
   // subscribe to wifi scans
   switch (await WiFiScan.instance.canGetScannedResults()) {
@@ -137,38 +135,38 @@ void onDidReceiveNotificationResponse(NotificationResponse details) {
   navigatorKey.currentState?.pushNamed(SyncPage.routeName);
 }
 
-// /*------------------------------------------------------------------------------
-// WorkManager Helpers
-// ------------------------------------------------------------------------------*/
-// const syncTaskName = 'sneakernet-sync';
-// const syncTaskParamSsid = 'sneakernet-ssid';
-// const syncTaskParamLibraryPath = 'libraryDir';
-//
-// @pragma(
-//     'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-// void callbackDispatcher() {
-//   Workmanager().executeTask((taskName, inputData) async {
-//     switch (taskName) {
-//       case syncTaskName:
-//         // validate invocation
-//         final ssid = inputData?[syncTaskParamSsid];
-//         if (ssid == null) {
-//           // abort the task with error
-//           return Future.error("<$syncTaskParamSsid> param not found");
-//         }
-//
-//         final libraryPath = inputData?[syncTaskParamLibraryPath];
-//         if (libraryPath == null) {
-//           // abort the task with error
-//           return Future.error("<$syncTaskParamLibraryPath> param not found");
-//         }
-//         final library = Library(Directory(libraryPath));
-//         await SneakerNet.sync(ssid, library);
-//         return true;
-//
-//       default:
-//         // abort the task with error
-//         return Future.error("unknown task ${taskName}");
-//     }
-//   });
-// }
+/*------------------------------------------------------------------------------
+WorkManager Helpers
+------------------------------------------------------------------------------*/
+const syncTaskName = 'sneakernet-sync';
+const syncTaskParamSsid = 'sneakernet-ssid';
+const syncTaskParamLibraryPath = 'libraryDir';
+
+@pragma(
+    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
+void callbackDispatcher() {
+  Workmanager().executeTask((taskName, inputData) async {
+    switch (taskName) {
+      // case syncTaskName:
+      //   // validate invocation
+      //   final ssid = inputData?[syncTaskParamSsid];
+      //   if (ssid == null) {
+      //     // abort the task with error
+      //     return Future.error("<$syncTaskParamSsid> param not found");
+      //   }
+      //
+      //   final libraryPath = inputData?[syncTaskParamLibraryPath];
+      //   if (libraryPath == null) {
+      //     // abort the task with error
+      //     return Future.error("<$syncTaskParamLibraryPath> param not found");
+      //   }
+      //   final library = Library(Directory(libraryPath));
+      //   await SneakerNet.sync(ssid, library);
+      //   return true;
+      //
+      default:
+        // abort the task with error
+        return Future.error("unknown task ${taskName}");
+    }
+  });
+}
