@@ -86,15 +86,23 @@ firmware/rust.rp2040.run:
 #	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
 #	  cargo embed --release
 
-.PHONY: firmware/rust.esp32.build
-firmware/rust.esp32.build:
+.PHONY: firmware/rust.esp32s3.build
+firmware/rust.esp32s3.build:
 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
     	--workdir /tmp/sneakernet/firmware/rust/esp32s \
 			idf-rust-esp32s \
 	  	cargo build --target xtensa-esp32s3-none-elf --features esp32s3 --release
 
-
-
+.PHONY: firmware/rust.esp32s3.run
+firmware/rust.esp32s3.run:
+	docker run --rm -it \
+		--privileged \
+		--user 0 \
+		--env HOME=/home/esp \
+		--volume $(abspath .):/tmp/sneakernet \
+		--workdir /tmp/sneakernet/firmware/rust/esp32s \
+			espressif/idf-rust:esp32s3_latest \
+		cargo run --features esp32s3 -- --list-all-ports
 
 .PHONY: firmware/esp32.build
 firmware/esp32.build: angular-build
