@@ -71,7 +71,7 @@ firmware/rust.rp2040.build:
 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
     	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
 			rust \
-	  cargo build
+	  cargo build --release
 
 .PHONY: firmware/rust.rp2040.run
 firmware/rust.rp2040.run:
@@ -86,12 +86,12 @@ firmware/rust.rp2040.run:
 #	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
 #	  cargo embed --release
 
-# .PHONY: firmware/rust.esp32.build
-# firmware/rust.esp32.build:
-# 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
-# 			rust \
-# 	  cargo build --target Xtensa
-
+.PHONY: firmware/rust.esp32.build
+firmware/rust.esp32.build:
+	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+    	--workdir /tmp/sneakernet/firmware/rust/esp32s \
+			idf-rust-esp32s \
+	  	cargo build --target xtensa-esp32s3-none-elf --features esp32s3 --release
 
 
 
