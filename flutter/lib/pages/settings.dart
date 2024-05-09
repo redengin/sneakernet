@@ -33,18 +33,19 @@ class _SettingsPageState extends State<SettingsPage> {
           sections: [
             SettingsSection(
               tiles: [
-                SettingsTile.switchTile(
-                  leading: Icon(Icons.sync_alt),
-                  title: Text('Automatically sync'),
-                  description: Text(
-                    'Upon entering within a SneakerNet space, your '
-                    'wifi connection will be temporarily interrupted '
-                    'to sync with SnearkerNet'),
-                  initialValue: settings.getAutoSync(),
-                  onToggle: (_) => setState(() {
-                    settings.setAutoSync(_);
-                  }),
-                ),
+                // Disabled, doesn't appear you can change wifi connection from background
+                // SettingsTile.switchTile(
+                //   leading: Icon(Icons.sync_alt),
+                //   title: Text('Automatically sync'),
+                //   description: Text(
+                //     'Upon entering within a SneakerNet space, your '
+                //     'wifi connection will be temporarily interrupted '
+                //     'to sync with SnearkerNet'),
+                //   initialValue: settings.getAutoSync(),
+                //   onToggle: (_) => setState(() {
+                //     settings.setAutoSync(_);
+                //   }),
+                // ),
                 SettingsTile.navigation(
                   leading: const Icon(Icons.delete_outline),
                   title: const Text('Manage unwanted files'),
