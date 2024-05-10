@@ -87,7 +87,7 @@ class LibraryFilterPicker extends StatelessWidget {
         .map((e) => MultiSelectItem<String>(e, e))
         .toList(growable: false);
     return MultiSelectDialog(
-      backgroundColor: Colors.orange,
+      backgroundColor: Colors.deepOrangeAccent,
       title: Text('Remove Filter for $message files'),
       items: items,
       initialValue: const <String>[],

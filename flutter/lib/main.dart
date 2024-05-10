@@ -1,14 +1,13 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 
-// import 'package:workmanager/workmanager.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sneakernet/pages/sync.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 
@@ -24,20 +23,6 @@ import 'pages/library.dart';
 import 'pages/location_permissions_request.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
-final app = MaterialApp(
-  themeMode: ThemeMode.system,
-  theme: ThemeData.light(),
-  darkTheme: ThemeData.dark(),
-  initialRoute: LibraryPage.routeName,
-  navigatorKey: navigatorKey,
-  routes: <String, WidgetBuilder>{
-    LibraryPage.routeName: (_) => const LibraryPage(),
-    SettingsPage.routeName: (_) => const SettingsPage(),
-    AboutPage.routeName: (_) => const AboutPage(),
-    LocationPermissionsRequest.routeName: (_) => LocationPermissionsRequest(),
-    SyncPage.routeName: (_) => SyncPage(),
-  },
-);
 var foundSneakerNets = List<String>.empty();
 
 Future<void> main() async {
@@ -63,76 +48,61 @@ Future<void> main() async {
   // create background tasks
   // await Workmanager().initialize(callbackDispatcher);
 
-  // subscribe to wifi scans
-  switch (await WiFiScan.instance.canGetScannedResults()) {
-    case CanGetScannedResults.yes:
-      final scanSubscription =
-          WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-        var sneakerNetNodes = results
-            .where((_) => _.ssid.startsWith(sneakerNetPrefix))
-            .toList(growable: false);
-
-        if (sneakerNetNodes.isNotEmpty) {
-          foundSneakerNets = sneakerNetNodes.map((_) => _.ssid).toList();
-          // display a notification
-          flutterLocalNotificationsPlugin.show(
-              notificationFound,
-              'Found Sneakernet(s)',
-              foundSneakerNets.join("\n"),
-              notificationDetails);
-
-          // Disabled, doesn't appear you can change wifi connection from background
-          // queue up background sync tasks
-          // foundSneakerNets.forEach((ssid) async {
-          //   await Workmanager().registerOneOffTask(ssid, syncTaskName,
-          //       existingWorkPolicy: ExistingWorkPolicy.keep,
-          //       inputData: {
-          //         syncTaskParamSsid: ssid,
-          //         syncTaskParamLibraryPath: libraryDir.path,
-          //       });
-          // });
-        }
-      });
-      WiFiScan.instance.startScan();
-      break;
-    default:
-    /* do nothing */
-  }
-
-  var initialRoute = LibraryPage.routeName;
-
-  // request Location access if not granted
-  if (await Permission.locationAlways.isDenied) {
-    initialRoute = LocationPermissionsRequest.routeName;
-  }
-
-  // decide which page to start based upon how we were launched
-  // final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb &&
-  //         Platform.isLinux
-  //     ? null
-  //     : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+  // DISABLED doesn't work in background
+  // // subscribe to wifi scans
+  // switch (await WiFiScan.instance.canGetScannedResults()) {
+  //   case CanGetScannedResults.yes:
+  //     final scanSubscription =
+  //         WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+  //       var sneakerNetNodes = results
+  //           .where((_) => _.ssid.startsWith(sneakerNetPrefix))
+  //           .toList(growable: false);
   //
-  // // route to other page upon notification
-  // if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-  //   // selectedNotificationPayload =
-  //   //     notificationAppLaunchDetails!.notificationResponse?.payload;
-  //   initialRoute = SyncPage.routeName;
+  //       if (sneakerNetNodes.isNotEmpty) {
+  //         foundSneakerNets = sneakerNetNodes.map((_) => _.ssid).toList();
+  //         // display a notification
+  //         flutterLocalNotificationsPlugin.show(
+  //             notificationFound,
+  //             'Found Sneakernet(s)',
+  //             foundSneakerNets.join("\n"),
+  //             notificationDetails);
+  //
+  //         // Disabled, doesn't appear you can change wifi connection from background
+  //         // queue up background sync tasks
+  //         // foundSneakerNets.forEach((ssid) async {
+  //         //   await Workmanager().registerOneOffTask(ssid, syncTaskName,
+  //         //       existingWorkPolicy: ExistingWorkPolicy.keep,
+  //         //       inputData: {
+  //         //         syncTaskParamSsid: ssid,
+  //         //         syncTaskParamLibraryPath: libraryDir.path,
+  //         //       });
+  //         // });
+  //       }
+  //     });
+  //     WiFiScan.instance.startScan();
+  //     break;
+  //   default:
+  //   /* do nothing */
   // }
 
-  runApp(app);
-  // runApp(MaterialApp(
-  //   themeMode: ThemeMode.system,
-  //   theme: ThemeData.light(),
-  //   darkTheme: ThemeData.dark(),
-  //   initialRoute: initialRoute,
-  //   routes: <String, WidgetBuilder>{
-  //     LibraryPage.routeName: (_) => const LibraryPage(),
-  //     SettingsPage.routeName: (_) => const SettingsPage(),
-  //     AboutPage.routeName: (_) => const AboutPage(),
-  //     LocationPermissionsRequest.routeName: (_) => LocationPermissionsRequest(),
-  //     // HomePage.routeName: (_) => HomePage(notificationAppLaunchDetails),
-  //   },
-  // ));
+  var initialRoute = LibraryPage.routeName;
+  if (await Permission.locationAlways.isDenied) {
+    // request "Location Always" access
+    initialRoute = LocationPermissionsRequest.routeName;
+  }
+  runApp(MaterialApp(
+    themeMode: ThemeMode.system,
+    theme: ThemeData.light(),
+    darkTheme: ThemeData.dark(),
+    initialRoute: initialRoute,
+    routes: <String, WidgetBuilder>{
+      LibraryPage.routeName: (_) => const LibraryPage(),
+      SettingsPage.routeName: (_) => const SettingsPage(),
+      AboutPage.routeName: (_) => const AboutPage(),
+      LocationPermissionsRequest.routeName: (_) => const LocationPermissionsRequest(),
+      SyncPage.routeName: (_) => const SyncPage(),
+    },
+  ));
 }
 
 void onDidReceiveNotificationResponse(NotificationResponse details) {
@@ -146,13 +116,18 @@ void onDidReceiveNotificationResponse(NotificationResponse details) {
   }
 }
 
+//------------------------------------------------------------------------------
+// Parameters for background tasks
+//------------------------------------------------------------------------------
+const syncTaskName = 'sneakernet-sync';
+const syncTaskParamSsid = 'sneakernet-ssid';
+const syncTaskParamLibraryPath = 'libraryDir';
+
+
 // Disabled, doesn't appear you can change wifi connection from background
 // /*------------------------------------------------------------------------------
 // WorkManager Helpers
 // ------------------------------------------------------------------------------*/
-// const syncTaskName = 'sneakernet-sync';
-// const syncTaskParamSsid = 'sneakernet-ssid';
-// const syncTaskParamLibraryPath = 'libraryDir';
 //
 // @pragma(
 //     'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
