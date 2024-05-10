@@ -13,9 +13,7 @@ class LocationPermissionsRequest extends StatelessWidget {
             child: ListBody(
           children: <Widget>[
             Text(
-                "Sneakernet needs your permission to sync in the background (it may ask twice)"),
-            Text("    1. Grant 'WHILE USING THE APP'"),
-            Text("    2. Grant 'Allow all the time'"),
+                "Sneakernet needs Location Access: 'Allow all the time'"),
           ],
         )),
         actions: [

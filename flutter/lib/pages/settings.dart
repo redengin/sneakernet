@@ -33,11 +33,18 @@ class _SettingsPageState extends State<SettingsPage> {
           sections: [
             SettingsSection(
               tiles: [
-                // SettingsTile.navigation(
-                //   leading: const Icon(Icons.star_border_outlined),
-                //   title: const Text('Start Automatically'),
-                //   description: const Text('enable SneakerNet to AutoStart'),
-                //   onPressed: (_) => getAutoStartPermission(),
+                // Disabled, doesn't appear you can change wifi connection from background
+                // SettingsTile.switchTile(
+                //   leading: Icon(Icons.sync_alt),
+                //   title: Text('Automatically sync'),
+                //   description: Text(
+                //     'Upon entering within a SneakerNet space, your '
+                //     'wifi connection will be temporarily interrupted '
+                //     'to sync with SnearkerNet'),
+                //   initialValue: settings.getAutoSync(),
+                //   onToggle: (_) => setState(() {
+                //     settings.setAutoSync(_);
+                //   }),
                 // ),
                 SettingsTile.navigation(
                   leading: const Icon(Icons.delete_outline),
@@ -80,7 +87,7 @@ class LibraryFilterPicker extends StatelessWidget {
         .map((e) => MultiSelectItem<String>(e, e))
         .toList(growable: false);
     return MultiSelectDialog(
-      backgroundColor: Colors.orange,
+      backgroundColor: Colors.deepOrangeAccent,
       title: Text('Remove Filter for $message files'),
       items: items,
       initialValue: const <String>[],

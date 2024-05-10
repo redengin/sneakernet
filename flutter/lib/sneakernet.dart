@@ -17,8 +17,8 @@ class SneakerNet {
       if (await WiFiForIoTPlugin.forceWifiUsage(true)) {
         final restClient = DefaultApi();
         // attempt to update the firmware first
-        if (false == await _syncFirmware(restClient)) {
-          await _syncFiles(library, restClient);
+        if (false == await _syncFirmware(ssid, restClient)) {
+          await _syncFiles(ssid, library, restClient);
         }
         WiFiForIoTPlugin.forceWifiUsage(false);
       }
@@ -26,7 +26,7 @@ class SneakerNet {
     }
   }
 
-  static Future<bool> _syncFirmware(restClient) async {
+  static Future<bool> _syncFirmware(ssid, restClient) async {
     final remoteFirmware = await restClient.firmwareGet();
     if (remoteFirmware == null) return false;
 
@@ -52,18 +52,27 @@ class SneakerNet {
       response = await restClient.firmwarePutWithHttpInfo(
           body: MultipartFile.fromBytes('', newFirmwareData.buffer.asUint8List()));
     } on ApiException catch(e) {
+      flutterLocalNotificationsPlugin.show(notificationSync,
+        'Updated firmware of $ssid',
+        'awaiting reboot to before we can sync files.',
+        notificationDetails);
       return true;
     }
     return false;
   }
 
-  static _syncFiles(Library library, DefaultApi restClient) async {
+  static _syncFiles(ssid, Library library, DefaultApi restClient) async {
+    var files_received = 0;
+    var files_removed = 0;
+    var files_added = 0;
+
     final remoteCatalog = await restClient.catalogGet();
     if (remoteCatalog != null) {
       // remove the flagged content
       for (var entry in remoteCatalog) {
         if (library.isFlagged(entry.filename)) {
           restClient.catalogFilenameDelete(entry.filename);
+          files_removed++;
         }
       }
 
@@ -75,6 +84,7 @@ class SneakerNet {
               await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
           if (get.statusCode == 200) {
             await library.add(entry.filename, get.bodyBytes, timestamp);
+            files_received++;
           }
         }
       }
@@ -89,8 +99,22 @@ class SneakerNet {
           final timestamp = file.lastModifiedSync().toUtc().toIso8601String();
           final body = await MultipartFile.fromPath('', file.path);
           await restClient.catalogFilenamePutWithHttpInfo(filename, timestamp, body: body);
+          files_added++;
         }
       }
+
+      // notify of the changes
+      var notify_body = "Synchronized";
+      if(files_received > 0)
+        notify_body += "\nreceived $files_received files";
+      if(files_added > 0)
+        notify_body += "\nadded $files_added files";
+      if(files_removed > 0)
+        notify_body += "\nremoved $files_removed files";
+      flutterLocalNotificationsPlugin.show(notificationSync,
+          ssid,
+          notify_body,
+          notificationDetails);
     }
   }
 }

@@ -17,4 +17,5 @@ const AndroidNotificationDetails androidNotificationDetails =
 const NotificationDetails notificationDetails =
     NotificationDetails(android: androidNotificationDetails);
 
-const notificationFoundSneakerNetsId = 0;
+const notificationFound = 0;
+const notificationSync = 1;

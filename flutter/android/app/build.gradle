@@ -19,14 +19,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
-
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = flutterVersionName.tokenize(".")[0]
-}
 
 
 android {
@@ -52,7 +45,8 @@ android {
         applicationId "monster.sneakernet"
         // minSdkVersion flutter.minSdkVersion
         // minSdkVersion 16 // min required for wifi-scan
-        minSdkVersion 19 // min required for flutter_file_dialog
+        // minSdkVersion 19 // min required for flutter_file_dialog
+        minSdkVersion 21 // min fore flutter_foreground_task
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
