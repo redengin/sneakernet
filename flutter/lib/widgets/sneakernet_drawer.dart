@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sneakernet/pages/sync.dart';
+// import 'package:sneakernet/pages/sync.dart';
 import '../pages/settings.dart';
 import '../pages/about.dart';
 
@@ -24,13 +24,13 @@ class SneakerNetDrawer extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.pushNamed(context, SettingsPage.routeName);
                 }),
-            ListTile(
-                leading: const Icon(Icons.sync),
-                title: const Text('Sync with Sneakernets'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, SyncPage.routeName);
-                }),
+            // ListTile(
+            //     leading: const Icon(Icons.sync),
+            //     title: const Text('Sync with Sneakernets'),
+            //     onTap: () {
+            //       Navigator.pop(context);
+            //       Navigator.pushNamed(context, SyncPage.routeName);
+            //     }),
             ListTile(
                 leading: const Icon(Icons.contact_page_outlined),
                 title: const Text('Contact Us'),

@@ -3,27 +3,24 @@ import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
-import 'package:sneakernet/pages/sync.dart';
-import 'package:wifi_scan/wifi_scan.dart';
-
-
+import 'sneakernet.dart';
 import 'library.dart';
 import 'settings.dart';
 import 'notifications.dart';
-import 'sneakernet.dart';
 
 import 'pages/settings.dart';
 import 'pages/about.dart';
 import 'pages/library.dart';
 import 'pages/location_permissions_request.dart';
+// import 'pages/sync.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
-var foundSneakerNets = List<String>.empty();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,52 +41,17 @@ Future<void> main() async {
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
 
-  // Disabled, doesn't appear you can change wifi connection from background
-  // create background tasks
-  // await Workmanager().initialize(callbackDispatcher);
+  // start foreground task
+  await _startForegroundTask();
 
-  // DISABLED doesn't work in background
-  // // subscribe to wifi scans
-  // switch (await WiFiScan.instance.canGetScannedResults()) {
-  //   case CanGetScannedResults.yes:
-  //     final scanSubscription =
-  //         WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-  //       var sneakerNetNodes = results
-  //           .where((_) => _.ssid.startsWith(sneakerNetPrefix))
-  //           .toList(growable: false);
-  //
-  //       if (sneakerNetNodes.isNotEmpty) {
-  //         foundSneakerNets = sneakerNetNodes.map((_) => _.ssid).toList();
-  //         // display a notification
-  //         flutterLocalNotificationsPlugin.show(
-  //             notificationFound,
-  //             'Found Sneakernet(s)',
-  //             foundSneakerNets.join("\n"),
-  //             notificationDetails);
-  //
-  //         // Disabled, doesn't appear you can change wifi connection from background
-  //         // queue up background sync tasks
-  //         // foundSneakerNets.forEach((ssid) async {
-  //         //   await Workmanager().registerOneOffTask(ssid, syncTaskName,
-  //         //       existingWorkPolicy: ExistingWorkPolicy.keep,
-  //         //       inputData: {
-  //         //         syncTaskParamSsid: ssid,
-  //         //         syncTaskParamLibraryPath: libraryDir.path,
-  //         //       });
-  //         // });
-  //       }
-  //     });
-  //     WiFiScan.instance.startScan();
-  //     break;
-  //   default:
-  //   /* do nothing */
-  // }
-
+  // use a page to guide permission access
   var initialRoute = LibraryPage.routeName;
   if (await Permission.locationAlways.isDenied) {
     // request "Location Always" access
     initialRoute = LocationPermissionsRequest.routeName;
   }
+
+  // start the app
   runApp(MaterialApp(
     themeMode: ThemeMode.system,
     theme: ThemeData.light(),
@@ -99,17 +61,18 @@ Future<void> main() async {
       LibraryPage.routeName: (_) => const LibraryPage(),
       SettingsPage.routeName: (_) => const SettingsPage(),
       AboutPage.routeName: (_) => const AboutPage(),
-      LocationPermissionsRequest.routeName: (_) => const LocationPermissionsRequest(),
-      SyncPage.routeName: (_) => const SyncPage(),
+      LocationPermissionsRequest.routeName: (_) =>
+          const LocationPermissionsRequest(),
+      // SyncPage.routeName: (_) => const SyncPage(),
     },
   ));
 }
 
 void onDidReceiveNotificationResponse(NotificationResponse details) {
-  switch(details.id)
-  {
+  switch (details.id) {
     case notificationFound:
-      navigatorKey.currentState?.pushReplacementNamed(SyncPage.routeName);
+      // FIXME
+      // navigatorKey.currentState?.pushReplacementNamed(SyncPage.routeName);
       break;
     default:
       navigatorKey.currentState?.pushReplacementNamed(LibraryPage.routeName);
@@ -117,12 +80,145 @@ void onDidReceiveNotificationResponse(NotificationResponse details) {
 }
 
 //------------------------------------------------------------------------------
-// Parameters for background tasks
+// Parameters for tasks
 //------------------------------------------------------------------------------
 const syncTaskName = 'sneakernet-sync';
 const syncTaskParamSsid = 'sneakernet-ssid';
 const syncTaskParamLibraryPath = 'libraryDir';
 
+Future<void> _startForegroundTask() async {
+  await _acquireForegroundPermissions();
+  _initForegroundTask();
+  await _createForegroundTask();
+}
+
+Future<void> _acquireForegroundPermissions() async {
+  if (Platform.isAndroid) {
+    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for // // onNotificationPressed function to be called.
+    // if (!await FlutterForegroundTask.canDrawOverlays) {
+    //   // This function requires `android.permission.SYSTEM_ALERT_WINDOW` permission.
+    //   await FlutterForegroundTask.openSystemAlertWindowSettings();
+    // }
+    // Android 12 or higher, there are restrictions on starting a foreground service.
+    // To restart the service on device reboot or unexpected problem, you need to allow below permission.
+    if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+      // This function requires `android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` permission.
+      await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+    }
+    // Android 13 and higher, you need to allow notification permission to expose foreground service notification.
+    final NotificationPermission notificationPermissionStatus =
+        await FlutterForegroundTask.checkNotificationPermission();
+    if (notificationPermissionStatus != NotificationPermission.granted) {
+      await FlutterForegroundTask.requestNotificationPermission();
+    }
+  }
+}
+
+void _initForegroundTask() {
+  FlutterForegroundTask.init(
+    androidNotificationOptions: AndroidNotificationOptions(
+      foregroundServiceType: AndroidForegroundServiceType.DATA_SYNC,
+      channelId: 'foreground_service',
+      channelName: 'Foreground Service Notification',
+      channelDescription:
+      'This notification appears when the foreground service is running.',
+      channelImportance: NotificationChannelImportance.LOW,
+      priority: NotificationPriority.LOW,
+      iconData: const NotificationIconData(
+        resType: ResourceType.drawable,
+        resPrefix: ResourcePrefix.ic,
+        name: 'launcher_foreground',
+        // backgroundColor: Colors.orange,
+      ),
+    ),
+    iosNotificationOptions: const IOSNotificationOptions(
+      showNotification: true,
+      playSound: false,
+    ),
+    foregroundTaskOptions: const ForegroundTaskOptions(
+      interval: 5000,
+      isOnceEvent: false,
+      autoRunOnBoot: true,
+      allowWakeLock: true,
+      allowWifiLock: true,
+    ),
+  );
+}
+ReceivePort? _receivePort;
+Future<bool> _createForegroundTask() async {
+  // You can save data using the saveData function.
+  await FlutterForegroundTask.saveData(key: 'customData', value: 'hello');
+
+  // Register the receivePort before starting the service.
+  final ReceivePort? receivePort = FlutterForegroundTask.receivePort;
+  final bool isRegistered = _registerReceivePort(receivePort);
+  if (!isRegistered) {
+    print('Failed to register receivePort!');
+    return false;
+  }
+
+  if (await FlutterForegroundTask.isRunningService) {
+    return FlutterForegroundTask.restartService();
+  } else {
+    return FlutterForegroundTask.startService(
+      notificationTitle: 'Monitoring for SneakerNet nodes',
+      notificationText: '',
+      callback: foregroundCallback,
+    );
+  }
+}
+
+bool _registerReceivePort(ReceivePort? newReceivePort) {
+  if (newReceivePort == null) {
+    return false;
+  }
+
+  _closeReceivePort();
+
+  _receivePort = newReceivePort;
+  _receivePort?.listen((data) {
+    // if (data is int) {
+    //   print('eventCount: $data');
+    // } else if (data is String) {
+    //   if (data == 'onNotificationPressed') {
+    //     Navigator.of(context).pushNamed('/resume-route');
+    //   }
+    // } else if (data is DateTime) {
+    //   print('timestamp: ${data.toString()}');
+    // }
+  });
+
+  return _receivePort != null;
+}
+
+void _closeReceivePort() {
+  _receivePort?.close();
+  _receivePort = null;
+}
+
+
+@pragma('vm:entry-point')
+void foregroundCallback() {
+  // The setTaskHandler function must be called to handle the task in the background.
+  FlutterForegroundTask.setTaskHandler(SneakernetTaskHandler());
+}
+
+class SneakernetTaskHandler extends TaskHandler {
+  @override
+  void onRepeatEvent(DateTime timestamp, SendPort? sendPort) {
+    // TODO: implement onRepeatEvent
+  }
+
+  @override
+  void onStart(DateTime timestamp, SendPort? sendPort) {
+    // TODO: implement onStart
+  }
+
+  @override
+  void onDestroy(DateTime timestamp, SendPort? sendPort) {
+    // TODO: implement onDestroy
+  }
+}
 
 // Disabled, doesn't appear you can change wifi connection from background
 // /*------------------------------------------------------------------------------

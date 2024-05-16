@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../sneakernet.dart';
+
 class LocationPermissionsRequest extends StatelessWidget {
   static String routeName = '/requestLocationPermissions';
 
@@ -13,7 +15,7 @@ class LocationPermissionsRequest extends StatelessWidget {
             child: ListBody(
           children: <Widget>[
             Text(
-                "Sneakernet needs Location Access: 'Allow all the time'"),
+                "SneakerNet needs Location Access: 'Allow all the time'"),
           ],
         )),
         actions: [
@@ -25,7 +27,7 @@ class LocationPermissionsRequest extends StatelessWidget {
             child: const Text("Grant"),
             onPressed: () async {
               await requestPermissions(context);
-              if(!context.mounted) return;
+              // if(!context.mounted) return;
               Navigator.of(context).pop();
             },
           ),
