@@ -47,12 +47,14 @@ Future<void> main() async {
 
   // default to the library
   var initialRoute = LibraryPage.routeName;
-  if (await Permission.locationAlways.isDenied) {
-    // request "Location Always" access
-    initialRoute = LocationPermissionsRequest.routeName;
-  }
+  // if (await Permission.locationAlways.isDenied) {
+  //   // request "Location Always" access
+  //   initialRoute = LocationPermissionsRequest.routeName;
+  // }
 
   // start foreground task
+  // FIXME only needs locationWhenInUse (not locationAlways)
+  await Permission.locationWhenInUse.request();
   await _startForegroundTask();
 
   // start the app
@@ -102,7 +104,7 @@ Future<void> _acquireForegroundPermissions() async {
   if (Platform.isAndroid) {
     // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
     // onNotificationPressed function to be called.
-    // TODO is this necessary
+    // FIXME this is a shitty way, make a workaround
     // if (!await FlutterForegroundTask.canDrawOverlays) {
     //   // This function requires `android.permission.SYSTEM_ALERT_WINDOW` permission.
     //   await FlutterForegroundTask.openSystemAlertWindowSettings();
@@ -124,9 +126,9 @@ Future<void> _acquireForegroundPermissions() async {
 
 void _initForegroundTask() {
   // period for sync with sneakernets
-  const syncInterval_ms = 5 * 60 * 1000; // 5 minutes
+  // const syncInterval_ms = 5 * 60 * 1000; // 5 minutes
   // TEST USE ONLY
-  // const syncInterval_ms = 10 * 1000;
+  const syncInterval_ms = 10 * 1000;
   FlutterForegroundTask.init(
     androidNotificationOptions: AndroidNotificationOptions(
       foregroundServiceType: AndroidForegroundServiceType.DATA_SYNC,
