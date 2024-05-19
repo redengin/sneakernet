@@ -2,9 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:path/path.dart' as p;
 
-// initialized by main
-late final Library library;
-
 class Library {
   final Directory libraryDir;
   late final Directory catalogDir;

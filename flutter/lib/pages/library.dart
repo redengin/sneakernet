@@ -5,7 +5,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
 
-import '../library.dart';
+import '../main.dart';
 import '../widgets/sneakernet_drawer.dart';
 import '../widgets/file_tile.dart';
 

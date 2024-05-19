@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:wifi_scan/wifi_scan.dart';
 import 'package:flutter/services.dart';
@@ -12,41 +13,42 @@ import '../notifications.dart';
 
 
 class SneakerNet {
-  static const sneakerNetPrefix = "SneakerNet";
-  static var scanSubscription;
+  static const ssidPrefix = "SneakerNet";
+  static List<String> foundSneakernets = [];
 
-  static scan() async {
-    // TODO what if there is already a scanSubscription
-    switch (await WiFiScan.instance.canGetScannedResults()) {
-      case CanGetScannedResults.yes:
-        scanSubscription =
-            WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-              handleWifiScans(results);
-            });
-        WiFiScan.instance.startScan();
-        break;
-      default:
-      /* do nothing */
-    }
-  }
-
-  static void handleWifiScans(List<WiFiAccessPoint> results) {
-    final sneakerNetNodes = results
-        .where((_) => _.ssid.startsWith(sneakerNetPrefix))
-        .toList(growable: false);
-    if (sneakerNetNodes.isNotEmpty) {
-      final foundSneakerNets = sneakerNetNodes.map((_) => _.ssid).toList();
-      // display a notification
-      // flutterLocalNotificationsPlugin.show(
-      //     notificationFound,
-      //     'Found Sneakernet(s)',
-      //     foundSneakerNets.join("\n"),
-      //     notificationDetails);
-    }
-  }
+  // static scan() async {
+  //   StreamSubscription<List<WiFiAccessPoint>> ?scanSubscription;
+  //   switch (await WiFiScan.instance.canGetScannedResults()) {
+  //     case CanGetScannedResults.yes:
+  //       scanSubscription =
+  //           WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+  //             handleWifiScans(results);
+  //           });
+  //       WiFiScan.instance.startScan();
+  //       break;
+  //     default:
+  //     /* do nothing */
+  //   }
+  //   return scanSubscription;
+  // }
+  //
+  // static void handleWifiScans(List<WiFiAccessPoint> results) {
+  //   final sneakerNetNodes = results
+  //       .where((_) => _.ssid.startsWith(sneakerNetPrefix))
+  //       .toList(growable: false);
+  //   if (sneakerNetNodes.isNotEmpty) {
+  //     foundSneakernets = sneakerNetNodes.map((_) => _.ssid).toList();
+  //     // display a notification
+  //     // flutterLocalNotificationsPlugin.show(
+  //     //     notificationFound,
+  //     //     'Found Sneakernet(s)',
+  //     //     foundSneakerNets.join("\n"),
+  //     //     notificationDetails);
+  //   }
+  // }
 
   static sync(ssid, library) async {
-    if (await WiFiForIoTPlugin.connect(ssid, timeoutInSeconds: 15)) {
+    if (await WiFiForIoTPlugin.connect(ssid, timeoutInSeconds: 60)) {
       if (await WiFiForIoTPlugin.forceWifiUsage(true)) {
         final restClient = DefaultApi();
         // attempt to update the firmware first

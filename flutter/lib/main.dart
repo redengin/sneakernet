@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:wifi_scan/wifi_scan.dart';
 
 import 'sneakernet.dart';
 import 'library.dart';
@@ -21,6 +23,8 @@ import 'pages/location_permissions_request.dart';
 // import 'pages/sync.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
+var settings;
+var library;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,15 +45,15 @@ Future<void> main() async {
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
 
-  // start foreground task
-  await _startForegroundTask();
-
-  // use a page to guide permission access
+  // default to the library
   var initialRoute = LibraryPage.routeName;
   if (await Permission.locationAlways.isDenied) {
     // request "Location Always" access
     initialRoute = LocationPermissionsRequest.routeName;
   }
+
+  // start foreground task
+  await _startForegroundTask();
 
   // start the app
   runApp(MaterialApp(
@@ -68,6 +72,7 @@ Future<void> main() async {
   ));
 }
 
+// handle entry via notification
 void onDidReceiveNotificationResponse(NotificationResponse details) {
   switch (details.id) {
     case notificationFound:
@@ -82,6 +87,7 @@ void onDidReceiveNotificationResponse(NotificationResponse details) {
 //------------------------------------------------------------------------------
 // Parameters for tasks
 //------------------------------------------------------------------------------
+const taskTitle = "Monitoring SneakerNet";
 const syncTaskName = 'sneakernet-sync';
 const syncTaskParamSsid = 'sneakernet-ssid';
 const syncTaskParamLibraryPath = 'libraryDir';
@@ -94,7 +100,9 @@ Future<void> _startForegroundTask() async {
 
 Future<void> _acquireForegroundPermissions() async {
   if (Platform.isAndroid) {
-    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for // // onNotificationPressed function to be called.
+    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
+    // onNotificationPressed function to be called.
+    // TODO is this necessary
     // if (!await FlutterForegroundTask.canDrawOverlays) {
     //   // This function requires `android.permission.SYSTEM_ALERT_WINDOW` permission.
     //   await FlutterForegroundTask.openSystemAlertWindowSettings();
@@ -115,20 +123,23 @@ Future<void> _acquireForegroundPermissions() async {
 }
 
 void _initForegroundTask() {
+  // period for sync with sneakernets
+  const syncInterval_ms = 5 * 60 * 1000; // 5 minutes
+  // TEST USE ONLY
+  // const syncInterval_ms = 10 * 1000;
   FlutterForegroundTask.init(
     androidNotificationOptions: AndroidNotificationOptions(
       foregroundServiceType: AndroidForegroundServiceType.DATA_SYNC,
-      channelId: 'foreground_service',
-      channelName: 'Foreground Service Notification',
-      channelDescription:
-      'This notification appears when the foreground service is running.',
+      channelId: syncTaskName,
+      channelName: syncTaskName,
+      channelDescription: taskTitle,
       channelImportance: NotificationChannelImportance.LOW,
       priority: NotificationPriority.LOW,
       iconData: const NotificationIconData(
+        // FIXME too small
         resType: ResourceType.drawable,
         resPrefix: ResourcePrefix.ic,
         name: 'launcher_foreground',
-        // backgroundColor: Colors.orange,
       ),
     ),
     iosNotificationOptions: const IOSNotificationOptions(
@@ -136,7 +147,7 @@ void _initForegroundTask() {
       playSound: false,
     ),
     foregroundTaskOptions: const ForegroundTaskOptions(
-      interval: 5000,
+      interval: syncInterval_ms,
       isOnceEvent: false,
       autoRunOnBoot: true,
       allowWakeLock: true,
@@ -144,18 +155,20 @@ void _initForegroundTask() {
     ),
   );
 }
-ReceivePort? _receivePort;
+
+// ReceivePort? _receivePort;
+
 Future<bool> _createForegroundTask() async {
   // You can save data using the saveData function.
-  await FlutterForegroundTask.saveData(key: 'customData', value: 'hello');
+  // await FlutterForegroundTask.saveData(key: 'customData', value: 'hello');
 
   // Register the receivePort before starting the service.
-  final ReceivePort? receivePort = FlutterForegroundTask.receivePort;
-  final bool isRegistered = _registerReceivePort(receivePort);
-  if (!isRegistered) {
-    print('Failed to register receivePort!');
-    return false;
-  }
+  // final ReceivePort? receivePort = FlutterForegroundTask.receivePort;
+  // final bool isRegistered = _registerReceivePort(receivePort);
+  // if (!isRegistered) {
+  //   print('Failed to register receivePort!');
+  //   return false;
+  // }
 
   if (await FlutterForegroundTask.isRunningService) {
     return FlutterForegroundTask.restartService();
@@ -168,34 +181,33 @@ Future<bool> _createForegroundTask() async {
   }
 }
 
-bool _registerReceivePort(ReceivePort? newReceivePort) {
-  if (newReceivePort == null) {
-    return false;
-  }
-
-  _closeReceivePort();
-
-  _receivePort = newReceivePort;
-  _receivePort?.listen((data) {
-    // if (data is int) {
-    //   print('eventCount: $data');
-    // } else if (data is String) {
-    //   if (data == 'onNotificationPressed') {
-    //     Navigator.of(context).pushNamed('/resume-route');
-    //   }
-    // } else if (data is DateTime) {
-    //   print('timestamp: ${data.toString()}');
-    // }
-  });
-
-  return _receivePort != null;
-}
-
-void _closeReceivePort() {
-  _receivePort?.close();
-  _receivePort = null;
-}
-
+// bool _registerReceivePort(ReceivePort? newReceivePort) {
+//   if (newReceivePort == null) {
+//     return false;
+//   }
+//
+//   _closeReceivePort();
+//
+//   _receivePort = newReceivePort;
+//   _receivePort?.listen((data) {
+//     // if (data is int) {
+//     //   print('eventCount: $data');
+//     // } else if (data is String) {
+//     //   if (data == 'onNotificationPressed') {
+//     //     Navigator.of(context).pushNamed('/resume-route');
+//     //   }
+//     // } else if (data is DateTime) {
+//     //   print('timestamp: ${data.toString()}');
+//     // }
+//   });
+//
+//   return _receivePort != null;
+// }
+//
+// void _closeReceivePort() {
+//   _receivePort?.close();
+//   _receivePort = null;
+// }
 
 @pragma('vm:entry-point')
 void foregroundCallback() {
@@ -204,53 +216,72 @@ void foregroundCallback() {
 }
 
 class SneakernetTaskHandler extends TaskHandler {
+  Settings? _settings;
+  Library? _library;
+  StreamSubscription<List<WiFiAccessPoint>>? _scanSubscription;
+  List<String>? _foundSneakerNets;
+
   @override
-  void onRepeatEvent(DateTime timestamp, SendPort? sendPort) {
-    // TODO: implement onRepeatEvent
+  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // initialize persistent settings
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    _settings = Settings(preferences: preferences);
+
+    // use a non-backed up storage for library content
+    final libraryDir = await getTemporaryDirectory();
+    _library = Library(libraryDir);
   }
 
   @override
-  void onStart(DateTime timestamp, SendPort? sendPort) {
-    // TODO: implement onStart
+  void onRepeatEvent(DateTime timestamp, SendPort? sendPort) {
+    FlutterForegroundTask.updateService(notificationTitle: taskTitle);
+    // if scanning didn't start before, try again
+    if (_scanSubscription == null) {
+      _startScan();
+    }
+
+    if (_foundSneakerNets != null) {
+      if (_settings!.getAutoSync()) {
+        _foundSneakerNets!.forEach((ssid) {
+          SneakerNet.sync(ssid, _library);
+        });
+      }
+    }
   }
 
   @override
   void onDestroy(DateTime timestamp, SendPort? sendPort) {
-    // TODO: implement onDestroy
+    _scanSubscription?.cancel();
+  }
+
+  _startScan() async {
+    switch (
+        await WiFiScan.instance.canGetScannedResults(askPermissions: false)) {
+      case CanGetScannedResults.yes:
+        _scanSubscription =
+            WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+          _handleWifiScans(results);
+        });
+        WiFiScan.instance.startScan();
+      default:
+        FlutterForegroundTask.updateService(
+            notificationTitle: taskTitle,
+            notificationText: "Permission Denied: enable location permissions"
+            // FIXME ask for location permissions upon click
+            );
+    }
+  }
+
+  void _handleWifiScans(List<WiFiAccessPoint> results) {
+    final sneakerNetSsids = results
+        .where((_) => _.ssid.startsWith(SneakerNet.ssidPrefix))
+        .toList(growable: false)
+        .map((_) => _.ssid)
+        .toList(growable: false);
+    if (sneakerNetSsids.isNotEmpty) {
+      _foundSneakerNets = sneakerNetSsids;
+    }
   }
 }
-
-// Disabled, doesn't appear you can change wifi connection from background
-// /*------------------------------------------------------------------------------
-// WorkManager Helpers
-// ------------------------------------------------------------------------------*/
-//
-// @pragma(
-//     'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-// void callbackDispatcher() {
-//   Workmanager().executeTask((taskName, inputData) async {
-//     switch (taskName) {
-//       case syncTaskName:
-//         // validate invocation
-//         final ssid = inputData?[syncTaskParamSsid];
-//         if (ssid == null) {
-//           // abort the task with error
-//           return Future.error("<$syncTaskParamSsid> param not found");
-//         }
-//
-//         final libraryPath = inputData?[syncTaskParamLibraryPath];
-//         if (libraryPath == null) {
-//           // abort the task with error
-//           return Future.error("<$syncTaskParamLibraryPath> param not found");
-//         }
-//         final library = Library(Directory(libraryPath));
-//
-//         await SneakerNet.sync(ssid, library);
-//         return true;
-//
-//       default:
-//         // abort the task with error
-//         return Future.error("unknown task ${taskName}");
-//     }
-//   });
-// }
