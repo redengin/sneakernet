@@ -29,6 +29,9 @@ var library;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // ask nicely for location awareness
+  await Permission.locationWhenInUse.request();
+
   // initialize persistent settings
   final SharedPreferences preferences = await SharedPreferences.getInstance();
   settings = Settings(preferences: preferences);
@@ -45,19 +48,11 @@ Future<void> main() async {
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
 
-  // default to the library
-  var initialRoute = LibraryPage.routeName;
-  // if (await Permission.locationAlways.isDenied) {
-  //   // request "Location Always" access
-  //   initialRoute = LocationPermissionsRequest.routeName;
-  // }
-
   // start foreground task
-  // FIXME only needs locationWhenInUse (not locationAlways)
-  await Permission.locationWhenInUse.request();
   await _startForegroundTask();
 
   // start the app
+  var initialRoute = LibraryPage.routeName;
   runApp(MaterialApp(
     themeMode: ThemeMode.system,
     theme: ThemeData.light(),
@@ -67,8 +62,8 @@ Future<void> main() async {
       LibraryPage.routeName: (_) => const LibraryPage(),
       SettingsPage.routeName: (_) => const SettingsPage(),
       AboutPage.routeName: (_) => const AboutPage(),
-      LocationPermissionsRequest.routeName: (_) =>
-          const LocationPermissionsRequest(),
+      // LocationPermissionsRequest.routeName: (_) =>
+      //     const LocationPermissionsRequest(),
       // SyncPage.routeName: (_) => const SyncPage(),
     },
   ));
@@ -104,7 +99,7 @@ Future<void> _acquireForegroundPermissions() async {
   if (Platform.isAndroid) {
     // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
     // onNotificationPressed function to be called.
-    // FIXME this is a shitty way, make a workaround
+    // FIXME this is a shitty method
     // if (!await FlutterForegroundTask.canDrawOverlays) {
     //   // This function requires `android.permission.SYSTEM_ALERT_WINDOW` permission.
     //   await FlutterForegroundTask.openSystemAlertWindowSettings();
@@ -234,46 +229,25 @@ class SneakernetTaskHandler extends TaskHandler {
     // use a non-backed up storage for library content
     final libraryDir = await getTemporaryDirectory();
     _library = Library(libraryDir);
+
+    _scanSubscription = WiFiScan.instance.onScannedResultsAvailable.listen(
+        (results) => _handleWifiScans(results)
+    );
   }
 
   @override
   void onRepeatEvent(DateTime timestamp, SendPort? sendPort) {
     FlutterForegroundTask.updateService(notificationTitle: taskTitle);
-    // if scanning didn't start before, try again
-    if (_scanSubscription == null) {
-      _startScan();
-    }
 
-    if (_foundSneakerNets != null) {
-      if (_settings!.getAutoSync()) {
-        _foundSneakerNets!.forEach((ssid) {
-          SneakerNet.sync(ssid, _library);
-        });
-      }
-    }
-  }
+    WiFiScan.instance.startScan();
 
-  @override
-  void onDestroy(DateTime timestamp, SendPort? sendPort) {
-    _scanSubscription?.cancel();
-  }
-
-  _startScan() async {
-    switch (
-        await WiFiScan.instance.canGetScannedResults(askPermissions: false)) {
-      case CanGetScannedResults.yes:
-        _scanSubscription =
-            WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-          _handleWifiScans(results);
-        });
-        WiFiScan.instance.startScan();
-      default:
-        FlutterForegroundTask.updateService(
-            notificationTitle: taskTitle,
-            notificationText: "Permission Denied: enable location permissions"
-            // FIXME ask for location permissions upon click
-            );
-    }
+    // if (_foundSneakerNets != null) {
+    //   if (_settings!.getAutoSync()) {
+    //     _foundSneakerNets!.forEach((ssid) {
+    //       SneakerNet.sync(ssid, _library);
+    //     });
+    //   }
+    // }
   }
 
   void _handleWifiScans(List<WiFiAccessPoint> results) {
@@ -284,6 +258,20 @@ class SneakernetTaskHandler extends TaskHandler {
         .toList(growable: false);
     if (sneakerNetSsids.isNotEmpty) {
       _foundSneakerNets = sneakerNetSsids;
+
+      // announce the findings
+      final sneakernetsString = sneakerNetSsids.join(",");
+      flutterLocalNotificationsPlugin.show(
+          notificationFound,
+          'Found $sneakernetsString',
+          'tap to sync',
+          notificationDetails);
     }
   }
+
+  @override
+  void onDestroy(DateTime timestamp, SendPort? sendPort) {
+    _scanSubscription?.cancel();
+  }
+
 }
