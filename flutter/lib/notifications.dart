@@ -6,8 +6,8 @@ const AndroidInitializationSettings initializationSettingsAndroid =
 final InitializationSettings initializationSettings =
     InitializationSettings(android: initializationSettingsAndroid);
 
-const channelId = 'sneakernet';
-const channelName = 'sneakernet';
+const channelId = 'sneakernet-notification';
+const channelName = channelId;
 const AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails(channelId, channelName,
         channelDescription: 'sneakernet notifications',

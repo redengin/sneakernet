@@ -9,9 +9,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="foreground working... perhaps too much">
+    <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="getting there">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/notifications.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/notifications.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -264,14 +266,6 @@
       <option name="project" value="LOCAL" />
       <updated>1693972997895</updated>
     </task>
-    <task id="LOCAL-00034" summary="refactoring">
-      <option name="closed" value="true" />
-      <created>1708919260045</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1708919260045</updated>
-    </task>
     <task id="LOCAL-00035" summary="refactoring">
       <option name="closed" value="true" />
       <created>1708925935307</created>
@@ -456,7 +450,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716092825836</updated>
     </task>
-    <option name="localTasksCounter" value="58" />
+    <task id="LOCAL-00058" summary="getting there">
+      <option name="closed" value="true" />
+      <created>1716608706107</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1716608706107</updated>
+    </task>
+    <option name="localTasksCounter" value="59" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -483,7 +485,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="adding location request per google policy" />
     <MESSAGE value="setting background color to make it readable." />
     <MESSAGE value="adding description to filter dialog" />
     <MESSAGE value="updating to newest API" />
@@ -508,15 +509,16 @@
     <MESSAGE value="readying for version 1.0.0+10" />
     <MESSAGE value="start to using foreground process" />
     <MESSAGE value="foreground working... perhaps too much" />
-    <option name="LAST_COMMIT_MESSAGE" value="foreground working... perhaps too much" />
+    <MESSAGE value="getting there" />
+    <option name="LAST_COMMIT_MESSAGE" value="getting there" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/sneakernet.dart</url>
-          <line>35</line>
-          <option name="timeStamp" value="12" />
+          <line>24</line>
+          <option name="timeStamp" value="58" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

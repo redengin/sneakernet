@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:wifi_scan/wifi_scan.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:path/path.dart' as p;
@@ -14,38 +13,8 @@ import '../notifications.dart';
 
 class SneakerNet {
   static const ssidPrefix = "SneakerNet";
+  // FIXME shouldn't each "thing" should find
   static List<String> foundSneakernets = [];
-
-  // static scan() async {
-  //   StreamSubscription<List<WiFiAccessPoint>> ?scanSubscription;
-  //   switch (await WiFiScan.instance.canGetScannedResults()) {
-  //     case CanGetScannedResults.yes:
-  //       scanSubscription =
-  //           WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-  //             handleWifiScans(results);
-  //           });
-  //       WiFiScan.instance.startScan();
-  //       break;
-  //     default:
-  //     /* do nothing */
-  //   }
-  //   return scanSubscription;
-  // }
-  //
-  // static void handleWifiScans(List<WiFiAccessPoint> results) {
-  //   final sneakerNetNodes = results
-  //       .where((_) => _.ssid.startsWith(sneakerNetPrefix))
-  //       .toList(growable: false);
-  //   if (sneakerNetNodes.isNotEmpty) {
-  //     foundSneakernets = sneakerNetNodes.map((_) => _.ssid).toList();
-  //     // display a notification
-  //     // flutterLocalNotificationsPlugin.show(
-  //     //     notificationFound,
-  //     //     'Found Sneakernet(s)',
-  //     //     foundSneakerNets.join("\n"),
-  //     //     notificationDetails);
-  //   }
-  // }
 
   static sync(ssid, library) async {
     if (await WiFiForIoTPlugin.connect(ssid, timeoutInSeconds: 60)) {

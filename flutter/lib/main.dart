@@ -213,10 +213,10 @@ void foregroundCallback() {
 }
 
 class SneakernetTaskHandler extends TaskHandler {
-  Settings? _settings;
-  Library? _library;
+  Settings? settings;
+  Library? library;
   StreamSubscription<List<WiFiAccessPoint>>? _scanSubscription;
-  List<String>? _foundSneakerNets;
+  List<String> ?_foundSneakerNets;
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
@@ -224,11 +224,11 @@ class SneakernetTaskHandler extends TaskHandler {
 
     // initialize persistent settings
     final SharedPreferences preferences = await SharedPreferences.getInstance();
-    _settings = Settings(preferences: preferences);
+    settings = Settings(preferences: preferences);
 
     // use a non-backed up storage for library content
     final libraryDir = await getTemporaryDirectory();
-    _library = Library(libraryDir);
+    library = Library(libraryDir);
 
     _scanSubscription = WiFiScan.instance.onScannedResultsAvailable.listen(
         (results) => _handleWifiScans(results)
@@ -237,10 +237,29 @@ class SneakernetTaskHandler extends TaskHandler {
 
   @override
   void onRepeatEvent(DateTime timestamp, SendPort? sendPort) {
+
+    // autosync
+    for (var ssid in _foundSneakerNets!)
+    {
+      SneakerNet.sync(ssid, library);
+    }
+
     FlutterForegroundTask.updateService(notificationTitle: taskTitle);
 
     WiFiScan.instance.startScan();
 
+    // final sneakernetsString = sneakerNetSsids.join(",");
+    // FlutterForegroundTask.updateService(
+    //     notificationTitle: taskTitle, notificationText: sneakernetsString);
+    // sneakerNetSsids.forEach((ssid) => SneakerNet.sync(ssid, library));
+
+    //   // announce the findings
+    //   flutterLocalNotificationsPlugin.show(
+    //       notificationFound,
+    //       'Found $sneakernetsString',
+    //       'tap to sync',
+    //       notificationDetails);
+    // }
     // if (_foundSneakerNets != null) {
     //   if (_settings!.getAutoSync()) {
     //     _foundSneakerNets!.forEach((ssid) {
@@ -258,20 +277,11 @@ class SneakernetTaskHandler extends TaskHandler {
         .toList(growable: false);
     if (sneakerNetSsids.isNotEmpty) {
       _foundSneakerNets = sneakerNetSsids;
-
-      // announce the findings
-      final sneakernetsString = sneakerNetSsids.join(",");
-      flutterLocalNotificationsPlugin.show(
-          notificationFound,
-          'Found $sneakernetsString',
-          'tap to sync',
-          notificationDetails);
-    }
   }
+}
 
   @override
   void onDestroy(DateTime timestamp, SendPort? sendPort) {
     _scanSubscription?.cancel();
   }
-
 }
