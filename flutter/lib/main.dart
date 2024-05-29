@@ -19,12 +19,13 @@ import 'notifications.dart';
 import 'pages/settings.dart';
 import 'pages/about.dart';
 import 'pages/library.dart';
+import 'pages/sync.dart';
 import 'pages/location_permissions_request.dart';
-// import 'pages/sync.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 var settings;
 var library;
+var flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,7 @@ Future<void> main() async {
   library = Library(libraryDir);
 
   // enable notifications
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>()
@@ -62,9 +64,9 @@ Future<void> main() async {
       LibraryPage.routeName: (_) => const LibraryPage(),
       SettingsPage.routeName: (_) => const SettingsPage(),
       AboutPage.routeName: (_) => const AboutPage(),
+      SyncPage.routeName: (_) => const SyncPage(),
       // LocationPermissionsRequest.routeName: (_) =>
       //     const LocationPermissionsRequest(),
-      // SyncPage.routeName: (_) => const SyncPage(),
     },
   ));
 }
@@ -130,8 +132,10 @@ void _initForegroundTask() {
       channelId: syncTaskName,
       channelName: syncTaskName,
       channelDescription: taskTitle,
-      channelImportance: NotificationChannelImportance.LOW,
-      priority: NotificationPriority.LOW,
+      channelImportance: NotificationChannelImportance.MAX,
+      priority: NotificationPriority.MAX,
+      playSound: true,
+      enableVibration: true,
       iconData: const NotificationIconData(
         // FIXME too small
         resType: ResourceType.drawable,
@@ -141,11 +145,11 @@ void _initForegroundTask() {
     ),
     iosNotificationOptions: const IOSNotificationOptions(
       showNotification: true,
-      playSound: false,
+      playSound: true,
     ),
     foregroundTaskOptions: const ForegroundTaskOptions(
-      interval: syncInterval_ms,
       isOnceEvent: false,
+      interval: syncInterval_ms,
       autoRunOnBoot: true,
       allowWakeLock: true,
       allowWifiLock: true,
@@ -216,7 +220,7 @@ class SneakernetTaskHandler extends TaskHandler {
   Settings? settings;
   Library? library;
   StreamSubscription<List<WiFiAccessPoint>>? _scanSubscription;
-  List<String> ?_foundSneakerNets;
+  List<String>? _foundSneakerNets;
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
@@ -230,55 +234,37 @@ class SneakernetTaskHandler extends TaskHandler {
     final libraryDir = await getTemporaryDirectory();
     library = Library(libraryDir);
 
-    _scanSubscription = WiFiScan.instance.onScannedResultsAvailable.listen(
-        (results) => _handleWifiScans(results)
-    );
+    _scanSubscription = WiFiScan.instance.onScannedResultsAvailable
+        .listen((results) => _handleWifiScans(results));
   }
 
   @override
-  void onRepeatEvent(DateTime timestamp, SendPort? sendPort) {
+  Future<void> onRepeatEvent(DateTime timestamp, SendPort? sendPort) async {
+    if (_foundSneakerNets != null) {
+      FlutterForegroundTask.updateService(
+          notificationTitle: taskTitle,
+          notificationText: "Found: ${_foundSneakerNets!.join(",")}");
 
-    // autosync
-    for (var ssid in _foundSneakerNets!)
-    {
-      SneakerNet.sync(ssid, library);
+      // synchronize SneakerNet
+      for (var ssid in _foundSneakerNets!) {
+        FlutterForegroundTask.updateService(
+            notificationTitle: taskTitle,
+            // notificationText: await SneakerNet.synchronize(ssid, library)
+        );
+      }
+      _foundSneakerNets = null;
+    } else {
+      FlutterForegroundTask.updateService(notificationTitle: taskTitle);
     }
 
-    FlutterForegroundTask.updateService(notificationTitle: taskTitle);
-
+    // keep scanning
     WiFiScan.instance.startScan();
-
-    // final sneakernetsString = sneakerNetSsids.join(",");
-    // FlutterForegroundTask.updateService(
-    //     notificationTitle: taskTitle, notificationText: sneakernetsString);
-    // sneakerNetSsids.forEach((ssid) => SneakerNet.sync(ssid, library));
-
-    //   // announce the findings
-    //   flutterLocalNotificationsPlugin.show(
-    //       notificationFound,
-    //       'Found $sneakernetsString',
-    //       'tap to sync',
-    //       notificationDetails);
-    // }
-    // if (_foundSneakerNets != null) {
-    //   if (_settings!.getAutoSync()) {
-    //     _foundSneakerNets!.forEach((ssid) {
-    //       SneakerNet.sync(ssid, _library);
-    //     });
-    //   }
-    // }
   }
 
   void _handleWifiScans(List<WiFiAccessPoint> results) {
-    final sneakerNetSsids = results
-        .where((_) => _.ssid.startsWith(SneakerNet.ssidPrefix))
-        .toList(growable: false)
-        .map((_) => _.ssid)
-        .toList(growable: false);
-    if (sneakerNetSsids.isNotEmpty) {
-      _foundSneakerNets = sneakerNetSsids;
+    var sneakerNetSsids = SneakerNet.apsToSneakerNets(results);
+    _foundSneakerNets = sneakerNetSsids.isNotEmpty ? sneakerNetSsids : null;
   }
-}
 
   @override
   void onDestroy(DateTime timestamp, SendPort? sendPort) {

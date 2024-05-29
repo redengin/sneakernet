@@ -11,9 +11,15 @@
   <component name="ChangeListManager">
     <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="getting there">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/settings.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/notifications.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/notifications.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/sync.dart.bak" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/sync.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/widgets/sneakernet_drawer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/sneakernet_drawer.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -266,14 +272,6 @@
       <option name="project" value="LOCAL" />
       <updated>1693972997895</updated>
     </task>
-    <task id="LOCAL-00035" summary="refactoring">
-      <option name="closed" value="true" />
-      <created>1708925935307</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1708925935307</updated>
-    </task>
     <task id="LOCAL-00036" summary="refactoring">
       <option name="closed" value="true" />
       <created>1710214775711</created>
@@ -458,7 +456,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716608706107</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="getting there">
+      <option name="closed" value="true" />
+      <created>1716612903058</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1716612903058</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -516,9 +522,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/sneakernet.dart</url>
-          <line>24</line>
-          <option name="timeStamp" value="58" />
+          <url>file://$PROJECT_DIR$/lib/pages/sync.dart</url>
+          <line>21</line>
+          <option name="timeStamp" value="75" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

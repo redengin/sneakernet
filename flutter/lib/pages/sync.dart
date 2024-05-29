@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sneakernet/main.dart';
 import 'package:sneakernet/sneakernet.dart';
-
-import '../library.dart';
+import 'package:wifi_scan/wifi_scan.dart';
 
 class SyncPage extends StatefulWidget {
   static const String routeName = '/sync';
@@ -16,10 +15,20 @@ class SyncPage extends StatefulWidget {
 }
 
 class _SyncPageState extends State<SyncPage> {
+  List<String> foundSneakerNets = [];
+
+  _SyncPageState() {
+    WiFiScan.instance.onScannedResultsAvailable.listen((aps) {
+      setState(() => foundSneakerNets = SneakerNet.apsToSneakerNets(aps));
+    });
+
+    WiFiScan.instance.startScan();
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('Found SneakerNets'),
+          title: const Text('SneakerNet Nodes'),
         ),
         body: RefreshIndicator(
           child: (foundSneakerNets.isEmpty)
@@ -57,7 +66,11 @@ class _SyncPageState extends State<SyncPage> {
           dialogContextCompleter.complete(dialogContext);
           return AlertDialog(title: Text("Syncing ${ssid}"));
         });
-    await SneakerNet.sync(ssid, library);
+    var message = await SneakerNet.synchronize(ssid, library);
+    // flutterLocalNotificationsPlugin.show( notificationSync,
+    //   message,
+    //   androidNotificationDetails
+    // );
     await dialogContextCompleter.future;
     final dialogContext = await dialogContextCompleter.future;
     Navigator.pop(dialogContext);
