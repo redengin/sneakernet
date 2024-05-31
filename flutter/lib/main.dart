@@ -249,7 +249,7 @@ class SneakernetTaskHandler extends TaskHandler {
       for (var ssid in _foundSneakerNets!) {
         FlutterForegroundTask.updateService(
             notificationTitle: taskTitle,
-            // notificationText: await SneakerNet.synchronize(ssid, library)
+            notificationText: await SneakerNet.synchronize(ssid, library)
         );
       }
       _foundSneakerNets = null;
