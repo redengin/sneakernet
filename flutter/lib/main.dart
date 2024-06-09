@@ -136,7 +136,6 @@ void _initForegroundTask() {
       playSound: true,
       enableVibration: true,
       iconData: const NotificationIconData(
-        // FIXME icon too small
         resType: ResourceType.drawable,
         resPrefix: ResourcePrefix.ic,
         name: 'launcher_foreground',
