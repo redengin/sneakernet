@@ -123,9 +123,8 @@ Future<void> _acquireForegroundPermissions() async {
 
 void _initForegroundTask() {
   // period for sync with sneakernets
-  // const syncInterval_ms = 5 * 60 * 1000; // 5 minutes
-  // TEST USE ONLY
-  const syncInterval_ms = 10 * 1000;
+  // const syncInterval_ms = 15 * 60 * 1000; // 15 minutes
+  const syncInterval_ms = 60 * 1000; // TEST USE ONLY
   FlutterForegroundTask.init(
     androidNotificationOptions: AndroidNotificationOptions(
       foregroundServiceType: AndroidForegroundServiceType.DATA_SYNC,
@@ -137,7 +136,7 @@ void _initForegroundTask() {
       playSound: true,
       enableVibration: true,
       iconData: const NotificationIconData(
-        // FIXME too small
+        // FIXME icon too small
         resType: ResourceType.drawable,
         resPrefix: ResourcePrefix.ic,
         name: 'launcher_foreground',
@@ -182,34 +181,6 @@ Future<bool> _createForegroundTask() async {
   }
 }
 
-// bool _registerReceivePort(ReceivePort? newReceivePort) {
-//   if (newReceivePort == null) {
-//     return false;
-//   }
-//
-//   _closeReceivePort();
-//
-//   _receivePort = newReceivePort;
-//   _receivePort?.listen((data) {
-//     // if (data is int) {
-//     //   print('eventCount: $data');
-//     // } else if (data is String) {
-//     //   if (data == 'onNotificationPressed') {
-//     //     Navigator.of(context).pushNamed('/resume-route');
-//     //   }
-//     // } else if (data is DateTime) {
-//     //   print('timestamp: ${data.toString()}');
-//     // }
-//   });
-//
-//   return _receivePort != null;
-// }
-//
-// void _closeReceivePort() {
-//   _receivePort?.close();
-//   _receivePort = null;
-// }
-
 @pragma('vm:entry-point')
 void foregroundCallback() {
   // The setTaskHandler function must be called to handle the task in the background.
@@ -220,7 +191,7 @@ class SneakernetTaskHandler extends TaskHandler {
   Settings? settings;
   Library? library;
   StreamSubscription<List<WiFiAccessPoint>>? _scanSubscription;
-  List<String>? _foundSneakerNets;
+  List<String> _foundSneakerNets = [];
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
@@ -240,19 +211,15 @@ class SneakernetTaskHandler extends TaskHandler {
 
   @override
   Future<void> onRepeatEvent(DateTime timestamp, SendPort? sendPort) async {
-    if (_foundSneakerNets != null) {
-      FlutterForegroundTask.updateService(
-          notificationTitle: taskTitle,
-          notificationText: "Found: ${_foundSneakerNets!.join(",")}");
-
+    if (_foundSneakerNets.isNotEmpty) {
+      var foundSneakerNets = _foundSneakerNets;
       // synchronize SneakerNet
-      for (var ssid in _foundSneakerNets!) {
+      for (var ssid in foundSneakerNets!) {
         FlutterForegroundTask.updateService(
             notificationTitle: taskTitle,
             notificationText: await SneakerNet.synchronize(ssid, library)
         );
       }
-      _foundSneakerNets = null;
     } else {
       FlutterForegroundTask.updateService(notificationTitle: taskTitle);
     }
@@ -262,8 +229,18 @@ class SneakernetTaskHandler extends TaskHandler {
   }
 
   void _handleWifiScans(List<WiFiAccessPoint> results) {
-    var sneakerNetSsids = SneakerNet.apsToSneakerNets(results);
-    _foundSneakerNets = sneakerNetSsids.isNotEmpty ? sneakerNetSsids : null;
+    _foundSneakerNets = SneakerNet.apsToSneakerNets(results);
+    if(_foundSneakerNets.isNotEmpty)
+    {
+      FlutterForegroundTask.updateService(
+          notificationTitle: taskTitle,
+          notificationText: "Found: ${_foundSneakerNets.join(",")}");
+    }
+    else {
+      FlutterForegroundTask.updateService(notificationTitle: taskTitle);
+    }
+    // keep scanning
+    WiFiScan.instance.startScan();
   }
 
   @override

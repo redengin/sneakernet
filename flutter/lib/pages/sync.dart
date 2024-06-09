@@ -44,7 +44,7 @@ class _SyncPageState extends State<SyncPage> {
                         child: ListTile(
                             title: Text(
                               foundSneakerNets[index],
-                              style: Theme.of(context).textTheme.headlineLarge,
+                              style: Theme.of(context).textTheme.headlineSmall,
                             ),
                             trailing: Icon(Icons.sync_alt),
                             onTap: () {
@@ -52,7 +52,7 @@ class _SyncPageState extends State<SyncPage> {
                             }),
                       )),
           onRefresh: () async {
-            setState(() {});
+            setState(() { WiFiScan.instance.startScan(); });
           },
         ),
       );
@@ -67,10 +67,6 @@ class _SyncPageState extends State<SyncPage> {
           return AlertDialog(title: Text("Syncing ${ssid}"));
         });
     var message = await SneakerNet.synchronize(ssid, library);
-    // flutterLocalNotificationsPlugin.show( notificationSync,
-    //   message,
-    //   androidNotificationDetails
-    // );
     await dialogContextCompleter.future;
     final dialogContext = await dialogContextCompleter.future;
     Navigator.pop(dialogContext);

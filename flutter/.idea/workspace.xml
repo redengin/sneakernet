@@ -11,15 +11,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="getting there">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/settings.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/notifications.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/notifications.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pages/sync.dart.bak" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/sync.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/sneakernet_drawer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/sneakernet_drawer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/sync.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/sync.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,7 +48,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Flutter.main.dart.executor": "Debug",
+    "Flutter.main.dart.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
@@ -66,13 +59,14 @@
     "dart.analysis.tool.window.visible": "false",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/backup/home/redengin/projects/sneakernet/flutter",
+    "last_opened_file_path": "/backup/home/redengin/projects/sneakernet/flutter/android/app/src/main/res/mipmap-hdpi",
     "settings.editor.selected.configurable": "flutter.settings",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/android/app/src/main/res/mipmap-hdpi" />
       <recent name="$PROJECT_DIR$/firmware" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -272,22 +266,6 @@
       <option name="project" value="LOCAL" />
       <updated>1693972997895</updated>
     </task>
-    <task id="LOCAL-00036" summary="refactoring">
-      <option name="closed" value="true" />
-      <created>1710214775711</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
-      <option name="project" value="LOCAL" />
-      <updated>1710214775711</updated>
-    </task>
-    <task id="LOCAL-00037" summary="refactoring">
-      <option name="closed" value="true" />
-      <created>1710216807987</created>
-      <option name="number" value="00037" />
-      <option name="presentableId" value="LOCAL-00037" />
-      <option name="project" value="LOCAL" />
-      <updated>1710216807987</updated>
-    </task>
     <task id="LOCAL-00038" summary="all working, sending to google">
       <option name="closed" value="true" />
       <created>1710990698862</created>
@@ -464,7 +442,23 @@
       <option name="project" value="LOCAL" />
       <updated>1716612903058</updated>
     </task>
-    <option name="localTasksCounter" value="60" />
+    <task id="LOCAL-00060" summary="getting there">
+      <option name="closed" value="true" />
+      <created>1716954922558</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1716954922558</updated>
+    </task>
+    <task id="LOCAL-00061" summary="getting there">
+      <option name="closed" value="true" />
+      <created>1717126927202</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1717126927202</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
