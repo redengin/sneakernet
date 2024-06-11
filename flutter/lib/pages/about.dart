@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatelessWidget {
@@ -13,20 +12,20 @@ class AboutPage extends StatelessWidget {
   @override
   build(BuildContext context) => Scaffold(
       appBar: AppBar(
-        title: Text('SneakerNet About'),
+        title: const Text('SneakerNet About'),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(padding: EdgeInsets.all(16)),
+          const Padding(padding: EdgeInsets.all(16)),
           Text(
             'Contact Us:',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           ListTile(
-            leading: Icon(Icons.email),
-            title: Text(email),
+            leading: const Icon(Icons.email),
+            title: const Text(email),
             onTap: () async => await launchUrl(emailUri),
           ),
         ],

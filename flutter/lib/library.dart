@@ -10,7 +10,7 @@ class Library {
 
   Library(this.libraryDir) {
     catalogDir = Directory(p.join(libraryDir.path, 'catalog'));
-    catalogDir.create(recursive: true);
+    catalogDir.createSync(recursive: true);
     unwantedFiles =
         StringListFile(File(p.join(libraryDir.path, 'unwanted.lst')));
     flaggedFiles = StringListFile(File(p.join(libraryDir.path, 'flagged.lst')));
@@ -72,7 +72,7 @@ class Library {
       final localFile =
           localFiles.firstWhere((e) => p.basename(e.path) == filename);
       return (localFile.lastModifiedSync().isBefore(timestamp)) ? true : false;
-    } on StateError catch (e) {
+    } on StateError catch (_) {
       // no local file match
       return true;
     }
@@ -105,23 +105,20 @@ class StringListFile {
   add(String entry) {
     var items = list();
     if (items.contains(entry)) return;
-    // add the item to the file
-    _append(entry);
+    // append the item to the file
+    file.writeAsString('$entry\n', mode: FileMode.writeOnlyAppend);
   }
 
-  removeEach(List<String> entries) {
+  remove(List<String> entries) {
     var items = list();
     // filter current items
     items.removeWhere((entry) => entries.contains(entry));
     _write(items);
   }
 
-  void _append(String entry) =>
-      file.writeAsString('$entry\n', mode: FileMode.writeOnlyAppend);
-
   // replace entire list
-  Future<void> _write(List<String> entries) async {
-    var ofile = await file.open(mode: FileMode.writeOnly);
+  void _write(List<String> entries) {
+    var ofile = file.openSync(mode: FileMode.writeOnly);
     for (String entry in entries) {
       ofile.writeString('$entry\n');
     }

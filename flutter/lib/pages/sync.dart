@@ -46,7 +46,7 @@ class _SyncPageState extends State<SyncPage> {
                               foundSneakerNets[index],
                               style: Theme.of(context).textTheme.headlineSmall,
                             ),
-                            trailing: Icon(Icons.sync_alt),
+                            trailing: const Icon(Icons.sync_alt),
                             onTap: () {
                               sync(foundSneakerNets[index]);
                             }),
@@ -58,17 +58,14 @@ class _SyncPageState extends State<SyncPage> {
       );
 
   Future<void> sync(String ssid) async {
-    final dialogContextCompleter = Completer<BuildContext>();
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext dialogContext) {
-          dialogContextCompleter.complete(dialogContext);
-          return AlertDialog(title: Text("Syncing ${ssid}"));
-        });
     var message = await SneakerNet.synchronize(ssid, library);
-    await dialogContextCompleter.future;
-    final dialogContext = await dialogContextCompleter.future;
-    Navigator.pop(dialogContext);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text("Syncing $ssid"),
+              content: Text(message),
+          );
+        });
   }
 }

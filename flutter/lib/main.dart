@@ -1,24 +1,25 @@
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:sneakernet/task.dart';
+// import 'package:sneakernet/task.dart';
 
-import 'package:flutter/material.dart';
+
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'notifications.dart';
+
 import 'library.dart';
 import 'settings.dart';
-import 'notifications.dart';
 
+import 'package:flutter/material.dart';
 import 'pages/settings.dart';
 import 'pages/about.dart';
 import 'pages/library.dart';
 import 'pages/sync.dart';
-import 'pages/location_permissions_request.dart';
+// import 'pages/location_permissions_request.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
-var settings;
-var library;
-var flutterLocalNotificationsPlugin;
+late Settings settings;
+late Library library;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,16 +36,16 @@ Future<void> main() async {
   library = Library(libraryDir);
 
   // enable notifications
-  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.requestNotificationsPermission();
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+  // flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  // await flutterLocalNotificationsPlugin
+  //     .resolvePlatformSpecificImplementation<
+  //         AndroidFlutterLocalNotificationsPlugin>()
+  //     ?.requestNotificationsPermission();
+  // await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+  //     onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
 
-  // start foreground task
-  await startForegroundTask();
+  // start task
+  // await startForegroundTask();
 
   // start the app
   var initialRoute = LibraryPage.routeName;
@@ -65,13 +66,13 @@ Future<void> main() async {
 }
 
 // handle entry via notification
-void onDidReceiveNotificationResponse(NotificationResponse details) {
-  switch (details.id) {
-    case notificationFound:
-      // FIXME
-      // navigatorKey.currentState?.pushReplacementNamed(SyncPage.routeName);
-      break;
-    default:
-      navigatorKey.currentState?.pushReplacementNamed(LibraryPage.routeName);
-  }
-}
+// void onDidReceiveNotificationResponse(NotificationResponse details) {
+//   switch (details.id) {
+//     case notificationFound:
+//       // FIXME
+//       // navigatorKey.currentState?.pushReplacementNamed(SyncPage.routeName);
+//       break;
+//     default:
+//       navigatorKey.currentState?.pushReplacementNamed(LibraryPage.routeName);
+//   }
+// }

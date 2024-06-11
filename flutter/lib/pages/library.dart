@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'package:share_plus/share_plus.dart';
+// import 'package:share_plus/share_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
@@ -20,12 +20,10 @@ class LibraryPage extends StatefulWidget {
 
 class _LibraryPageState extends State<LibraryPage> {
   // FIXME rebuild upon change of library.files()
-  var files;
+  var files = library.files();
 
   @override
   Widget build(BuildContext context) {
-    // get the latest set of files
-    files = library.files();
     // most recent first
     files.sort(
         (a, b) => a.lastAccessedSync().isAfter(b.lastAccessedSync()) ? 1 : -1);
@@ -34,7 +32,7 @@ class _LibraryPageState extends State<LibraryPage> {
         appBar: AppBar(
           title: const Text('SneakerNet Library'),
         ),
-        drawer: SneakerNetDrawer(),
+        drawer: const SneakerNetDrawer(),
         body: RefreshIndicator(
             child: (files.isEmpty)
                 ? ListView(children: [

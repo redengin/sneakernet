@@ -12,26 +12,25 @@ import 'package:wifi_scan/wifi_scan.dart';
 class SneakerNet {
   static const ssidPrefix = "SneakerNet";
 
-  static List<String> apsToSneakerNets(List<WiFiAccessPoint> aps)
-  {
+  static List<String> apsToSneakerNets(List<WiFiAccessPoint> aps) {
     return aps
-      .where((_) => _.ssid.startsWith(SneakerNet.ssidPrefix))
-      .toList(growable: false)
-      .map((_) => _.ssid)
-      .toList(growable: false);
+        .where((_) => _.ssid.startsWith(SneakerNet.ssidPrefix))
+        .toList(growable: false)
+        .map((_) => _.ssid)
+        .toList(growable: false);
   }
 
   static Future<String> synchronize(ssid, library) async {
-    var message = "unable to connect to $ssid";
+    var message = "connection failed";
 
     if (await WiFiForIoTPlugin.connect(ssid, timeoutInSeconds: 60)) {
       if (await WiFiForIoTPlugin.forceWifiUsage(true)) {
         final restClient = DefaultApi();
         // attempt to update the firmware first
-        if (await _syncFirmware(ssid, restClient)) {
-          message = "updated firmware of $ssid, rebooting device";
+        if (await _syncFirmware(restClient)) {
+          message = "updated firmware, rebooting device";
         } else {
-          message = await _syncFiles(ssid, library, restClient);
+          message = await _syncFiles(library, restClient);
         }
         WiFiForIoTPlugin.forceWifiUsage(false);
       }
@@ -41,7 +40,7 @@ class SneakerNet {
     return message;
   }
 
-  static Future<bool> _syncFirmware(ssid, restClient) async {
+  static Future<bool> _syncFirmware(restClient) async {
     final remoteFirmware = await restClient.firmwareGet();
     if (remoteFirmware == null) return false;
 
@@ -63,67 +62,70 @@ class SneakerNet {
     // update the firmware
     //   if the firmware is accepted, the device will reboot before responding
     //      causing await to throw an ApiException
-    HttpResponse response;
     try {
-      response = await restClient.firmwarePutWithHttpInfo(
+      await restClient.firmwarePutWithHttpInfo(
           body: MultipartFile.fromBytes(
               '', newFirmwareData.buffer.asUint8List()));
-    } on ApiException catch (e) {
+    } on ApiException catch (_) {
       return true;
     }
     return false;
   }
 
   static Future<String> _syncFiles(
-      ssid, Library library, DefaultApi restClient) async {
+      Library library, DefaultApi restClient) async {
     final remoteCatalog = await restClient.catalogGet();
-    if (remoteCatalog != null) {
-      var files_received = 0;
-      var files_removed = 0;
-      var files_added = 0;
+    if (remoteCatalog == null) {
+      return "Unable to synchronize files";
+    }
+    var filesReceived = 0;
+    var filesRemoved = 0;
+    var filesAdded = 0;
 
-      // remove the flagged content
-      for (var entry in remoteCatalog) {
-        if (library.isFlagged(entry.filename)) {
-          restClient.catalogFilenameDelete(entry.filename);
-          files_removed++;
+    // remove the flagged content
+    for (var entry in remoteCatalog) {
+      if (library.isFlagged(entry.filename)) {
+        restClient.catalogFilenameDelete(entry.filename);
+        filesRemoved++;
+      }
+    }
+
+    // download new files
+    for (var entry in remoteCatalog) {
+      final timestamp = DateTime.parse(entry.timestamp);
+      if (library.isWanted(entry.filename, timestamp)) {
+        final Response get =
+            await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
+        if (get.statusCode == 200) {
+          await library.add(entry.filename, get.bodyBytes, timestamp);
+          filesReceived++;
         }
       }
+    }
 
-      // download new files
-      for (var entry in remoteCatalog) {
-        final timestamp = DateTime.parse(entry.timestamp);
-        if (library.isWanted(entry.filename, timestamp)) {
-          final Response get =
-              await restClient.catalogFilenameGetWithHttpInfo(entry.filename);
-          if (get.statusCode == 200) {
-            await library.add(entry.filename, get.bodyBytes, timestamp);
-            files_received++;
-          }
-        }
+    // send local files
+    final List<File> localCatalog = library.files();
+    final remoteFilenames =
+        remoteCatalog.map((e) => e.filename).toList(growable: false);
+    for (var file in localCatalog) {
+      final filename = p.basename(file.path);
+      if (remoteFilenames.contains(filename) == false) {
+        final timestamp = file.lastModifiedSync().toUtc().toIso8601String();
+        final body = await MultipartFile.fromPath('', file.path);
+        await restClient.catalogFilenamePutWithHttpInfo(filename, timestamp,
+            body: body);
+        filesAdded++;
       }
-
-      // send local files
-      final List<File> localCatalog = library.files();
-      final remoteFilenames =
-          remoteCatalog.map((e) => e.filename).toList(growable: false);
-      for (var file in localCatalog) {
-        final filename = p.basename(file.path);
-        if (remoteFilenames.contains(filename) == false) {
-          final timestamp = file.lastModifiedSync().toUtc().toIso8601String();
-          final body = await MultipartFile.fromPath('', file.path);
-          await restClient.catalogFilenamePutWithHttpInfo(filename, timestamp,
-              body: body);
-          files_added++;
-        }
-      }
-      // notify of the changes
-      return "Synchronized $ssid\n" +
-          (files_received > 0 ? "$files_received new files. " : "") +
-          (files_added > 0 ? "$files_added pushed. " : "") +
-          (files_removed > 0 ? "$files_removed removed." : "");
-    } else {
-      return "$ssid Failed";
+    }
+    // notify of the changes
+    var status = (filesReceived > 0 ? "$filesReceived new files. " : "") +
+        (filesAdded > 0 ? "$filesAdded pushed. " : "") +
+        (filesRemoved > 0 ? "$filesRemoved removed." : "");
+    if (status.isEmpty) {
+      return "Synchronized";
+    }
+    else {
+      return status;
     }
   }
 }

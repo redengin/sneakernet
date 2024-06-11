@@ -4,6 +4,8 @@ import '../pages/about.dart';
 import '../pages/sync.dart';
 
 class SneakerNetDrawer extends StatelessWidget {
+  const SneakerNetDrawer({super.key});
+
   @override
   Widget build(BuildContext context) => Drawer(
         child: ListView(

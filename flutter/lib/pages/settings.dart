@@ -1,14 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'package:permission_handler/permission_handler.dart';
 
 import 'package:settings_ui/settings_ui.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:sneakernet/pages/location_permissions_request.dart';
 
 import '../main.dart';
-import '../settings.dart';
 import '../library.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -21,7 +16,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _autoSync = settings.getAutoSync();
+  // final bool _autoSync = settings.getAutoSync();
 
   @override
   initState() {
@@ -30,7 +25,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    var _hasLocationPermissions = Permission.locationAlways.isGranted;
+    // var hasLocationPermissions = Permission.locationAlways.isGranted;
 
     return Scaffold(
       appBar: AppBar(
@@ -54,12 +49,12 @@ class _SettingsPageState extends State<SettingsPage> {
           //   ],
           // ),
           SettingsSection(
-            title: Text("SneakerNet Functionality"),
+            title: const Text("SneakerNet Functionality"),
             tiles: [
               SettingsTile.switchTile(
-                leading: Icon(Icons.sync_alt),
-                title: Text('Automatically sync'),
-                description: Text(
+                leading: const Icon(Icons.sync_alt),
+                title: const Text('Automatically sync'),
+                description: const Text(
                   'WiFi connection will be temporarily interrupted '
                   'to sync with SnearkerNet'),
                 initialValue: settings.getAutoSync(),
@@ -70,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
           SettingsSection(
-            title: Text("Moderate SneakerNet Content"),
+            title: const Text("Moderate SneakerNet Content"),
             tiles: [
               SettingsTile.navigation(
                 leading: const Icon(Icons.delete_outline),
@@ -121,7 +116,7 @@ class LibraryFilterPicker extends StatelessWidget {
       title: Text('Remove Filter for $message files'),
       items: items,
       initialValue: const <String>[],
-      onConfirm: (values) => filterSettings.removeEach(values),
+      onConfirm: (values) => filterSettings.remove(values),
     );
   }
 }

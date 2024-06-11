@@ -4,12 +4,12 @@ class Settings {
   final SharedPreferences preferences;
   const Settings({required this.preferences});
 
-  final String KEY_AUTO_SYNC = "autosync";
+  final String keyAutoSync = "autosync";
   bool getAutoSync(){
     // default to true
-    return preferences.getBool(KEY_AUTO_SYNC) ?? true;
+    return preferences.getBool(keyAutoSync) ?? true;
   }
   Future<void> setAutoSync(val) async {
-    await preferences.setBool(KEY_AUTO_SYNC, val);
+    await preferences.setBool(keyAutoSync, val);
   }
 }

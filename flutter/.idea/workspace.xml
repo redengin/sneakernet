@@ -13,21 +13,22 @@
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_icon.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-hdpi/ic_launcher_icon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-mdpi/ic_launcher_icon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xhdpi/ic_launcher_icon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_icon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_icon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values-night/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values-night/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/colors.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/flutter_launcher_icons.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/app/FlutterMultiDexApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/library.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/notifications.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/about.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/about.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/pages/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/library.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/location_permissions_request.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/location_permissions_request.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/settings.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/sync.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/sync.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/settings.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/task.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/task.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/widgets/sneakernet_drawer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/sneakernet_drawer.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/widget_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +72,6 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "com.android.tools.idea.devicemanager.tab": "Physical",
-    "dart.analysis.tool.window.visible": "false",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/backup/home/redengin/projects/sneakernet/flutter/android/app/src/main/res",
@@ -282,14 +282,6 @@
       <option name="project" value="LOCAL" />
       <updated>1693972997895</updated>
     </task>
-    <task id="LOCAL-00040" summary="updating version code to satisfy google">
-      <option name="closed" value="true" />
-      <created>1710993330480</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1710993330480</updated>
-    </task>
     <task id="LOCAL-00041" summary="fixing refresh indicator">
       <option name="closed" value="true" />
       <created>1711077982425</created>
@@ -474,7 +466,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717905799259</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="appears to work">
+      <option name="closed" value="true" />
+      <created>1718072487303</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1718072487303</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -527,16 +527,5 @@
     <MESSAGE value="getting there" />
     <MESSAGE value="appears to work" />
     <option name="LAST_COMMIT_MESSAGE" value="appears to work" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/pages/sync.dart</url>
-          <line>21</line>
-          <option name="timeStamp" value="75" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
