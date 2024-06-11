@@ -78,13 +78,13 @@ class _LibraryPageState extends State<LibraryPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                      icon: const Icon(Icons.flag),
+                      icon: const Icon(Icons.flag, color: Colors.red),
                       tooltip: 'flag offensive content',
                       onPressed: () => setState(() {
                             library.flag(file);
                           })),
                   IconButton(
-                      icon: const Icon(Icons.delete),
+                      icon: const Icon(Icons.delete, color: Colors.blueGrey),
                       tooltip: 'unwanted content',
                       onPressed: () => setState(() {
                             library.remove(file);

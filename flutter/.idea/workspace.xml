@@ -10,25 +10,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="appears to work">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/app/FlutterMultiDexApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/library.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/notifications.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pages/about.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/about.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/pages/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/library.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pages/location_permissions_request.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/location_permissions_request.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pages/settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/settings.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/pages/sync.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/sync.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/settings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/settings.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/sneakernet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/sneakernet.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/task.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/task.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/sneakernet_drawer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/sneakernet_drawer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/widget_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,6 +56,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "com.android.tools.idea.devicemanager.tab": "Physical",
+    "dart.analysis.tool.window.visible": "false",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/backup/home/redengin/projects/sneakernet/flutter/android/app/src/main/res",
@@ -282,14 +267,6 @@
       <option name="project" value="LOCAL" />
       <updated>1693972997895</updated>
     </task>
-    <task id="LOCAL-00041" summary="fixing refresh indicator">
-      <option name="closed" value="true" />
-      <created>1711077982425</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1711077982425</updated>
-    </task>
     <task id="LOCAL-00042" summary="fixing timestamps">
       <option name="closed" value="true" />
       <created>1711085054060</created>
@@ -474,7 +451,15 @@
       <option name="project" value="LOCAL" />
       <updated>1718072487303</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="appears to work">
+      <option name="closed" value="true" />
+      <created>1718078574115</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1718078574115</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

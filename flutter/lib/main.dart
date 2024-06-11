@@ -1,7 +1,7 @@
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:sneakernet/task.dart';
+import 'package:sneakernet/task.dart';
 
 
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -45,7 +45,7 @@ Future<void> main() async {
   //     onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
 
   // start task
-  // await startForegroundTask();
+  await startForegroundTask();
 
   // start the app
   var initialRoute = LibraryPage.routeName;
