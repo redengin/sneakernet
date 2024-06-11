@@ -9,9 +9,9 @@
 <!--        android:usesPermissionFlags="neverForLocation" />-->
 
     <application
-        android:label="sneakernet"
-        android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher_icon">
+        android:icon="@mipmap/ic_launcher"
+        android:label="SneakerNet"
+        android:name="${applicationName}">
         <service
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
             android:foregroundServiceType="dataSync"

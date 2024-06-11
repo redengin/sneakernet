@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
@@ -91,12 +91,12 @@ class _LibraryPageState extends State<LibraryPage> {
                       onPressed: () => setState(() {
                             library.remove(file);
                           })),
-                  IconButton(
-                      icon: const Icon(Icons.share),
-                      tooltip: 'share content',
-                      onPressed: () => setState(() {
-                            Share.shareFiles([file.path]);
-                          })),
+                  // IconButton(
+                  //     icon: const Icon(Icons.share),
+                  //     tooltip: 'share content',
+                  //     onPressed: () => setState(() {
+                  //           Share.shareXFiles([file.path]);
+                  //         })),
                 ],
               ),
             ),
