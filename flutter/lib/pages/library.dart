@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-// import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
@@ -19,12 +19,12 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage> {
-  // FIXME rebuild upon change of library.files()
   var files = library.files();
 
   @override
   Widget build(BuildContext context) {
-    // most recent first
+
+    // sort by most recent first
     files.sort(
         (a, b) => a.lastAccessedSync().isAfter(b.lastAccessedSync()) ? 1 : -1);
 
@@ -46,7 +46,7 @@ class _LibraryPageState extends State<LibraryPage> {
                     itemBuilder: _itemBuilder,
                   ),
             onRefresh: () async {
-              setState(() {});
+              setState(() { files = library.files(); });
             }),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.attach_file),
@@ -78,8 +78,14 @@ class _LibraryPageState extends State<LibraryPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                      icon: const Icon(Icons.flag, color: Colors.red),
-                      tooltip: 'flag offensive content',
+                      icon: const Icon(Icons.share, color: Colors.blueAccent),
+                      tooltip: 'share',
+                      onPressed: () => setState(() {
+                        Share.shareXFiles([XFile(file.path)]);
+                      })),
+                  IconButton(
+                      icon: const Icon(Icons.flag, color: Colors.redAccent),
+                      tooltip: 'offensive content',
                       onPressed: () => setState(() {
                             library.flag(file);
                           })),
@@ -87,14 +93,8 @@ class _LibraryPageState extends State<LibraryPage> {
                       icon: const Icon(Icons.delete, color: Colors.blueGrey),
                       tooltip: 'unwanted content',
                       onPressed: () => setState(() {
-                            library.remove(file);
-                          })),
-                  // IconButton(
-                  //     icon: const Icon(Icons.share),
-                  //     tooltip: 'share content',
-                  //     onPressed: () => setState(() {
-                  //           Share.shareXFiles([file.path]);
-                  //         })),
+                        library.remove(file);
+                      })),
                 ],
               ),
             ),

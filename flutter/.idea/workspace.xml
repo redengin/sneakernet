@@ -11,6 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b3aa33a1-ba43-4195-a517-162bba695f5d" name="Changes" comment="appears to work">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/library.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/pages/library.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/library.dart" afterDir="false" />
     </list>
@@ -267,14 +268,6 @@
       <option name="project" value="LOCAL" />
       <updated>1693972997895</updated>
     </task>
-    <task id="LOCAL-00042" summary="fixing timestamps">
-      <option name="closed" value="true" />
-      <created>1711085054060</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1711085054060</updated>
-    </task>
     <task id="LOCAL-00043" summary="setting firmware">
       <option name="closed" value="true" />
       <created>1711252992954</created>
@@ -459,7 +452,15 @@
       <option name="project" value="LOCAL" />
       <updated>1718078574115</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="appears to work">
+      <option name="closed" value="true" />
+      <created>1718079564286</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1718079564286</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
