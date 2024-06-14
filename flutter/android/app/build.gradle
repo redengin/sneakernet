@@ -46,7 +46,7 @@ android {
         // minSdkVersion flutter.minSdkVersion
         // minSdkVersion 16 // min required for wifi-scan
         // minSdkVersion 19 // min required for flutter_file_dialog
-        minSdkVersion 21 // min fore flutter_foreground_task
+        minSdkVersion 23 // min required for flutter_foreground_task
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

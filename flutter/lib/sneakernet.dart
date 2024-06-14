@@ -126,7 +126,7 @@ class SneakerNet {
         (filesAdded > 0 ? "$filesAdded pushed. " : "") +
         (filesRemoved > 0 ? "$filesRemoved removed." : "");
     if (status.isEmpty) {
-      return "Synchronized";
+      return "synchronized";
     } else {
       return status;
     }

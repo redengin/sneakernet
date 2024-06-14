@@ -62,6 +62,7 @@ class _SyncPageState extends State<SyncPage> {
 
   Future<void> sync(String ssid) async {
     var message = await SneakerNet.synchronize(ssid, library);
+    library.notifyListeners();
     showDialog(
         context: context,
         builder: (BuildContext context) {

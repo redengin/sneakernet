@@ -19,13 +19,21 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage> {
-  var files = library.files();
+  var _files = library.files();
+
+  void _updateListener() {
+    setState(() {
+      _files = library.files();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
 
+    library.addListener(_updateListener);
+
     // sort by most recent first
-    files.sort(
+    _files.sort(
         (a, b) => a.lastAccessedSync().isAfter(b.lastAccessedSync()) ? 1 : -1);
 
     return Scaffold(
@@ -34,7 +42,7 @@ class _LibraryPageState extends State<LibraryPage> {
         ),
         drawer: const SneakerNetDrawer(),
         body: RefreshIndicator(
-            child: (files.isEmpty)
+            child: (_files.isEmpty)
                 ? ListView(children: [
                     Center(
                         child: Text('no files yet...',
@@ -42,11 +50,11 @@ class _LibraryPageState extends State<LibraryPage> {
                   ])
                 : ListView.builder(
                     itemExtent: 120,
-                    itemCount: files.length,
+                    itemCount: _files.length,
                     itemBuilder: _itemBuilder,
                   ),
             onRefresh: () async {
-              setState(() { files = library.files(); });
+              setState(() { _files = library.files(); });
             }),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.attach_file),
@@ -59,7 +67,7 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   Widget? _itemBuilder(BuildContext context, int index) {
-    File file = files[index];
+    File file = _files[index];
     return GestureDetector(
         onTap: () => {
               // FIXME OpenFilex doesn't understand epub

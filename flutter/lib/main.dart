@@ -1,8 +1,10 @@
+import 'dart:isolate';
+
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sneakernet/task.dart';
-
 
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'notifications.dart';
@@ -20,6 +22,7 @@ import 'pages/sync.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 late Settings settings;
 late Library library;
+late ReceivePort? _receivePort;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +49,16 @@ Future<void> main() async {
 
   // start task
   await startForegroundTask();
+  // Register the receivePort before starting the service.
+  _receivePort = FlutterForegroundTask.receivePort;
+  _receivePort?.listen((data) {
+    if (data == libraryUpdated) {
+      library.notifyListeners();
+    }
+    else if(data == 'onNotificationPressed') {
+      navigatorKey.currentState?.pushNamed(SyncPage.routeName);
+    }
+  });
 
   // start the app
   var initialRoute = LibraryPage.routeName;

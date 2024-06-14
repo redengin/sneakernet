@@ -68,7 +68,7 @@ class _SettingsPageState extends State<SettingsPage> {
             title: const Text("Moderate SneakerNet Content"),
             tiles: [
               SettingsTile.navigation(
-                leading: const Icon(Icons.delete_outline),
+                leading: const Icon(Icons.delete_outline, color: Colors.blueGrey),
                 title: const Text('Manage unwanted files'),
                 description: const Text("deleted files will not be gathered "
                     "from other nodes"),
@@ -80,7 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     }),
               ),
               SettingsTile.navigation(
-                leading: const Icon(Icons.flag_outlined),
+                leading: const Icon(Icons.flag_outlined, color:Colors.redAccent),
                 title: const Text('Manage flagged files'),
                 description: const Text("flagged files will be removed from "
                     "other nodes"),

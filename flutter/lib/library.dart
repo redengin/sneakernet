@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart' as p;
 
-class Library {
+class Library with ChangeNotifier {
   final Directory libraryDir;
   late final Directory catalogDir;
   late final StringListFile unwantedFiles;

@@ -8,7 +8,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 
 import 'package:sneakernet/library.dart';
-import 'package:sneakernet/settings.dart';
 import 'package:sneakernet/sneakernet.dart';
 
 //------------------------------------------------------------------------------
@@ -18,6 +17,11 @@ const taskTitle = "Monitoring SneakerNet";
 const syncTaskName = 'sneakernet-sync';
 const syncTaskParamSsid = 'sneakernet-ssid';
 const syncTaskParamLibraryPath = 'libraryDir';
+
+//------------------------------------------------------------------------------
+// SendPort Info
+//------------------------------------------------------------------------------
+const libraryUpdated = "library updated";
 
 Future<void> startForegroundTask() async {
   await _acquireForegroundPermissions();
@@ -51,11 +55,10 @@ Future<void> _acquireForegroundPermissions() async {
 
 void _initForegroundTask() {
   // period for sync with sneakernets
-  // const syncInterval_ms = 15 * 60 * 1000; // 15 minutes
-  const syncInterval_ms = 60 * 1000; // TEST USE ONLY
+  const syncInterval_ms = 15 * 60 * 1000; // 15 minutes
+  // const syncInterval_ms = 60 * 1000; // TEST USE ONLY
   FlutterForegroundTask.init(
     androidNotificationOptions: AndroidNotificationOptions(
-      foregroundServiceType: AndroidForegroundServiceType.DATA_SYNC,
       channelId: syncTaskName,
       channelName: syncTaskName,
       channelDescription: taskTitle,
@@ -74,29 +77,16 @@ void _initForegroundTask() {
       playSound: true,
     ),
     foregroundTaskOptions: const ForegroundTaskOptions(
-      isOnceEvent: false,
       interval: syncInterval_ms,
       autoRunOnBoot: true,
+      autoRunOnMyPackageReplaced: true,
       allowWakeLock: true,
       allowWifiLock: true,
     ),
   );
 }
 
-// ReceivePort? _receivePort;
-
 Future<bool> _createForegroundTask() async {
-  // You can save data using the saveData function.
-  // await FlutterForegroundTask.saveData(key: 'customData', value: 'hello');
-
-  // Register the receivePort before starting the service.
-  // final ReceivePort? receivePort = FlutterForegroundTask.receivePort;
-  // final bool isRegistered = _registerReceivePort(receivePort);
-  // if (!isRegistered) {
-  //   print('Failed to register receivePort!');
-  //   return false;
-  // }
-
   if (await FlutterForegroundTask.isRunningService) {
     return FlutterForegroundTask.restartService();
   } else {
@@ -142,6 +132,8 @@ class SneakernetTaskHandler extends TaskHandler {
         var message = await SneakerNet.synchronize(ssid, _library);
         FlutterForegroundTask.updateService(
             notificationTitle: taskTitle, notificationText: "$ssid [$message]");
+        // notify of library change
+        sendPort?.send(libraryUpdated);
       }
     } else {
       FlutterForegroundTask.updateService(notificationTitle: taskTitle);
@@ -153,7 +145,9 @@ class SneakernetTaskHandler extends TaskHandler {
 
   Future<void> _handleWifiScans(List<WiFiAccessPoint> results) async {
     var foundSneakerNets = SneakerNet.apsToSneakerNets(results);
-    if (setEquals(_foundSneakerNets, foundSneakerNets)) {
+    if (foundSneakerNets.isEmpty) {
+      FlutterForegroundTask.updateService(notificationTitle: taskTitle);
+    } else if (setEquals(_foundSneakerNets, foundSneakerNets)) {
       // ignore, same as last scan
     } else {
       _foundSneakerNets = foundSneakerNets;
