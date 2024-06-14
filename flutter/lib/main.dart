@@ -45,7 +45,7 @@ Future<void> main() async {
   //     onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
 
   // start task
-  // await startForegroundTask();
+  await startForegroundTask();
 
   // start the app
   var initialRoute = LibraryPage.routeName;

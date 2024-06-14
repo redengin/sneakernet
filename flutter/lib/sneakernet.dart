@@ -12,29 +12,33 @@ import 'package:wifi_scan/wifi_scan.dart';
 class SneakerNet {
   static const ssidPrefix = "SneakerNet";
 
-  static List<String> apsToSneakerNets(List<WiFiAccessPoint> aps) {
+  static Set<String> apsToSneakerNets(List<WiFiAccessPoint> aps) {
     return aps
         .where((_) => _.ssid.startsWith(SneakerNet.ssidPrefix))
         .toList(growable: false)
         .map((_) => _.ssid)
-        .toList(growable: false);
+        .toSet();
   }
 
   static Future<String> synchronize(ssid, library) async {
     var message = "connection failed";
 
-    if (await WiFiForIoTPlugin.connect(ssid, timeoutInSeconds: 60)) {
+    if (await WiFiForIoTPlugin.connect(ssid, timeoutInSeconds: 120)) {
       if (await WiFiForIoTPlugin.forceWifiUsage(true)) {
-        final restClient = DefaultApi();
-        // attempt to update the firmware first
-        if (await _syncFirmware(restClient)) {
-          message = "updated firmware, rebooting device";
-        } else {
-          message = await _syncFiles(library, restClient);
-        }
-        WiFiForIoTPlugin.forceWifiUsage(false);
+        try {
+          final restClient = DefaultApi();
+          // attempt to update the firmware first
+          if (await _syncFirmware(restClient)) {
+            message = "updated firmware, rebooting device";
+          } else {
+            message = await _syncFiles(library, restClient);
+          }
+        } catch (_) {}
+        await WiFiForIoTPlugin.forceWifiUsage(false);
       }
-      WiFiForIoTPlugin.disconnect();
+      await WiFiForIoTPlugin.disconnect();
+      // fix for old Android that automatically registers SneakerNets
+      await WiFiForIoTPlugin.removeWifiNetwork(ssid);
     }
 
     return message;
@@ -123,8 +127,7 @@ class SneakerNet {
         (filesRemoved > 0 ? "$filesRemoved removed." : "");
     if (status.isEmpty) {
       return "Synchronized";
-    }
-    else {
+    } else {
       return status;
     }
   }

@@ -19,7 +19,8 @@ class _SyncPageState extends State<SyncPage> {
 
   _SyncPageState() {
     WiFiScan.instance.onScannedResultsAvailable.listen((aps) {
-      setState(() => foundSneakerNets = SneakerNet.apsToSneakerNets(aps));
+      setState(() => foundSneakerNets =
+          SneakerNet.apsToSneakerNets(aps).toList(growable: false));
     });
 
     WiFiScan.instance.startScan();
@@ -52,7 +53,9 @@ class _SyncPageState extends State<SyncPage> {
                             }),
                       )),
           onRefresh: () async {
-            setState(() { WiFiScan.instance.startScan(); });
+            setState(() {
+              WiFiScan.instance.startScan();
+            });
           },
         ),
       );
@@ -63,8 +66,8 @@ class _SyncPageState extends State<SyncPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-              title: Text("Syncing $ssid"),
-              content: Text(message),
+            title: Text("Syncing $ssid"),
+            content: Text(message),
           );
         });
   }

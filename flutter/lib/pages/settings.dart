@@ -48,22 +48,22 @@ class _SettingsPageState extends State<SettingsPage> {
           //     // ),
           //   ],
           // ),
-          SettingsSection(
-            title: const Text("SneakerNet Functionality"),
-            tiles: [
-              SettingsTile.switchTile(
-                leading: const Icon(Icons.sync_alt),
-                title: const Text('Automatically sync'),
-                description: const Text(
-                  'WiFi connection will be temporarily interrupted '
-                  'to sync with SnearkerNet'),
-                initialValue: settings.getAutoSync(),
-                onToggle: (_) => setState(() {
-                  settings.setAutoSync(_);
-                }),
-              ),
-            ],
-          ),
+          // SettingsSection(
+          //   title: const Text("SneakerNet Functionality"),
+          //   tiles: [
+          //     SettingsTile.switchTile(
+          //       leading: const Icon(Icons.sync_alt),
+          //       title: const Text('Automatically sync'),
+          //       description: const Text(
+          //         'WiFi connection will be temporarily interrupted '
+          //         'to sync with SnearkerNet'),
+          //       initialValue: settings.getAutoSync(),
+          //       onToggle: (_) => setState(() {
+          //         settings.setAutoSync(_);
+          //       }),
+          //     ),
+          //   ],
+          // ),
           SettingsSection(
             title: const Text("Moderate SneakerNet Content"),
             tiles: [

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,8 +10,6 @@ import 'package:wifi_scan/wifi_scan.dart';
 import 'package:sneakernet/library.dart';
 import 'package:sneakernet/settings.dart';
 import 'package:sneakernet/sneakernet.dart';
-
-
 
 //------------------------------------------------------------------------------
 // Parameters for tasks
@@ -43,7 +42,7 @@ Future<void> _acquireForegroundPermissions() async {
     }
     // Android 13 and higher, you need to allow notification permission to expose foreground service notification.
     final NotificationPermission notificationPermissionStatus =
-    await FlutterForegroundTask.checkNotificationPermission();
+        await FlutterForegroundTask.checkNotificationPermission();
     if (notificationPermissionStatus != NotificationPermission.granted) {
       await FlutterForegroundTask.requestNotificationPermission();
     }
@@ -116,37 +115,33 @@ void foregroundCallback() {
 }
 
 class SneakernetTaskHandler extends TaskHandler {
-  Settings? settings;
-  Library? library;
+  Library? _library;
   StreamSubscription<List<WiFiAccessPoint>>? _scanSubscription;
-  List<String> _foundSneakerNets = [];
+  Set<String> _foundSneakerNets = {};
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // initialize persistent settings
-    // final SharedPreferences preferences = await SharedPreferences.getInstance();
-    // settings = Settings(preferences: preferences);
-
-    // use a non-backed up storage for library content
+    // use the same storage as main.dart
     final libraryDir = await getTemporaryDirectory();
-    library = Library(libraryDir);
+    _library = Library(libraryDir);
 
     _scanSubscription = WiFiScan.instance.onScannedResultsAvailable
         .listen((results) => _handleWifiScans(results));
+
+    FlutterForegroundTask.updateService(notificationTitle: taskTitle);
+    WiFiScan.instance.startScan();
   }
 
   @override
   Future<void> onRepeatEvent(DateTime timestamp, SendPort? sendPort) async {
+    // synchronize with found nodes
     if (_foundSneakerNets.isNotEmpty) {
-      var foundSneakerNets = _foundSneakerNets;
-      // synchronize SneakerNet
-      for (var ssid in foundSneakerNets) {
+      for (var ssid in _foundSneakerNets) {
+        var message = await SneakerNet.synchronize(ssid, _library);
         FlutterForegroundTask.updateService(
-            notificationTitle: taskTitle,
-            notificationText: await SneakerNet.synchronize(ssid, library)
-        );
+            notificationTitle: taskTitle, notificationText: "$ssid [$message]");
       }
     } else {
       FlutterForegroundTask.updateService(notificationTitle: taskTitle);
@@ -156,19 +151,16 @@ class SneakernetTaskHandler extends TaskHandler {
     WiFiScan.instance.startScan();
   }
 
-  void _handleWifiScans(List<WiFiAccessPoint> results) {
-    _foundSneakerNets = SneakerNet.apsToSneakerNets(results);
-    if(_foundSneakerNets.isNotEmpty)
-    {
+  Future<void> _handleWifiScans(List<WiFiAccessPoint> results) async {
+    var foundSneakerNets = SneakerNet.apsToSneakerNets(results);
+    if (setEquals(_foundSneakerNets, foundSneakerNets)) {
+      // ignore, same as last scan
+    } else {
+      _foundSneakerNets = foundSneakerNets;
       FlutterForegroundTask.updateService(
           notificationTitle: taskTitle,
           notificationText: "Found: ${_foundSneakerNets.join(",")}");
     }
-    else {
-      FlutterForegroundTask.updateService(notificationTitle: taskTitle);
-    }
-    // keep scanning
-    WiFiScan.instance.startScan();
   }
 
   @override
