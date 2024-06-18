@@ -65,45 +65,6 @@ angular-shell:
 			angular \
 	  sh
 
-
-.PHONY: firmware/rust.rp2040.build
-firmware/rust.rp2040.build:
-	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
-    	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
-			rust \
-	  cargo build --release
-
-.PHONY: firmware/rust.rp2040.run
-firmware/rust.rp2040.run:
-	@docker run --rm -it \
-		--privileged \
-		--volume $(abspath .):/tmp/sneakernet \
-		--workdir /tmp/sneakernet/firmware/rust/rp2040 \
-		rust
-#	@DOCKER_USER=0 $(DOCKER_COMPOSE) run --rm \
-#    	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
-#			rust \
-#	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
-#	  cargo embed --release
-
-.PHONY: firmware/rust.esp32s3.build
-firmware/rust.esp32s3.build:
-	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
-    	--workdir /tmp/sneakernet/firmware/rust/esp32s \
-			idf-rust-esp32s \
-	  	cargo build --target xtensa-esp32s3-none-elf --features esp32s3 --release
-
-.PHONY: firmware/rust.esp32s3.run
-firmware/rust.esp32s3.run:
-	docker run --rm -it \
-		--privileged \
-		--user 0 \
-		--env HOME=/home/esp \
-		--volume $(abspath .):/tmp/sneakernet \
-		--workdir /tmp/sneakernet/firmware/rust/esp32s \
-			espressif/idf-rust:esp32s3_latest \
-		cargo run --features esp32s3 -- --list-all-ports
-
 .PHONY: firmware/esp32.build
 firmware/esp32.build: angular-build
 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
@@ -124,3 +85,68 @@ firmware/esp32.monitor:
 		--volume /dev:/dev \
 			espressif-idf \
 		idf.py monitor
+
+#--------------------------------------------------------------------------------
+# SneakerNet Rust
+#--------------------------------------------------------------------------------
+.PHONY: cargo-cache
+cargo-cache:
+	@mkdir -p ~/.cargo
+
+.PHONY: firmware/rust-esp32.build
+firmware/rust-esp32.build: cargo-cache
+	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+		--volume $(abspath .):/tmp/sneakernet \
+    	--workdir /tmp/sneakernet/firmware/rust/esp32 \
+			rust \
+		cargo build --release
+
+.PHONY: firmware/rust-esp32.run
+firmware/rust-esp32.run: cargo-cache
+	@docker run --rm -it \
+		--privileged \
+		--volume $(HOME)/.cargo:/tmp/.cargo \
+		--env CARGO_HOME=/tmp/.cargo \
+		--volume $(abspath .):/tmp/sneakernet \
+    	--workdir /tmp/sneakernet/firmware/rust/esp32 \
+			sneakernet-rust \
+		cargo run --release
+
+# .PHONY: firmware/rust.esp32s3.build
+# firmware/rust.esp32s3.build:
+# 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+# 		--volume $(abspath .):/tmp/sneakernet \
+#     	--workdir /tmp/sneakernet/firmware/rust/esp32s \
+# 			rust.esp32s3 \
+# 		cargo build --target xtensa-esp32s3-none-elf --features esp32s3 --release
+
+# .PHONY: firmware/rust.esp32s3.run
+# firmware/rust.esp32s3.run:
+# 	docker run --rm -it \
+# 		--privileged \
+# 		--user 0 \
+# 		--env HOME=/home/esp \
+# 		--volume $(abspath .):/tmp/sneakernet \
+# 		--workdir /tmp/sneakernet/firmware/rust/esp32s \
+# 			espressif/idf-rust:esp32s3_latest \
+# 		cargo run --features esp32s3 -- --list-all-ports
+
+# .PHONY: firmware/rust.rp2040.build
+# firmware/rust.rp2040.build:
+# 	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+#     	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
+# 			rust \
+# 	  cargo build --release
+
+# .PHONY: firmware/rust.rp2040.run
+# firmware/rust.rp2040.run:
+# 	@docker run --rm -it \
+# 		--privileged \
+# 		--volume $(abspath .):/tmp/sneakernet \
+# 		--workdir /tmp/sneakernet/firmware/rust/rp2040 \
+# 		rust
+# #	@DOCKER_USER=0 $(DOCKER_COMPOSE) run --rm \
+# #    	--workdir /tmp/sneakernet/firmware/rust/rp2040 \
+# #			rust \
+# #	@DOCKER_USER=$(DOCKER_USER) $(DOCKER_COMPOSE) run --rm \
+# #	  cargo embed --release
