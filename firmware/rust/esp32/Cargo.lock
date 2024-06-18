@@ -131,6 +131,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "embassy-executor"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec648daedd2143466eff4b3e8002024f9f6c1de4ab7666bb679688752624c925"
+dependencies = [
+ "critical-section",
+ "document-features",
+ "embassy-executor-macros",
+]
+
+[[package]]
+name = "embassy-executor-macros"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad454accf80050e9cf7a51e994132ba0e56286b31f9317b68703897c328c59b5"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.66",
+]
+
+[[package]]
+name = "embassy-time-driver"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e0c214077aaa9206958b16411c157961fb7990d4ea628120a78d1a5a28aed24"
+dependencies = [
+ "document-features",
+]
+
+[[package]]
 name = "embedded-can"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -261,6 +293,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "esp-hal-embassy"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a892b9fe96cdfddab252ffa0ea90de66ccb078ff42d037b14ca9dfa3608b688a"
+dependencies = [
+ "cfg-if",
+ "critical-section",
+ "document-features",
+ "embassy-executor",
+ "embassy-time-driver",
+ "esp-build",
+ "esp-hal",
+ "esp-metadata",
+ "portable-atomic",
+]
+
+[[package]]
 name = "esp-hal-procmacros"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -313,10 +362,11 @@ dependencies = [
 name = "esp32"
 version = "0.1.0"
 dependencies = [
+ "embassy-executor",
  "esp-backtrace",
  "esp-hal",
+ "esp-hal-embassy",
  "esp-println",
- "log",
 ]
 
 [[package]]
