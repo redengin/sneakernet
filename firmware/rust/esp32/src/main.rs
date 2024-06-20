@@ -14,13 +14,27 @@
 #![no_std]
 #![no_main]
 use esp_backtrace as _;
+
 use esp_hal::{
-//     clock::ClockControl,
-//     peripherals::Peripherals,
     prelude::*,
-//     rng::Rng,
-//     system::SystemControl,
-//     timer::timg::TimerGroup,
+    peripherals::Peripherals,
+    system::SystemControl,
+    clock::ClockControl,
+    rng::Rng,
+    // timer::timg::TimerGroup,
+};
+use esp_wifi::{
+    initialize,
+    // wifi::{
+    //     AccessPointConfiguration,
+    //     Configuration,
+    //     WifiApDevice,
+    //     WifiController,
+    //     WifiDevice,
+    //     WifiEvent,
+    //     WifiState,
+    // },
+    EspWifiInitFor,
 };
 
 use embassy_executor::Spawner;
@@ -36,19 +50,6 @@ use embassy_executor::Spawner;
 // };
 // use embassy_time::{Duration, Timer};
 // use esp_println::{print, println};
-// use esp_wifi::{
-//     initialize,
-//     wifi::{
-//         AccessPointConfiguration,
-//         Configuration,
-//         WifiApDevice,
-//         WifiController,
-//         WifiDevice,
-//         WifiEvent,
-//         WifiState,
-//     },
-//     EspWifiInitFor,
-// };
 
 // macro_rules! mk_static {
 //     ($t:ty,$val:expr) => {{
@@ -61,6 +62,24 @@ use embassy_executor::Spawner;
 
 #[main]
 async fn main(spawner: Spawner) -> ! {
+    let peripherals = Peripherals::take();
+    let system = SystemControl::new(peripherals.SYSTEM);
+    let clocks = ClockControl::max(system.clock_control).freeze();
+
+    // initialize wifi
+    #[cfg(target_arch = "xtensa")]
+    let timer = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1, &clocks, None).timer0;
+    #[cfg(target_arch = "riscv32")]
+    let timer = esp_hal::timer::systimer::SystemTimer::new(peripherals.SYSTIMER).alarm0;
+    let init = initialize(
+        EspWifiInitFor::Wifi,
+        timer,
+        Rng::new(peripherals.RNG),
+        peripherals.RADIO_CLK,
+        &clocks,
+    )
+    .unwrap();
+
     loop {}
 }
 //     esp_println::logger::init_logger_from_env();
