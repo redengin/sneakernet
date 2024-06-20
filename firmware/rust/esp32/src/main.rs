@@ -61,7 +61,7 @@ use embassy_executor::Spawner;
 // }
 
 #[main]
-async fn main(spawner: Spawner) -> ! {
+async fn main(_spawner: Spawner) -> ! {
     let peripherals = Peripherals::take();
     let system = SystemControl::new(peripherals.SYSTEM);
     let clocks = ClockControl::max(system.clock_control).freeze();
@@ -71,14 +71,13 @@ async fn main(spawner: Spawner) -> ! {
     let timer = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1, &clocks, None).timer0;
     #[cfg(target_arch = "riscv32")]
     let timer = esp_hal::timer::systimer::SystemTimer::new(peripherals.SYSTIMER).alarm0;
-    let init = initialize(
+    let _wifi = initialize(
         EspWifiInitFor::Wifi,
         timer,
         Rng::new(peripherals.RNG),
         peripherals.RADIO_CLK,
         &clocks,
-    )
-    .unwrap();
+    ).unwrap();
 
     loop {}
 }

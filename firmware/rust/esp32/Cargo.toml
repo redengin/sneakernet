@@ -12,12 +12,16 @@
         "panic-handler",
         "println",
     ] }
-    esp-hal = { version = "0.18.0", features = [ "esp32" ] }
+    esp-hal = { version = "0.18.0", features = ["esp32"] }
     esp-println = { version = "0.9.1", features = ["esp32", "log"] }
     esp-hal-embassy = { version = "0.1.0", features = ["esp32", "time-timg0"] }
     esp-wifi = { version = "0.6.0", features = ["esp32", "wifi"] }
+    
+    # esp-storage = { version = "0.3.0", features = ["esp32"] }
+    # esp-hal-smartled = { version = "0.11.0", features = ["esp32"] }
 
     embassy-executor = { version = "0.5.0", features = ["task-arena-size-40960"] }
+    # embassy-time = { version = "0.3.1", features = ["generic-queue-8"] }
 
 [profile.dev]
     # Rust debug is too slow.
@@ -30,5 +34,6 @@
     debug-assertions = false
     incremental = false
     lto = 'fat'
-    opt-level = 's'
+    # opt-level = 's'
+    opt-level = 3 # required by esp-storage
     overflow-checks = false
