@@ -24,7 +24,6 @@ use esp_hal::{
     timer::timg::TimerGroup,
 };
 use esp_wifi::{
-    initialize,
     wifi::{
         WifiDevice,
         WifiApDevice,
@@ -67,6 +66,7 @@ macro_rules! mk_static {
 async fn main(spawner: Spawner) -> ! {
     let peripherals = Peripherals::take();
     let system = SystemControl::new(peripherals.SYSTEM);
+    // freeze the clocks during initialization
     let clocks = ClockControl::max(system.clock_control).freeze();
 
     // initialize wifi
@@ -74,7 +74,7 @@ async fn main(spawner: Spawner) -> ! {
     let timer = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1, &clocks, None).timer0;
     #[cfg(target_arch = "riscv32")]
     let timer = esp_hal::timer::systimer::SystemTimer::new(peripherals.SYSTIMER).alarm0;
-    let wifi_init = initialize(
+    let wifi_init = esp_wifi::initialize(
         EspWifiInitFor::Wifi,
         timer,
         Rng::new(peripherals.RNG),
@@ -84,11 +84,12 @@ async fn main(spawner: Spawner) -> ! {
     let wifi = peripherals.WIFI;
     let (wifi_interface, controller) = esp_wifi::wifi::new_with_mode(&wifi_init, wifi, WifiApDevice).unwrap();
 
-    // initialize network stack
-    // FIXME move to sneakernet module
+    // start the clock
     let timer_group0 = TimerGroup::new_async(peripherals.TIMG0, &clocks);
     esp_hal_embassy::init(&clocks, timer_group0);
 
+    // initialize network stack
+    // FIXME move to sneakernet module
     let config = Config::ipv4_static(StaticConfigV4 {
         address: Ipv4Cidr::new(Ipv4Address::new(192, 168, 2, 1), 24),
         gateway: Some(Ipv4Address::from_bytes(&[192, 168, 2, 1])),
