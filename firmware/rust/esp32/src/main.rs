@@ -21,44 +21,44 @@ use esp_hal::{
     system::SystemControl,
     clock::ClockControl,
     rng::Rng,
-    // timer::timg::TimerGroup,
+    timer::timg::TimerGroup,
 };
 use esp_wifi::{
     initialize,
-    // wifi::{
+    wifi::{
+        WifiDevice,
+        WifiApDevice,
     //     AccessPointConfiguration,
     //     Configuration,
-    //     WifiApDevice,
     //     WifiController,
-    //     WifiDevice,
     //     WifiEvent,
     //     WifiState,
-    // },
+    },
     EspWifiInitFor,
 };
 
 use embassy_executor::Spawner;
-// use embassy_net::{
-//     tcp::TcpSocket,
-//     Config,
-//     IpListenEndpoint,
-//     Ipv4Address,
-//     Ipv4Cidr,
-//     Stack,
-//     StackResources,
-//     StaticConfigV4,
-// };
+use embassy_net::{
+    Config,
+    StaticConfigV4,
+    Stack,
+    StackResources,
+    Ipv4Cidr,
+    Ipv4Address,
+    // IpListenEndpoint,
+    // tcp::TcpSocket,
+};
 // use embassy_time::{Duration, Timer};
 // use esp_println::{print, println};
 
-// macro_rules! mk_static {
-//     ($t:ty,$val:expr) => {{
-//         static STATIC_CELL: static_cell::StaticCell<$t> = static_cell::StaticCell::new();
-//         #[deny(unused_attributes)]
-//         let x = STATIC_CELL.uninit().write(($val));
-//         x
-//     }};
-// }
+macro_rules! mk_static {
+    ($t:ty,$val:expr) => {{
+        static STATIC_CELL: static_cell::StaticCell<$t> = static_cell::StaticCell::new();
+        #[deny(unused_attributes)]
+        let x = STATIC_CELL.uninit().write(($val));
+        x
+    }};
+}
 
 #[main]
 async fn main(_spawner: Spawner) -> ! {
@@ -71,13 +71,38 @@ async fn main(_spawner: Spawner) -> ! {
     let timer = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1, &clocks, None).timer0;
     #[cfg(target_arch = "riscv32")]
     let timer = esp_hal::timer::systimer::SystemTimer::new(peripherals.SYSTIMER).alarm0;
-    let _wifi = initialize(
+    let wifi_init = initialize(
         EspWifiInitFor::Wifi,
         timer,
         Rng::new(peripherals.RNG),
         peripherals.RADIO_CLK,
         &clocks,
     ).unwrap();
+    let wifi = peripherals.WIFI;
+    let (wifi_interface, controller) = esp_wifi::wifi::new_with_mode(&wifi_init, wifi, WifiApDevice).unwrap();
+
+    // initialize network stack
+    // FIXME move to sneakernet module
+    let timer_group0 = TimerGroup::new_async(peripherals.TIMG0, &clocks);
+    esp_hal_embassy::init(&clocks, timer_group0);
+
+    let config = Config::ipv4_static(StaticConfigV4 {
+        address: Ipv4Cidr::new(Ipv4Address::new(192, 168, 2, 1), 24),
+        gateway: Some(Ipv4Address::from_bytes(&[192, 168, 2, 1])),
+        dns_servers: Default::default(),
+    });
+
+    let seed = 1234; // very random, very secure seed
+    let stack = &*mk_static!(
+        Stack<WifiDevice<'_, WifiApDevice>>,
+        Stack::new(
+            wifi_interface,
+            config,
+            mk_static!(StackResources<3>, StackResources::<3>::new()),
+            seed
+        )
+    );
+
 
     loop {}
 }

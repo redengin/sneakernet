@@ -2,9 +2,17 @@
 
 use core::time::Duration;
 
-
 pub static IP_ADDRESS:embassy_net::Ipv4Cidr =
     embassy_net::Ipv4Cidr::new(embassy_net::Ipv4Address::new(192, 168, 4, 1), 24);
+
+// pub static WIFI_CONFIG:embassy_net::Config =
+//     embassy_net::Config::ipv4_static(
+//         embassy_net::StaticConfigV4 {
+//             address: IP_ADDRESS,
+//             gateway: None,
+//             dns_servers: Default::default(),
+//     });
+
 
 
 const SSID_PREFIX:&[u8] = "SneakerNet".as_bytes();
