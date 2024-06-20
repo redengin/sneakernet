@@ -51,7 +51,7 @@ use embassy_net::{
     // tcp::TcpSocket,
 };
 use embassy_time::{Duration, Timer};
-use esp_println::{print, println};
+use esp_println::{println};
 
 macro_rules! mk_static {
     ($t:ty,$val:expr) => {{
