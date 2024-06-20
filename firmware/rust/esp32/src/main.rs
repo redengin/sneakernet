@@ -28,16 +28,19 @@ use esp_wifi::{
     wifi::{
         WifiDevice,
         WifiApDevice,
-    //     AccessPointConfiguration,
-    //     Configuration,
-    //     WifiController,
-    //     WifiEvent,
-    //     WifiState,
+        WifiController,
+        WifiState,
+        WifiEvent,
+        Configuration,
+        AccessPointConfiguration,
     },
     EspWifiInitFor,
 };
 
 use embassy_executor::Spawner;
+
+
+// FIXME move embassy_net usage to sneakernet
 use embassy_net::{
     Config,
     StaticConfigV4,
@@ -48,8 +51,8 @@ use embassy_net::{
     // IpListenEndpoint,
     // tcp::TcpSocket,
 };
-// use embassy_time::{Duration, Timer};
-// use esp_println::{print, println};
+use embassy_time::{Duration, Timer};
+use esp_println::{print, println};
 
 macro_rules! mk_static {
     ($t:ty,$val:expr) => {{
@@ -61,7 +64,7 @@ macro_rules! mk_static {
 }
 
 #[main]
-async fn main(_spawner: Spawner) -> ! {
+async fn main(spawner: Spawner) -> ! {
     let peripherals = Peripherals::take();
     let system = SystemControl::new(peripherals.SYSTEM);
     let clocks = ClockControl::max(system.clock_control).freeze();
@@ -103,9 +106,53 @@ async fn main(_spawner: Spawner) -> ! {
         )
     );
 
+    spawner.spawn(connection(controller)).ok();
+    spawner.spawn(net_task(&stack)).ok();
+
+    loop {
+        if stack.is_link_up() {
+            break;
+        }
+        Timer::after(Duration::from_millis(500)).await;
+    }
+    println!("Connect to the AP `esp-wifi` and point your browser to http://192.168.2.1:8080/");
+    println!("Use a static IP in the range 192.168.2.2 .. 192.168.2.255, use gateway 192.168.2.1");
 
     loop {}
 }
+
+#[embassy_executor::task]
+async fn connection(mut controller: WifiController<'static>) {
+    println!("start connection task");
+    println!("Device capabilities: {:?}", controller.get_capabilities());
+    loop {
+        match esp_wifi::wifi::get_wifi_state() {
+            WifiState::ApStarted => {
+                // wait until we're no longer connected
+                controller.wait_for_event(WifiEvent::ApStop).await;
+                Timer::after(Duration::from_millis(5000)).await
+            }
+            _ => {}
+        }
+        if !matches!(controller.is_started(), Ok(true)) {
+            let client_config = Configuration::AccessPoint(AccessPointConfiguration {
+                ssid: "esp-wifi".try_into().unwrap(),
+                ..Default::default()
+            });
+            controller.set_configuration(&client_config).unwrap();
+            println!("Starting wifi");
+            controller.start().await.unwrap();
+            println!("Wifi started!");
+        }
+    }
+}
+
+#[embassy_executor::task]
+async fn net_task(stack: &'static Stack<WifiDevice<'static, WifiApDevice>>) {
+    stack.run().await
+}
+
+
 //     esp_println::logger::init_logger_from_env();
 
 //     let peripherals = Peripherals::take();
