@@ -25,7 +25,7 @@
     static_cell = { version = "2.1.0", features = ["nightly"] }
     embassy-time = { version = "0.3.1", features = ["generic-queue-8"] }
 
-    sneakernet = { path="../sneakernet" }
+    sneakernet = { path=".." }
 
 [profile.dev]
     # Rust debug is too slow.
