@@ -25,14 +25,3 @@ services:
       - ~/keystore/:/tmp/sneakernet/keystore
       - .:/tmp/sneakernet/
     working_dir: /tmp/sneakernet/firmware/esp32
-
-  # idf-rust-esp32s:
-  #   image: espressif/idf-rust:esp32s3_latest
-  #   volumes:
-  #     - .:/tmp/sneakernet/
-  #     - ~/.cargo:/usr/local/cargo
-  #   environment:
-  #     - LIBCLANG_PATH=/home/esp/.rustup/toolchains/esp/xtensa-esp32-elf-clang/esp-16.0.4-20231113/esp-clang/lib
-  #     - PATH=/home/esp/.rustup/toolchains/esp/xtensa-esp-elf/esp-13.2.0_20230928/xtensa-esp-elf/bin:/home/esp/.cargo/bin:/usr/bin
-  #   user: ${DOCKER_USER:? (to fix) export DOCKER_USER="$(id -u):$(id -g)")}
-

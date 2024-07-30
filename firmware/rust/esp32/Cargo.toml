@@ -12,8 +12,8 @@
         "panic-handler",
         "println",
     ] }
-    esp-hal = { version = "0.18.0", features = ["esp32"] }
     esp-println = { version = "0.9.1", features = ["esp32", "log"] }
+    esp-hal = { version = "0.18.0", features = ["esp32"] }
     esp-hal-embassy = { version = "0.1.0", features = ["esp32", "time-timg0"] }
     esp-wifi = { version = "0.6.0", features = ["esp32", "wifi", "embassy-net"] }
     
@@ -21,11 +21,12 @@
     # esp-hal-smartled = { version = "0.11.0", features = ["esp32"] }
 
     embassy-executor = { version = "0.5.0", features = ["task-arena-size-40960"] }
-    embassy-net = { version = "0.4.0", features = [ "tcp", "udp", "dhcpv4", "medium-ethernet"] }
+    # embassy-net = { version = "0.4.0", features = [ "tcp", "udp", "medium-ethernet"] }
+    embassy-net = { version = "0.4.0", features = ["defmt", "medium-ethernet", "proto-ipv4", "tcp"] }
     static_cell = { version = "2.1.0", features = ["nightly"] }
     embassy-time = { version = "0.3.1", features = ["generic-queue-8"] }
 
-    sneakernet = { path=".." }
+    sneakernet = { path="../" }
 
 [profile.dev]
     # Rust debug is too slow.

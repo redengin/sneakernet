@@ -1,15 +1,15 @@
 [target.xtensa-esp32-none-elf]
 runner = "espflash flash --list-all-ports --monitor"
 
-
 [env]
 ESP_LOGLEVEL="INFO"
 
 [build]
 rustflags = [
   "-C", "link-arg=-nostartfiles",
+  "-C", "link-arg=-Tlinkall.x",
+  "-C", "link-arg=-Tesp32_rom_functions.x",
 ]
-
 target = "xtensa-esp32-none-elf"
 
 [unstable]

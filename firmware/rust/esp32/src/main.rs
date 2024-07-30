@@ -1,20 +1,9 @@
-//! Embassy access point
-//!
-//! - creates an open access-point with SSID `esp-wifi`
-//! - you can connect to it using a static IP in range 192.168.2.2 .. 192.168.2.255, gateway 192.168.2.1
-//! - open http://192.168.2.1:8080/ in your browser - the example will perform an HTTP get request to some "random" server
-//!
-//! On Android you might need to choose _Keep Accesspoint_ when it tells you the WiFi has no internet connection, Chrome might not want to load the URL - you can use a shell and try `curl` and `ping`
-//!
-//! Because of the huge task-arena size configured this won't work on ESP32-S2
-
-//% FEATURES: async embassy embassy-time-timg0 embassy-generic-timers esp-wifi esp-wifi/async esp-wifi/embassy-net esp-wifi/wifi-default esp-wifi/wifi esp-wifi/utils
-//% CHIPS: esp32 esp32s3 esp32c2 esp32c3 esp32c6
-
 #![no_std]
 #![no_main]
+// handle exceptions and logging
 use esp_backtrace as _;
-
+use esp_println::println;
+// ESP hardware
 use esp_hal::{
     prelude::*,
     peripherals::Peripherals,
@@ -41,17 +30,14 @@ use embassy_executor::Spawner;
 
 // FIXME move embassy_net usage to sneakernet
 use embassy_net::{
-    Config,
     StaticConfigV4,
     Stack,
     StackResources,
     Ipv4Cidr,
-    Ipv4Address,
     // IpListenEndpoint,
     // tcp::TcpSocket,
 };
 use embassy_time::{Duration, Timer};
-use esp_println::{println};
 
 macro_rules! mk_static {
     ($t:ty,$val:expr) => {{
@@ -84,46 +70,48 @@ async fn main(spawner: Spawner) -> ! {
     let wifi = peripherals.WIFI;
     let (wifi_interface, controller) = esp_wifi::wifi::new_with_mode(&wifi_init, wifi, WifiApDevice).unwrap();
 
-    // start the clock
+    // restart the clock
     let timer_group0 = TimerGroup::new_async(peripherals.TIMG0, &clocks);
     esp_hal_embassy::init(&clocks, timer_group0);
 
-    // initialize network stack
-    // FIXME move to sneakernet module
-    let config = Config::ipv4_static(StaticConfigV4 {
-        address: Ipv4Cidr::new(Ipv4Address::new(192, 168, 2, 1), 24),
-        gateway: Some(Ipv4Address::from_bytes(&[192, 168, 2, 1])),
+    // create the network stack
+    let net_config = embassy_net::Config::ipv4_static(StaticConfigV4 {
+        address: Ipv4Cidr::new(sneakernet::IP_ADDRESS, 24),
+        gateway: None,
         dns_servers: Default::default(),
     });
-
-    let seed = 1234; // very random, very secure seed
+    const MAX_SOCKETS:usize = 20;
     let stack = &*mk_static!(
         Stack<WifiDevice<'_, WifiApDevice>>,
         Stack::new(
             wifi_interface,
-            config,
-            mk_static!(StackResources<3>, StackResources::<3>::new()),
-            seed
+            net_config,
+            mk_static!(StackResources<MAX_SOCKETS>, StackResources::<MAX_SOCKETS>::new()),
+            Default::default(),
         )
     );
 
-    spawner.spawn(connection(controller)).ok();
-    spawner.spawn(net_task(&stack)).ok();
+    // spawner.spawn(net_task(&stack)).ok();
+    spawner.spawn(wifi_ap(controller)).ok();
 
+    // await network stack initialization
     loop {
         if stack.is_link_up() {
             break;
         }
         Timer::after(Duration::from_millis(500)).await;
     }
-    println!("Connect to the AP `esp-wifi` and point your browser to http://192.168.2.1:8080/");
-    println!("Use a static IP in the range 192.168.2.2 .. 192.168.2.255, use gateway 192.168.2.1");
 
     loop {}
 }
 
+// #[embassy_executor::task]
+// async fn net_task(stack: &'static Stack<WifiDevice<'static, WifiApDevice>>) {
+//     stack.run().await
+// }
+
 #[embassy_executor::task]
-async fn connection(mut controller: WifiController<'static>) {
+async fn wifi_ap(mut controller: WifiController<'static>) {
     println!("start connection task");
     println!("Device capabilities: {:?}", controller.get_capabilities());
     loop {
@@ -147,12 +135,6 @@ async fn connection(mut controller: WifiController<'static>) {
         }
     }
 }
-
-#[embassy_executor::task]
-async fn net_task(stack: &'static Stack<WifiDevice<'static, WifiApDevice>>) {
-    stack.run().await
-}
-
 
 //     esp_println::logger::init_logger_from_env();
 
