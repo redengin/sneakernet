@@ -1,7 +1,8 @@
 SneakerNet
 ================================================================================
-### [The internet has diluted the sense of local community.](https://en.wikipedia.org/wiki/Internet_influences_on_communities)
+> A library outranks any other thing a community can do to benefit its people. It is a never failing spring in the desert” – Andrew Carnegie
 
+### [The internet has diluted the sense of local community.](https://en.wikipedia.org/wiki/Internet_influences_on_communities)
 SneakerNet is a digital version of a [Little Free Library](https://littlefreelibrary.org/).
 
 SneakerNet nodes present themselves as **wifi access points** providing locally curated content. See [Concept](docs/conops.md) for more details.
