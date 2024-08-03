@@ -20,7 +20,7 @@ rustflags = [
   # GNU LD
   "-C", "link-arg=-Wl,-Tlinkall.x",
   "-C", "link-arg=-nostartfiles",
-  "-C", "link-arg=-Tesp32_rom_functions.x",
+  # "-C", "link-arg=-Tesp32_rom_functions.x",
   # LLD
   # "-C", "link-arg=-Tlinkall.x",
   # "-C", "linker=rust-lld",
