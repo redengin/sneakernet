@@ -2,8 +2,32 @@
 #![no_main]
 use esp_backtrace as _;
 
+use esp_hal:: {
+    peripherals::Peripherals,
+    system::SystemControl,
+    clock::ClockControl,
+    timer::{timg::TimerGroup, ErasedTimer, PeriodicTimer},
+    rng::Rng,
+};
+
 #[esp_hal_embassy::main]
 async fn main(_spawner: embassy_executor::Spawner) -> ! {
+    // initialize the hardware
+    let peripherals = Peripherals::take();
+    let system = SystemControl::new(peripherals.SYSTEM);
+    let clocks = ClockControl::max(system.clock_control).freeze();
+    let timg0 = TimerGroup::new(peripherals.TIMG0, &clocks);
+    let timer0: ErasedTimer = timg0.timer0.into();
+    let timer = PeriodicTimer::new(timer0);
+
+    esp_wifi::initialize(
+        esp_wifi::EspWifiInitFor::Wifi,
+        timer,
+        Rng::new(peripherals.RNG),
+        peripherals.RADIO_CLK,
+        &clocks,
+    )
+    .unwrap();
     loop{}
 }
 
