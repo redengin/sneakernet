@@ -1,16 +1,40 @@
-[target.xtensa-esp32-none-elf]
-runner = "espflash flash --list-all-ports --monitor"
+[alias]
+build.esp32   = "build --release --features=esp32   --target=xtensa-esp32-none-elf"
+build.esp32c2 = "build --release --features=esp32c2 --target=riscv32imc-unknown-none-elf"
+build.esp32c3 = "build --release --features=esp32c3 --target=riscv32imc-unknown-none-elf"
+build.esp32c6 = "build --release --features=esp32c6 --target=riscv32imac-unknown-none-elf"
+build.esp32h2 = "build --release --features=esp32h2 --target=riscv32imac-unknown-none-elf"
+build.esp32s2 = "build --release --features=esp32s2 --target=xtensa-esp32s2-none-elf"
+build.esp32s3 = "build --release --features=esp32s3 --target=xtensa-esp32s3-none-elf"
+run.esp32   = "run --release --features=esp32   --target=xtensa-esp32-none-elf"
+run.esp32c2 = "run --release --features=esp32c2 --target=riscv32imc-unknown-none-elf"
+run.esp32c3 = "run --release --features=esp32c3 --target=riscv32imc-unknown-none-elf"
+run.esp32c6 = "run --release --features=esp32c6 --target=riscv32imac-unknown-none-elf"
+run.esp32h2 = "run --release --features=esp32h2 --target=riscv32imac-unknown-none-elf"
+run.esp32s2 = "run --release --features=esp32s2 --target=xtensa-esp32s2-none-elf"
+run.esp32s3 = "run --release --features=esp32s3 --target=xtensa-esp32s3-none-elf"
+
+[target.'cfg(target_arch = "xtensa")']
+runner    = "espflash flash --monitor"
+rustflags = [
+  # GNU LD
+  "-C", "link-arg=-Wl,-Tlinkall.x",
+  "-C", "link-arg=-nostartfiles",
+  "-C", "link-arg=-Tesp32_rom_functions.x",
+  # LLD
+  # "-C", "link-arg=-Tlinkall.x",
+  # "-C", "linker=rust-lld",
+]
+
+[target.'cfg(target_arch = "riscv32")']
+runner    = "espflash flash --monitor"
+rustflags = [
+  "-C", "link-arg=-Tlinkall.x",
+  "-C", "force-frame-pointers",
+]
 
 [env]
-ESP_LOGLEVEL="INFO"
-
-[build]
-rustflags = [
-  "-C", "link-arg=-nostartfiles",
-  "-C", "link-arg=-Tlinkall.x",
-  "-C", "link-arg=-Tesp32_rom_functions.x",
-]
-target = "xtensa-esp32-none-elf"
+ESP_LOGLEVEL="info"
 
 [unstable]
 build-std = ["core"]
