@@ -1,37 +1,34 @@
 Concept of Operations
 ================================================================================
-<!-- main scenario -->
-When a person enters into the physical space of a SneakerNet node, they will
-be able to access the content stored on that node.
 
-Human Factors
---------------------------------------------------------------------------------
-* Awareness - user must be made aware that the content is available
-    * **primarily** accomplished via the mobile app that automatically
-        synchronizes with SneakerNet nodes
-    * provide an open wifi connection (attracting those looking for internet
-        connectivity)
-* Relevance - users want locally relevant content
-    * each SneakerNet node's content is maintained by local users - able to
-        add and remove content to maximize relevance (aka curation)
+### Finding and Accessing a SneakerNet content
+* **non-mobile app users**  
+    When searching for wifi access, they will see the SneakerNet node's SSID.
+    Upon choosing to connect to the SSID, they will be presented the webapp.
 
-Roles
-================================================================================
-* **Reader** - content consumer
-* **Curator** - removal of objectionable content from SneakerNet
-* **Node Maintainer** - update of the SneakerNet node software
+* **mobile app users**  
+    The mobile app will constantly scan for SneakerNet node SSIDs. When a
+    SneakerNet node is found, the mobile app will alert the user.  
+    Additionally, the mobile app can automate interactions with the SneakerNet
+    node (see [Content Management](#content-management))
 
-Curator
---------------------------------------------------------------------------------
-SneakerNet implementations ensure that every `reader` is able to take on the
-`curator` role by deleting objectionable content from the node they are
-connected to.
+### Content Management
+SneakerNet is a [decentralized system](https://en.wikipedia.org/wiki/Decentralised_system).
+SneakerNet content is **self-organized** by users.
+* All users can **add content**.
+* All users can **remove content**.
 
-By using the **mobile application**, the flagged content will be automatically
-removed upon connection to any SneakerNet node.
+#### Offensive/Irrelevant Content
+As a decentralized system, it is up to the users to remove such content.
 
-Node Maintainer
---------------------------------------------------------------------------------
-The **mobile application** will automatically upgrade node's software upon
-connection.
+To maximize the relevance of SneakerNet content, the removal of such content is
+automated. Users flag such content, and upon interaction with each SneakerNet node
+the content will be removed automatically.
+
+This self-organizing pattern aligns to local sentiment.
+<!-- For more details see the [mathematical proof](/docs/proof.md). -->
+
+
+
+
 
