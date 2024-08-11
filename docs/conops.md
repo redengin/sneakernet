@@ -25,8 +25,18 @@ To maximize the relevance of SneakerNet content, the removal of such content is
 automated. Users flag such content, and upon interaction with each SneakerNet node
 the content will be removed automatically.
 
-This self-organizing pattern aligns to local sentiment.
 <!-- For more details see the [mathematical proof](/docs/proof.md). -->
+
+
+#### Organizing Content
+For simplicity, the first implementation will follow a simple tagging
+pattern. Users can add tags to content that describes the content or
+coordinate interests (like [twitter hashtags](https://help.x.com/en/using-x/how-to-use-hashtags)).
+
+Later, SneakerNet may implement [UseNet](https://www.usenetserver.com/what-is-usenet).
+Providing an offline mirror of the UseNet forums desired by the local
+community. As UseNet is not familiar to most, it is of lower priority to
+support on SneakerNet.
 
 
 
