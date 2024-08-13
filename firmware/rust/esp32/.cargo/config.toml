@@ -13,6 +13,7 @@ runner    = "espflash flash --monitor"
 rustflags = [
   "-C", "link-arg=-Tlinkall.x",
   "-C", "force-frame-pointers",
+  "-C", "link-arg=-Trom_functions.x",
 ]
 
 [target.'cfg(target_arch = "xtensa")']
@@ -21,6 +22,7 @@ rustflags = [
   # GNU LD
   "-C", "link-arg=-Wl,-Tlinkall.x",
   "-C", "link-arg=-nostartfiles",
+  "-C", "link-arg=-Trom_functions.x",
 
   # LLD
   # "-C", "link-arg=-Tlinkall.x",
