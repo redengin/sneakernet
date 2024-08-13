@@ -1242,17 +1242,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "sneakernet"
+version = "0.0.0"
+dependencies = [
+ "embassy-net",
+ "embassy-time",
+]
+
+[[package]]
 name = "sneakernet-esp32"
 version = "0.0.0"
 dependencies = [
  "embassy-executor",
- "embassy-net",
- "embassy-time",
  "esp-backtrace",
  "esp-hal",
  "esp-hal-embassy",
  "esp-println",
  "esp-wifi",
+ "sneakernet",
  "static_cell",
 ]
 
