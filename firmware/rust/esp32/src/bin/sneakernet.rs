@@ -74,14 +74,14 @@ async fn main(spawner: Spawner) {
     ).unwrap();
     let (wifi_interface, mut wifi_controller) =
         esp_wifi::wifi::new_with_mode(&wifi_init, wifi, WifiApDevice).unwrap();
+    let wifi_mac = wifi_interface.mac_address();
 
-    // initialize network stack
+    // start the network stack
     let net_config = Config::ipv4_static(StaticConfigV4 {
         address: Ipv4Cidr::new(sneakernet::IP_ADDRESS, 24),
         gateway: None,
         dns_servers: Default::default(),
     });
-    // Init network stack
     let net_stack = &*mk_static!(
         Stack<WifiDevice<'_, WifiApDevice>>,
         Stack::new(
@@ -95,7 +95,8 @@ async fn main(spawner: Spawner) {
 
     // start the wifi access point
     let ap_config = esp_wifi::wifi::AccessPointConfiguration{
-        ssid: "SneakerNet".try_into().unwrap(),
+        // ssid: "SneakerNet".try_into().unwrap(),
+        ssid: sneakernet::ssid(wifi_mac),
         ..Default::default()
     };
     let wifi_config = esp_wifi::wifi::Configuration::AccessPoint(ap_config);
