@@ -9,22 +9,14 @@ use esp_hal::{
     timer::{timg::TimerGroup, ErasedTimer, OneShotTimer, PeriodicTimer},
     rng::Rng,
 };
+use esp_println::println;
 use esp_wifi::wifi::{
     WifiApDevice,
     WifiDevice,
 };
 
 use embassy_executor::Spawner;
-use sneakernet::embassy_time::{Duration, Timer};
-use sneakernet::embassy_net::{
-    Config,
-    StaticConfigV4,
-    Ipv4Cidr,
-    Stack,
-    StackResources,
-    // tcp::TcpSocket,
-    // IpListenEndpoint,
-};
+use sneakernet::embassy_net;
 
 // When you are okay with using a nightly compiler it's better to use https://docs.rs/static_cell/2.1.0/static_cell/macro.make_static.html
 macro_rules! mk_static {
@@ -38,6 +30,9 @@ macro_rules! mk_static {
 
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
+
+    esp_println::logger::init_logger_from_env();
+
     let peripherals = Peripherals::take();
     let system = SystemControl::new(peripherals.SYSTEM);
     let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
@@ -77,41 +72,50 @@ async fn main(spawner: Spawner) {
     let wifi_mac = wifi_interface.mac_address();
 
     // start the network stack
-    let net_config = Config::ipv4_static(StaticConfigV4 {
-        address: Ipv4Cidr::new(sneakernet::IP_ADDRESS, 24),
+    let net_config = embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
+        address: embassy_net::Ipv4Cidr::new(sneakernet::IP_ADDRESS, 24),
         gateway: None,
         dns_servers: Default::default(),
     });
+    const SOCKETS:usize = 100;
     let net_stack = &*mk_static!(
-        Stack<WifiDevice<'_, WifiApDevice>>,
-        Stack::new(
+        embassy_net::Stack<WifiDevice<'_, WifiApDevice>>,
+        embassy_net::Stack::new(
             wifi_interface,
             net_config,
-            mk_static!(StackResources<3>, StackResources::<3>::new()),
+            mk_static!(embassy_net::StackResources<SOCKETS>, embassy_net::StackResources::<SOCKETS>::new()),
             Default::default(), // use default seed
         )
     );
     spawner.spawn(net_task(&net_stack)).ok();
 
     // start the wifi access point
-    let ap_config = esp_wifi::wifi::AccessPointConfiguration{
-        // ssid: "SneakerNet".try_into().unwrap(),
-        ssid: sneakernet::ssid(wifi_mac),
-        ..Default::default()
-    };
-    let wifi_config = esp_wifi::wifi::Configuration::AccessPoint(ap_config);
+    let wifi_config = esp_wifi::wifi::Configuration::AccessPoint(
+        esp_wifi::wifi::AccessPointConfiguration{
+            ssid: sneakernet::ssid(wifi_mac),
+            ..Default::default()
+        }
+    );
     wifi_controller.set_configuration(&wifi_config).unwrap();
     wifi_controller.start().await.unwrap();
-
+    // spawner.spawn(ap(wifi_controller)).ok();
 
     loop {
-        esp_println::println!("PONG!");
-        Timer::after(Duration::from_millis(500)).await;
+        // esp_println::println!("PONG!");
+        // Timer::after(Duration::from_millis(500)).await;
     }
 }
 
 
 #[embassy_executor::task]
-async fn net_task(stack: &'static Stack<WifiDevice<'static, WifiApDevice>>) {
+async fn net_task(stack: &'static embassy_net::Stack<WifiDevice<'static, WifiApDevice>>) {
     stack.run().await
+}
+
+#[embassy_executor::task]
+async fn ap(mut controller: esp_wifi::wifi::WifiController<'static>) {
+    loop {
+        controller.wait_for_event(esp_wifi::wifi::WifiEvent::ApStaconnected).await;
+        println!("Connection!")
+    }
 }
