@@ -1,8 +1,0 @@
-menu "SneakerNet"
-    config SNEAKERNET_CONTENT_REQUIRE_SNEAKERNET_SIGNATURE
-        bool "Require a sneakernet signature on files"
-        default n
-        help
-            Generally files aren't able to be signed.
-            EPUB files are able to be signed.
-endmenu
