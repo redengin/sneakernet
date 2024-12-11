@@ -6,6 +6,9 @@ a worldwide distributed discussion system.
 SneakerNet nodes are inexpensive to create. By creating a SneakerNet node,
 you increase access to information.
 
+The SneakerNet App provides users automated access to local USENET content.
+By using the app, users distribute USENET content across SneakerNet nodes.
+
 
 <!-- Checkout [creation](https://github.com/redengin/sneakernet/wiki)
 for details on building your own SneakerNet node. -->
