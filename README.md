@@ -4,9 +4,9 @@ SneakerNet is a physical implementation for [USENET](https://en.wikipedia.org/wi
 a worldwide distributed discussion system.
 
 SneakerNet nodes are inexpensive to create. By creating a SneakerNet node,
-you increase access to information.
+you increase access to information - to both yourself and people around you.
 
-The SneakerNet App provides users automated access to local USENET content.
+The SneakerNet App provides automated access to local USENET content.
 By using the app, users distribute USENET content across SneakerNet nodes.
 
 
