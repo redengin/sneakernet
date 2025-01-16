@@ -1,27 +1,23 @@
 SneakerNet
 ================================================================================
-SneakerNet is a physical implementation for [USENET](https://en.wikipedia.org/wiki/Usenet)
-a worldwide distributed discussion system.
+Digital content sharing at the local level.
 
-SneakerNet nodes are inexpensive to create. By creating a SneakerNet node,
-you increase access to information - to both yourself and people around you.
-
-The SneakerNet App provides automated access to local USENET content.
-By using the app, users distribute USENET content across SneakerNet nodes.
-
-
-<!-- Checkout [creation](https://github.com/redengin/sneakernet/wiki)
-for details on building your own SneakerNet node. -->
-
-Software Development
+Background
 --------------------------------------------------------------------------------
-All code is open source under [Apache License Version 2.0](LICENSE).
+The [Little Free Library][lfl] provides *physical media* to local users.
+*Physical media* (books, compact discs, etc.) is being replaced with *digital
+media* (ebooks, mp3, etc.).
 
-<!-- #### Overview of the repository
-* [firmware/](firmware/) - embedded software for SneakerNet hardware that implements
-    the REST interfaces
+Access to *digital media* is [diluted by social networks](https://en.wikipedia.org/wiki/Internet_influences_on_communities).
 
-### Mobile App Release
-* [SneakerNet Android](https://play.google.com/store/apps/details?id=monster.sneakernet)
-    on Google Play. -->
+Why SneakerNet?
+================================================================================
+SneakerNet increases access to locally relevant digital content.
 
+How?
+--------------------------------------------------------------------------------
+People introduce SneakerNet nodes to their area - just like Little Free Library
+creators create shed/box for *physical media*.
+
+<!-- references -->
+[lfl]: https://littlefreelibrary.org/
