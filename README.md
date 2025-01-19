@@ -1,6 +1,6 @@
 SneakerNet
 ================================================================================
-Digital content sharing at the local level.
+Digital content sharing for the local community.
 
 Background
 --------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ Access to *digital media* is [diluted by social networks](https://en.wikipedia.o
 
 Why SneakerNet?
 ================================================================================
-SneakerNet increases access to locally relevant digital content.
+SneakerNet increases access to locally relevant *digital content*.
 
 How?
 --------------------------------------------------------------------------------
