@@ -1,0 +1,20 @@
+# Docker support for webapp development
+services:
+  angular:
+    build:
+      dockerfile_inline: |
+        FROM alpine
+        RUN apk add \
+              npm \
+         && rm -rf /var/cache/apk/*
+        # install angular
+        RUN npm install -g @angular/cli
+    network_mode: host
+    tty: true
+    user: ${DOCKER_USER:?set environment variable}
+    environment:
+      HOME : /home/angular
+    volumes:
+      - ~/.npm:/home/angular/.npm
+      - ./angular:/home/angular/project
+    working_dir: /home/angular/project
