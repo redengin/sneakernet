@@ -26,6 +26,9 @@ paths:
                   version:
                     type: string
                     description: firmware version
+                  hardware:
+                    type: string
+                    description: hardware info
         "429": { description: Client should try again }
     put:
       summary: update firmware
