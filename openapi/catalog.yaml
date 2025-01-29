@@ -42,16 +42,17 @@ paths:
                     type: array
                     items:
                       type: string
-                      description: subfolders
                   files:
-                    type: object
-                    required: [name, size, timestamp]
-                    properties:
-                      name: { type: string }
-                      size: { type: integer, description: "size in bytes" }
-                      timestamp: { type: string, description: "ISO 8601 Z (aka UTC time)" }
-                      title: { type: string }
-                      hasIcon: { type: boolean }
+                    type: array
+                    items:
+                      type: object
+                      required: [name, size, timestamp]
+                      properties:
+                        name: { type: string }
+                        size: { type: integer, description: "size in bytes" }
+                        timestamp: { type: string, description: "ISO 8601 Z (aka UTC time)" }
+                        title: { type: string }
+                        hasIcon: { type: boolean }
         "404": { description: Folder Not Found }
         "429": { description: Client should try again }
 
