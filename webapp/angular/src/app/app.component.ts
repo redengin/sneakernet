@@ -3,9 +3,9 @@ import { RouterOutlet } from '@angular/router';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { NgIcon } from '@ng-icons/core';
+import { NgIconsModule } from '@ng-icons/core';
 import { inject, signal, model } from '@angular/core';
-import { MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
@@ -13,11 +13,12 @@ import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/fo
 
 export var title = "Sneakernet"
 
-
+// Toolbar
+//==============================================================================
 @Component({
   selector: 'app-toolbar',
   templateUrl: './toolbar.html',
-  imports: [MatToolbarModule, MatButtonModule, NgIcon],
+  imports: [MatToolbarModule, MatButtonModule, NgIconsModule],
 })
 export class AppToolbar {
   readonly title = title;
@@ -38,9 +39,11 @@ export class AboutDialog {
     this.dialogRef.close();
   }
 };
+//==============================================================================
 
 
-
+// Sneakernet Types
+//==============================================================================
 type PathData = {
   locked?: boolean;
   subfolders?: string[];
@@ -53,7 +56,10 @@ type Content = {
   title?: string;
   hasIcon?: boolean;
 }
+//==============================================================================
 
+// App Root
+//==============================================================================
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -62,7 +68,7 @@ type Content = {
     RouterOutlet,
     AppToolbar,
     MatInputModule, MatSelectModule, MatFormFieldModule,
-    MatButtonModule, NgIcon,
+    MatButtonModule, NgIconsModule,
   ],
 })
 export class AppComponent {
@@ -74,16 +80,17 @@ export class AppComponent {
     // subfolders: ['hello', 'world'],
   };
 
-  readonly dialog = inject(MatDialog)
+  // provide dialogs
+  readonly dialog = inject(MatDialog);
+
 // New Folder handler
-  // readonly newfolder = signal('');
-  readonly newfolder = signal('');
+//------------------------------------------------------------------------------
+  newfolder = "";
   openNewFolderDialog(): void {
     const dialogRef = this.dialog.open(NewFolderDialog, {
-      // data: {name: this.name(), animal: this.animal()},
       data: {
         currentPath: this.currentPath,
-        newfolder: this.newfolder(),
+        newfolder: this.newfolder,
       }
     });
 
@@ -94,8 +101,13 @@ export class AppComponent {
       // }
     });
   }
+//------------------------------------------------------------------------------
 
 }
+//==============================================================================
+
+// New Folder Dialog
+//==============================================================================
 export interface NewFolderDialogData {
   currentPath: string;
   newfolder: string;
@@ -115,3 +127,4 @@ export class NewFolderDialog {
     this.dialogRef.close();
   }
 };
+//==============================================================================
