@@ -1,7 +1,9 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
+import { provideHttpClient } from '@angular/common/http';
+
+import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 
 // use @ng-icons to embed material icons
@@ -12,10 +14,14 @@ import { matInfo, matCreateNewFolder } from '@ng-icons/material-icons/baseline';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideNoopAnimations(), // disable animation
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideHttpClient(),
+
     provideIcons({ matInfo, matCreateNewFolder }),
+
+    // provideZoneChangeDetection({ eventCoalescing: true }),
+    // provideRouter(routes),
     // TODO provide input validation
     // { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher }
-  ]
+    // provideHttpClientTesting(),
+   ]
 };

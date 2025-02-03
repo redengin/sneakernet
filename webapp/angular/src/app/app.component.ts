@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { retry } from 'rxjs';
+
 import { RouterOutlet } from '@angular/router';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -72,13 +75,18 @@ type Content = {
   ],
 })
 export class AppComponent {
-
   currentPath = "/";
+  pathData: PathData = {};
 
-  pathData: PathData = {
-    // locked: true,
-    // subfolders: ['hello', 'world'],
-  };
+  constructor(private http: HttpClient) { }
+  ngOnInit()
+  {
+    this.http.get<PathData>('/api/catalog')
+      .pipe( retry({ delay: 100 /* ms */ }))
+      .subscribe(body => this.pathData = body);
+  }
+
+
 
   // provide dialogs
   readonly dialog = inject(MatDialog);
