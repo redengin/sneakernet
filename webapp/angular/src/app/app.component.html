@@ -5,8 +5,12 @@
         <mat-form-field>
             <mat-label>{{currentPath}}</mat-label>
             <select matNativeControl>
-@if(currentPath !== "/") { <option value="..">..</option> }
-@for(subfolder of pathData.subfolders; track subfolder) { <option value="{{subfolder}}">{{subfolder}}</option> }
+@if(currentPath !== "/") {
+                <option value="..">..</option>
+}
+@for(subfolder of pathData.subfolders; track subfolder) {
+                <option value="{{subfolder}}">{{subfolder}}</option>
+}
             </select>
         </mat-form-field>
 @if(!(pathData.locked)) {
@@ -14,6 +18,10 @@
             <ng-icon name="MatCreateNewFolder"/>
         </button>
 }
+    </div>
+
+    <div class="centered">
+        hello
     </div>
 </main>
 

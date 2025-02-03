@@ -1,0 +1,11 @@
+{
+    "catalog/":
+    {
+        "locked" : false,
+        "subfolders" : [ "hello", "world" ],
+        "files" : [
+            { "name" : "file 1", "size" : 1, "timestamp" : "", "title" : "Title 1", "hasIcon" : false },
+            { "name" : "file 2", "size" : 2, "timestamp" : "", "title" : "Title 2", "hasIcon" : false }
+        ]
+    }
+}

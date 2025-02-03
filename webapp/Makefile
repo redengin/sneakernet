@@ -12,8 +12,8 @@ ng-shell: ~/.npm
 .PHONY: ng-serve
 ng-serve: ~/.npm
 	@DOCKER_USER=$(DOCKER_USER) \
-	docker compose run --rm angular \
-		ng serve
+	docker compose up ng-serve
+	docker compose down
 
 .PHONY: ng-build
 ng-build: ~/.npm

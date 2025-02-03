@@ -115,8 +115,9 @@ export interface NewFolderDialogData {
 @Component({
   templateUrl: './new_folder_dialog.html',
   imports: [
-    MatDialogTitle, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose,
-    FormsModule, MatFormField, MatLabel, MatInputModule,
+    MatDialogTitle, MatDialogContent,
+    FormsModule, MatFormField, MatInputModule,
+    MatDialogActions, MatDialogClose,
   ],
 })
 export class NewFolderDialog {

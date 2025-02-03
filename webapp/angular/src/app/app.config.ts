@@ -15,5 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideIcons({ matInfo, matCreateNewFolder }),
+    // TODO provide input validation
+    // { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher }
   ]
 };

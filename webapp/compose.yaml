@@ -2,14 +2,7 @@
 services:
   angular:
     build:
-      dockerfile_inline: |
-        FROM alpine
-        RUN apk add \
-              npm \
-         && rm -rf /var/cache/apk/*
-        # install angular
-        RUN npm install -g @angular/cli
-    network_mode: host
+      target: angular-cli
     tty: true
     user: ${DOCKER_USER:?set environment variable}
     environment:
@@ -18,3 +11,26 @@ services:
       - ~/.npm:/home/angular/.npm
       - ./angular:/home/angular/project
     working_dir: /home/angular/project
+
+  ng-serve:
+    build:
+      target: angular-cli
+    user: ${DOCKER_USER:?set environment variable}
+    network_mode: host
+    tty: true
+    volumes:
+      - ~/.npm:/home/angular/.npm
+      - ./angular:/home/angular/project
+    working_dir: /home/angular/project
+    command: ng serve
+    depends_on:
+      - json-server
+
+  json-server:
+    build:
+      target: json-server
+    volumes:
+      - ./angular:/home/angular/project
+    working_dir: /home/angular/project
+    init: true  # support CTRL-C stop
+    command: json-server dev-db.json

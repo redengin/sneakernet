@@ -63,7 +63,8 @@
               "buildTarget": "sneakernet:build:production"
             },
             "development": {
-              "buildTarget": "sneakernet:build:development"
+              "buildTarget": "sneakernet:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
