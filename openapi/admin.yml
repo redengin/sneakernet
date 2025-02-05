@@ -37,33 +37,3 @@ paths:
         "403": { description: Permission Denied }
         "404": { description: Folder Not Found }
         "429": { description: Client should try again }
-
-  /catalog/{path}/?size:
-    parameters:
-      - name: path
-        in: path
-        required: false
-        schema: { type: string }
-    put:
-      summary: set the folder to admin only access
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                max_size: { type: integer, description: max size in bytes }
-                policy: { type: string, description: policy to create more space }
-      responses:
-        "200": { description: OK }
-        "403": { description: Permission Denied }
-        "404": { description: Folder Not Found }
-        "429": { description: Client should try again }
-    delete:
-      summary: remove folder size attributes
-      responses:
-        "200": { description: OK }
-        "403": { description: Permission Denied }
-        "404": { description: Folder Not Found }
-        "429": { description: Client should try again }
-
