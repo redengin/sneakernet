@@ -1,23 +1,21 @@
 SneakerNet
 ================================================================================
-Digital content sharing for the local community.
+SneakerNet allows local users to distribute digital content **locally**
+(decoupled from the internet).
 
 Background
 --------------------------------------------------------------------------------
-The [Little Free Library][lfl] provides *physical media* to local users.
-*Physical media* (books, compact discs, etc.) is being replaced with *digital
-media* (ebooks, mp3, etc.).
+The [Little Free Library][lfl] provides physical media to local users.
+**Physical media** (books, compact discs, etc.) is being replaced with
+**digital media** (ebooks, mp3, etc.).
 
-Access to *digital media* is [diluted by social networks](https://en.wikipedia.org/wiki/Internet_influences_on_communities).
-
-Why SneakerNet?
-================================================================================
-SneakerNet increases access to locally relevant *digital content*.
+Access to **digital media** is [diluted by social networks](https://en.wikipedia.org/wiki/Internet_influences_on_communities).
 
 How?
 --------------------------------------------------------------------------------
-People introduce SneakerNet nodes to their area - just like Little Free Library
-creators create shed/box for *physical media*.
+SneakerNet nodes are public wifi access points serving **digital media**.
+
+You can create a SneakerNet node inexpensively (less than USD$50).
 
 <!-- references -->
 [lfl]: https://littlefreelibrary.org/
