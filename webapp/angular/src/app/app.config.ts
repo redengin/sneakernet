@@ -9,6 +9,7 @@ import { routes } from './app.routes';
 // use @ng-icons to embed material icons
 import { provideIcons, provideNgIconsConfig } from '@ng-icons/core';
 import { matInfo, matCreateNewFolder } from '@ng-icons/material-icons/baseline';
+import { matFolderOutline, matFileDownloadOutline, matDeleteOutline } from '@ng-icons/material-icons/outline';
 
 
 export const appConfig: ApplicationConfig = {
@@ -16,7 +17,10 @@ export const appConfig: ApplicationConfig = {
     provideNoopAnimations(), // disable animation
     provideHttpClient(),
 
-    provideIcons({ matInfo, matCreateNewFolder }),
+    provideIcons({
+      matInfo, matCreateNewFolder,
+      matFolderOutline, matFileDownloadOutline, matDeleteOutline
+    }),
 
     // provideZoneChangeDetection({ eventCoalescing: true }),
     // provideRouter(routes),

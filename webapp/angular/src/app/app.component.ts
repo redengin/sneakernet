@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatCardModule } from '@angular/material/card';0
 
 export var title = "Sneakernet"
 
@@ -72,6 +73,7 @@ type Content = {
     AppToolbar,
     MatInputModule, MatSelectModule, MatFormFieldModule,
     MatButtonModule, NgIconsModule,
+    MatCardModule,
   ],
 })
 export class AppComponent {
