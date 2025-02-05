@@ -36,7 +36,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./dev-db.json:/dev-db.json:ro
-    working_dir: /home/angular/project
+      - ./rest-fake.json:/rest-fake.json:ro
     init: true  # support CTRL-C stop
-    command: json-server /dev-db.json
+    command: json-server /rest-fake.json
