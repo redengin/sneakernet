@@ -1,5 +1,5 @@
 {
-    "catalog/":
+    "catalog":
     {
         "locked" : false,
         "subfolders" : [ "hello", "world" ],

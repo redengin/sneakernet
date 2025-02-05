@@ -16,21 +16,27 @@ services:
     build:
       target: angular-cli
     user: ${DOCKER_USER:?set environment variable}
-    network_mode: host
+    network_mode: host # FIXME mapping ports doesn't work currently
+    ports:
+      - "4200:4200"
     tty: true
     volumes:
       - ~/.npm:/home/angular/.npm
       - ./angular:/home/angular/project
     working_dir: /home/angular/project
     command: ng serve
+    init: true  # support CTRL-C stop
     depends_on:
       - json-server
 
   json-server:
     build:
       target: json-server
+    network_mode: host # FIXME mapping ports doesn't work currently
+    ports:
+      - "3000:3000"
     volumes:
-      - ./angular:/home/angular/project
+      - ./dev-db.json:/dev-db.json:ro
     working_dir: /home/angular/project
     init: true  # support CTRL-C stop
-    command: json-server dev-db.json
+    command: json-server /dev-db.json

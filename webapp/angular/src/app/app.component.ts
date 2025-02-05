@@ -81,8 +81,9 @@ export class AppComponent {
   constructor(private http: HttpClient) { }
   ngOnInit()
   {
-    this.http.get<PathData>('/api/catalog')
-      .pipe( retry({ delay: 100 /* ms */ }))
+    // this.http.get<PathData>('http://localhost:3000/catalog/')
+    this.http.get<PathData>('api/catalog')
+      .pipe( retry({ delay: 500 /* ms */ }))
       .subscribe(body => this.pathData = body);
   }
 

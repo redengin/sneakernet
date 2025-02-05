@@ -23,8 +23,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  version: { type: string, description: firmware version }
-                  hardware: { type: string, description: hardware type }
+                  version:  { type: string, description: "firmware version" }
+                  hardware: { type: string, description: "hardware type" }
         "429": { description: Client should try again }
     put:
       summary: update firmware
