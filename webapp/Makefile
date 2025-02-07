@@ -7,7 +7,7 @@ DOCKER_USER ?= ${shell id -u}:${shell id -g}
 .PHONY: ng-shell
 ng-shell: ~/.npm
 	@DOCKER_USER=$(DOCKER_USER) \
-		docker compose run --rm angular
+		docker compose run --rm ng
 
 .PHONY: ng-serve
 ng-serve: ~/.npm
@@ -19,6 +19,6 @@ ng-serve: ~/.npm
 .PHONY: ng-build
 ng-build: ~/.npm
 	@DOCKER_USER=$(DOCKER_USER) \
-		docker compose run --rm angular \
+		docker compose run --rm ng \
 			ng build
 # ng build --base-href = "/app/"

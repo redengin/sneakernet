@@ -1,6 +1,6 @@
 # Docker support for webapp development
 services:
-  angular:
+  ng:
     build:
       target: angular-cli
     tty: true

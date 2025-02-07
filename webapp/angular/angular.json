@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/",
+            "outputPath": "dist/sneakernet",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -27,7 +27,6 @@
               }
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -37,8 +36,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "300kB",
-                  "maximumError": "500kB"
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -46,7 +45,7 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "none"
+              "outputHashing": "all"
             },
             "development": {
               "optimization": false,
@@ -66,10 +65,7 @@
               "buildTarget": "sneakernet:build:development"
             }
           },
-          "defaultConfiguration": "development",
-          "options": {
-              "proxyConfig": "proxy.conf.json"
-          }
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
@@ -89,7 +85,6 @@
               }
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.css"
             ],
             "scripts": []
