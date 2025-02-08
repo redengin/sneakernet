@@ -5,71 +5,22 @@
         <span>{{currentPath}}</span>
     </div>
     <div class="centered">
-@for(subfolder of folderData.subfolders; track subfolder)
-{
-        <div class="card">
+@for(subfolder of folderData.subfolders; track subfolder) {
+        <div class="card" (click)="chooseSubfolder(subfolder)">
             <ng-icon name="MatFolderOutline" size="60px"/>
             <span>{{subfolder}}</span>
+        </div>
+}
+@for(file of folderData.files; track file) {
+        <div class="card">
+            <ng-icon name="MatFileDownloadOutline" size="60px"/>
+            <span> {{file.title || file.name}} </span>
+            <div>
+                {{file.timestamp}} <!-- FIXME convert to age -->
+                {{file.size}} bytes <!-- FIXME convert to human readable -->
+            </div>
         </div>
 }
     </div>
 </main>
 
-
-    <!-- <div class="centered">
-        <mat-form-field>
-            <mat-label>{{currentPath}}</mat-label>
-            <select matNativeControl>
-@if(currentPath !== "/") {
-                <option value="..">..</option>
-}
-@for(subfolder of pathData.subfolders; track subfolder) {
-                <option value="{{subfolder}}">{{subfolder}}</option>
-}
-            </select>
-        </mat-form-field>
-@if(!(pathData.locked)) {
-        <button mat-icon-button (click)="openNewFolderDialog()">
-            <ng-icon name="MatCreateNewFolder"/>
-        </button>
-}
-    </div>
-
-    <div class="centered">
-@for(subfolder of pathData.subfolders; track subfolder)
-{
-    <mat-card appearance="outlined">
-        <mat-card-header>
-            <div mat-card-avatar>
-                <ng-icon name="MatFolderOutline"></ng-icon>
-            </div>
-            <mat-card-title>{{subfolder}}</mat-card-title>
-        </mat-card-header>
-        <mat-card-actions>
-            <button mat-button>
-                <ng-icon name="MatDeleteOutline"></ng-icon>
-            </button>
-        </mat-card-actions>
-    </mat-card>
-}
-@for(file of pathData.files; track file)
-{
-    <mat-card appearance="outlined">
-        <mat-card-header>
-            <div mat-card-avatar>
-                <ng-icon name="MatFileDownloadOutline"></ng-icon>
-            </div>
-            <mat-card-title>{{file.title || file.name}}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            size: {{file.size}}
-        </mat-card-content>
-        <mat-card-actions>
-            <button mat-button>
-                <ng-icon name="MatDeleteOutline"></ng-icon>
-            </button>
-        </mat-card-actions>
-    </mat-card>
-
-}
-    </div> -->

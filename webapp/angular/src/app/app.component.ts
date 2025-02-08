@@ -31,15 +31,21 @@ export class AppComponent {
   constructor(private http: HttpClient) { }
   ngOnInit() { this.getPathData(); }
 
-  currentPath = "/";
-  // currentPath = "/short";
+  currentPath = "";
   folderData: Folder = {};
 
   getPathData() : void
   {
-    this.http.get<Folder>(`api/catalog${this.currentPath}`)
+    this.folderData = {};
+    this.http.get<Folder>(`api/catalog/${this.currentPath}`)
       .pipe( retry({ delay: 500 /* ms */ }))
       .subscribe(body => this.folderData = body);
+  }
+
+  chooseSubfolder(subfolder: string) : void
+  {
+    this.currentPath += `/${subfolder}`;
+    this.getPathData();
   }
 }
 

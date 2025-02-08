@@ -1,8 +1,7 @@
 {
-    "catalog":
-    {
+    "catalog": {
         "locked" : false,
-        "subfolders" : [ "hello", "world" ],
+        "subfolders" : [ "short", "long directory" ],
         "files" : [
             { "name" : "file 1", "size" : 1, "timestamp" : "", "hasIcon" : false },
             { "name" : "file 2", "size" : 2, "timestamp" : "", "title" : "Title 2", "hasIcon" : false }
