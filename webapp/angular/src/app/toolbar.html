@@ -1,12 +1,4 @@
-<mat-toolbar>
-    <!-- TODO use hamburger
-    <button mat-icon-button>
-      <mat-icon>menu</mat-icon>
-    </button>
-    -->
+<div id="toolbar">
     <span>{{title}}</span>
-    <button mat-icon-button (click)="openDialog()">
-        <ng-icon name="MatInfo"></ng-icon>
-    </button>
-</mat-toolbar>
-  
+    <ng-icon (click)="openDialog()" name="MatInfo" color="orange"/>
+</div>

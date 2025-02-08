@@ -3,6 +3,12 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+#toolbar {
+    background-color: whitesmoke;
+    font-size: xx-large;
+    padding: 10px;
+}
+
 div.centered {
     max-width: fit-content;
     margin-left: auto;
