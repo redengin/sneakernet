@@ -1,5 +1,6 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+
+import { provideHttpClient } from '@angular/common/http';
 
 // use @ng-icons to embed material icons
 import { provideIcons, provideNgIconsConfig } from '@ng-icons/core';
@@ -13,6 +14,7 @@ export const globals = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideHttpClient(),
     provideIcons({
       matInfo, matCreateNewFolder,
       matFolderOutline, matFileDownloadOutline, matDeleteOutline

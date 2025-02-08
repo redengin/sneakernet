@@ -9,6 +9,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     padding: 10px;
 }
 
+#currentPath {
+    padding: 10px;
+    font-size: x-large;
+}
+
 div.centered {
     max-width: fit-content;
     margin-left: auto;
