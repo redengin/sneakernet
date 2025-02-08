@@ -38,14 +38,32 @@ export class AppComponent {
   {
     this.folderData = {};
     this.http.get<Folder>(`api/catalog/${this.currentPath}`)
-      .pipe( retry({ delay: 500 /* ms */ }))
+      .pipe(
+        retry({ delay: 500 /* ms */ }),
+      )
       .subscribe(body => this.folderData = body);
   }
 
+  // update per subfolder of current path
   chooseSubfolder(subfolder: string) : void
   {
     this.currentPath += `/${subfolder}`;
     this.getPathData();
+  }
+
+  // delete file of current path
+  deleteFile(name: string) : void
+  {
+    this.http.delete(`api/catalog/${this.currentPath}/${name}`)
+      .pipe(
+        retry({ delay: 500 /* ms */ }),
+      )
+      .subscribe( {
+        complete: () => { this.getPathData() },
+        error: (error) => {
+          console.error(error);
+        }
+      })
   }
 }
 
