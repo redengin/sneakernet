@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { retry } from 'rxjs';
 
+import { NgIcon } from '@ng-icons/core';
+
 import { Toolbar } from './components/toolbar';
 
 // Types per openapi/catalog.yml
@@ -21,7 +23,7 @@ type File = {
 
 @Component({
   selector: 'app-root',
-  imports: [ Toolbar ],
+  imports: [ Toolbar, NgIcon ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -30,6 +32,7 @@ export class AppComponent {
   ngOnInit() { this.getPathData(); }
 
   currentPath = "/";
+  // currentPath = "/short";
   folderData: Folder = {};
 
   getPathData() : void

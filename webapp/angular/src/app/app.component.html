@@ -4,6 +4,15 @@
     <div id="currentPath">
         <span>{{currentPath}}</span>
     </div>
+    <div class="centered">
+@for(subfolder of folderData.subfolders; track subfolder)
+{
+        <div class="card">
+            <ng-icon name="MatFolderOutline" size="60px"/>
+            <span>{{subfolder}}</span>
+        </div>
+}
+    </div>
 </main>
 
 
