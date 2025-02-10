@@ -1,13 +1,17 @@
 # base
-FROM alpine as base
+FROM alpine as npm
 RUN apk add \
         npm \
     && rm -rf /var/cache/apk/*
 
+# Fake REST backend
+FROM npm as rest-fake
+RUN npm install -g express
+
 # Angular
-FROM base as angular-cli
+FROM npm as angular-cli
 RUN npm install -g @angular/cli
 
 # Json Server
-FROM base as json-server
+FROM npm as json-server
 RUN npm install -g json-server

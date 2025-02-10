@@ -1,5 +1,15 @@
 # Docker support for webapp development
 services:
+  npm:
+    build:
+      target: base
+    tty: true
+    user: ${DOCKER_USER:?set environment variable}
+    volumes:
+      - ~/.npm:/home/angular/.npm
+      - .:/home/npm
+    working_dir: /home/npm
+
   ng:
     build:
       target: angular-cli
@@ -27,15 +37,17 @@ services:
     command: ng serve
     init: true  # support CTRL-C stop
     depends_on:
-      - json-server
+      - rest-fake
 
-  json-server:
+  # fake implementation of openapi methods
+  rest-fake:
     build:
-      target: json-server
+      target: rest-fake
     network_mode: host # FIXME mapping ports doesn't work currently
     ports:
       - "3000:3000"
     volumes:
-      - ./rest-fake.json:/rest-fake.json:ro
+      - ./rest-fake.js:/rest-fake.js:ro
+    working_dir: /
     init: true  # support CTRL-C stop
-    command: json-server /rest-fake.json
+    command: node --watch rest-fake.js

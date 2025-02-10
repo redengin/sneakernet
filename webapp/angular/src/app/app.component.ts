@@ -29,12 +29,12 @@ type File = {
 })
 export class AppComponent {
   constructor(private http: HttpClient) { }
-  ngOnInit() { this.getPathData(); }
+  ngOnInit() { this.getFolderData(); }
 
   currentPath = "";
   folderData: Folder = {};
 
-  getPathData() : void
+  getFolderData() : void
   {
     this.folderData = {};
     this.http.get<Folder>(`api/catalog/${this.currentPath}`)
@@ -48,7 +48,7 @@ export class AppComponent {
   chooseSubfolder(subfolder: string) : void
   {
     this.currentPath += `/${subfolder}`;
-    this.getPathData();
+    this.getFolderData();
   }
 
   // delete file of current path
@@ -59,7 +59,7 @@ export class AppComponent {
         retry({ delay: 500 /* ms */ }),
       )
       .subscribe( {
-        complete: () => { this.getPathData() },
+        complete: () => { this.getFolderData() },
         error: (error) => {
           console.error(error);
         }

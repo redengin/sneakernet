@@ -4,6 +4,11 @@ DOCKER_USER ?= ${shell id -u}:${shell id -g}
 ~/.npm:
 	@mkdir -p $@
 
+.PHONY: npm-shell
+npm-shell: ~/.npm
+	@DOCKER_USER=$(DOCKER_USER) \
+		docker compose run --rm npm
+
 .PHONY: ng-shell
 ng-shell: ~/.npm
 	@DOCKER_USER=$(DOCKER_USER) \
@@ -21,4 +26,3 @@ ng-build: ~/.npm
 	@DOCKER_USER=$(DOCKER_USER) \
 		docker compose run --rm ng \
 			ng build
-# ng build --base-href = "/app/"
