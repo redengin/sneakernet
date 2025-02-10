@@ -5,6 +5,12 @@
         <span>{{currentPath}}</span>
     </div>
     <div class="centered">
+@if(currentPath !== '') {
+        <div class="card" (click)="chooseParentFolder()">
+            <ng-icon name="MatFolderOutline" size="60px"/>
+            <span>..</span>
+        </div>
+}
 @for(subfolder of folderData.subfolders; track subfolder) {
         <div class="card" (click)="chooseSubfolder(subfolder)">
             <ng-icon name="MatFolderOutline" size="60px"/>

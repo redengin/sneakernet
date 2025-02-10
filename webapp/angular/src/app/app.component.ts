@@ -44,7 +44,12 @@ export class AppComponent {
       .subscribe(body => this.folderData = body);
   }
 
-  // update per subfolder of current path
+  chooseParentFolder() : void
+  {
+    this.currentPath = this.currentPath.split('/').slice(0, -1).join('/');
+    this.getFolderData();
+  }
+
   chooseSubfolder(subfolder: string) : void
   {
     this.currentPath += `/${subfolder}`;
