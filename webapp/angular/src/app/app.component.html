@@ -25,6 +25,11 @@
                 {{file.timestamp}} <!-- FIXME convert to age -->
                 {{file.size}} bytes <!-- FIXME convert to human readable -->
             </div>
+@if(!folderData.locked) {
+            <div class="actions">
+                <ng-icon (click)="deleteFile(currentPath, file.name)" name="MatDeleteOutline" color="red" size="30px"/>
+            </div>
+}
         </div>
 }
     </div>

@@ -14,7 +14,7 @@ type Folder = {
   files?: File[];
 };
 type File = {
-  name?: string;
+  name: string;
   size?: BigInteger;
   timestamp?: string;
   title?: string;
@@ -57,9 +57,9 @@ export class AppComponent {
   }
 
   // delete file of current path
-  deleteFile(name: string) : void
+  deleteFile(path: string, fileName: string) : void
   {
-    this.http.delete(`api/catalog/${this.currentPath}/${name}`)
+    this.http.delete(`api/catalog/${path}/${fileName}`)
       .pipe(
         retry({ delay: 500 /* ms */ }),
       )

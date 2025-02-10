@@ -37,6 +37,11 @@ app.get("/api/catalog/:path/", (request, response) => {
     response.send(catalog["/" + request.params.path]);
 });
 
+app.delete("/api/catalog/:file", (request, response) => {
+    // TODO remove from catalog
+    response.send();
+});
+
 const http = require('http');
 const restServer = http.createServer(app);
 restServer.on('error', (err) => {

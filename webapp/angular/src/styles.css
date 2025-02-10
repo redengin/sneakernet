@@ -34,3 +34,7 @@ div.card .title {
 div.card .info {
     font-size: small;
 }
+
+div.card .actions {
+    text-align: right;
+}
