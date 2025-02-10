@@ -27,3 +27,10 @@ div.card {
     padding: 5px;
 }
 
+div.card .title {
+    font-size: x-large;
+}
+
+div.card .info {
+    font-size: small;
+}

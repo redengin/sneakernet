@@ -22,6 +22,7 @@ export class Toolbar {
 
 @Component({
     templateUrl: './about_dialog.html',
+    // save 5KB by not using mat-dialog-* components
   })
   export class AboutDialog {
     readonly title = globals.appTitle;

@@ -8,20 +8,20 @@
 @if(currentPath !== '') {
         <div class="card" (click)="chooseParentFolder()">
             <ng-icon name="MatFolderOutline" size="60px"/>
-            <span>..</span>
+            <span class="title">..</span>
         </div>
 }
 @for(subfolder of folderData.subfolders; track subfolder) {
         <div class="card" (click)="chooseSubfolder(subfolder)">
             <ng-icon name="MatFolderOutline" size="60px"/>
-            <span>{{subfolder}}</span>
+            <span class="title">{{subfolder}}</span>
         </div>
 }
 @for(file of folderData.files; track file) {
         <div class="card">
             <ng-icon name="MatFileDownloadOutline" size="60px"/>
-            <span> {{file.title || file.name}} </span>
-            <div>
+            <span class="title"> {{file.title || file.name}} </span>
+            <div class="info">
                 {{file.timestamp}} <!-- FIXME convert to age -->
                 {{file.size}} bytes <!-- FIXME convert to human readable -->
             </div>

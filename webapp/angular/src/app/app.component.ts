@@ -31,7 +31,7 @@ export class AppComponent {
   constructor(private http: HttpClient) { }
   ngOnInit() { this.getFolderData(); }
 
-  currentPath = "";
+  currentPath = '';
   folderData: Folder = {};
 
   getFolderData() : void
