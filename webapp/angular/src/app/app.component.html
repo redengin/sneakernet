@@ -1,6 +1,9 @@
 <app-toolbar/>
 
 <main>
+@if(!folderData.subfolders && !folderData.files) {
+    // TODO raise dialog about empty space
+}
     <div id="currentPath">
         <span>{{currentPath}}</span>
     </div>
@@ -11,6 +14,7 @@
             <span class="title">..</span>
         </div>
 }
+
 @for(subfolder of folderData.subfolders; track subfolder) {
         <div class="card" (click)="chooseSubfolder(subfolder)">
             <ng-icon name="MatFolderOutline" size="60px"/>
