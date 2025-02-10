@@ -8,19 +8,21 @@
         <span>{{currentPath}}</span>
     </div>
     <div class="centered">
+<!-- provide link to parent folder -->
 @if(currentPath !== '') {
         <div class="card" (click)="chooseParentFolder()">
             <ng-icon name="MatFolderOutline" size="60px"/>
             <span class="title">..</span>
         </div>
 }
-
+<!-- provide links to subfolders -->
 @for(subfolder of folderData.subfolders; track subfolder) {
         <div class="card" (click)="chooseSubfolder(subfolder)">
             <ng-icon name="MatFolderOutline" size="60px"/>
             <span class="title">{{subfolder}}</span>
         </div>
 }
+<!-- provide links to files -->
 @for(file of folderData.files; track file) {
         <div class="card">
             <ng-icon name="MatFileDownloadOutline" size="60px"/>
