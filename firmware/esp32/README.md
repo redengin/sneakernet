@@ -1,3 +1,9 @@
+End of life
+================================================================================
+This implementation is a prototype using the ESP-IDF. All future work
+will focus on the rest implemention that supports hardware more generally.
+
+
 Using the vscode [ESP-IDF extension](https://marketplace.visualstudio.com/items?itemName=espressif.esp-idf-extension)
 # To leverage vscode, you should open this directory as a workspace.
 
