@@ -11,5 +11,10 @@ idf_component_register(
     EMBED_FILES
         "~/keystore/sneakernet.pem" # HTTPS public key
         "~/keystore/sneakernet"     # HTTPS private key
-        # TODO add portal files
+        # add portal files
+        "../../../webapp/angular/dist/browser/favicon.ico"
+        "../../../webapp/angular/dist/browser/index.html"
+        "../../../webapp/angular/dist/browser/styles.css"
+        "../../../webapp/angular/dist/browser/main.js"
+        "../../../webapp/angular/dist/browser/polyfills.js"
 )

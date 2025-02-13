@@ -5,6 +5,9 @@
 extern "C" esp_err_t redirect(httpd_req_t *req, httpd_err_code_t err);
 
 extern "C" esp_err_t PORTAL(httpd_req_t*);
+extern "C" esp_err_t STYLES_CSS(httpd_req_t*);
+extern "C" esp_err_t MAIN_JS(httpd_req_t*);
+extern "C" esp_err_t POLYFILLS_JS(httpd_req_t*);
 
 WebServer::WebServer(const size_t max_sockets)
 {
@@ -54,10 +57,33 @@ WebServer::WebServer(const size_t max_sockets)
             .uri = "/",
             .method = HTTP_GET,
             .handler = PORTAL,
-            .user_ctx = nullptr
+            .user_ctx = nullptr,
         }
     );
-
+    registerUriHandler(
+        httpd_uri_t{
+            .uri = "/styles.css",
+            .method = HTTP_GET,
+            .handler = STYLES_CSS,
+            .user_ctx = nullptr,
+        }
+    );
+    registerUriHandler(
+        httpd_uri_t{
+            .uri = "/main.js",
+            .method = HTTP_GET,
+            .handler = MAIN_JS,
+            .user_ctx = nullptr,
+        }
+    );
+    registerUriHandler(
+        httpd_uri_t{
+            .uri = "/polyfills.js",
+            .method = HTTP_GET,
+            .handler = POLYFILLS_JS,
+            .user_ctx = nullptr,
+        }
+    );
 }
 
 void WebServer::registerUriHandler(const httpd_uri_t& handler)
@@ -78,14 +104,43 @@ esp_err_t redirect(httpd_req_t *request, httpd_err_code_t err)
     return ESP_OK;
 }
 
-// FIXME
-// extern "C" const char portalHtml_start[] asm("_binary_portal_html_start");
-// extern "C" const char portalHtml_end[] asm("_binary_portal_html_end");
+extern "C" const char portalHtml_start[] asm("_binary_index_html_start");
+extern "C" const char portalHtml_end[] asm("_binary_index_html_end");
 esp_err_t PORTAL(httpd_req_t* request)
 {
     auto response = request;
     ESP_ERROR_CHECK(httpd_resp_set_type(response, "text/html"));
-    // const size_t portalHtml_sz = portalHtml_end - portalHtml_start;
-    // return httpd_resp_send(response, portalHtml_start, portalHtml_sz);
-    return ESP_FAIL;
+    const size_t sz = portalHtml_end - portalHtml_start;
+    return httpd_resp_send(response, portalHtml_start, sz);
 }
+
+extern "C" const char stylesCss_start[] asm("_binary_styles_css_start");
+extern "C" const char stylesCss_end[] asm("_binary_styles_css_end");
+esp_err_t STYLES_CSS(httpd_req_t* request)
+{
+    auto response = request;
+    ESP_ERROR_CHECK(httpd_resp_set_type(response, "text/css"));
+    const size_t sz = stylesCss_end - stylesCss_start;
+    return httpd_resp_send(response, stylesCss_start, sz);
+}
+
+extern "C" const char mainJs_start[] asm("_binary_main_js_start");
+extern "C" const char mainJs_end[] asm("_binary_main_js_end");
+esp_err_t MAIN_JS(httpd_req_t* request)
+{
+    auto response = request;
+    ESP_ERROR_CHECK(httpd_resp_set_type(response, "text/javascript"));
+    const size_t sz = mainJs_end - mainJs_start;
+    return httpd_resp_send(response, mainJs_start, sz);
+}
+
+extern "C" const char polyfillsJs_start[] asm("_binary_polyfills_js_start");
+extern "C" const char polyfillsJs_end[] asm("_binary_polyfills_js_end");
+esp_err_t POLYFILLS_JS(httpd_req_t* request)
+{
+    auto response = request;
+    ESP_ERROR_CHECK(httpd_resp_set_type(response, "text/javascript"));
+    const size_t sz = polyfillsJs_end - polyfillsJs_start;
+    return httpd_resp_send(response, polyfillsJs_start, sz);
+}
+
