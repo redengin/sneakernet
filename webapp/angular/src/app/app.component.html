@@ -1,9 +1,9 @@
 <app-toolbar/>
 
 <main>
-@if(!folderData.subfolders && !folderData.files) {
-    // TODO dialog prompt for empty folder
-}
+<!-- @if(!folderData.subfolders && !folderData.files) { -->
+    <!-- TODO dialog prompt for empty folder -->
+<!-- } -->
     <div id="currentPath">
         <span>{{currentPath}}</span>
     </div>
@@ -16,27 +16,29 @@
         </div>
 }
 <!-- provide links to subfolders -->
-@for(subfolder of folderData.subfolders; track subfolder) {
-        <div class="card" (click)="chooseSubfolder(subfolder)">
+@for(entry of (folderData.entries | keyvalue); track entry) {
+    @if(entry.value.isFolder) {
+        <div class="card" (click)="chooseSubfolder(entry.key)">
             <ng-icon name="MatFolderOutline" size="60px"/>
-            <span class="title">{{subfolder}}</span>
+            <span class="title">{{entry.key}}</span>
         </div>
+    }
 }
 <!-- provide links to files -->
-@for(file of folderData.files; track file) {
-        <div class="card">
-            <ng-icon name="MatFileDownloadOutline" size="60px"/>
-            <span class="title"> {{file.title || file.name}} </span>
-            <div class="info">
-                {{file.timestamp}} <!-- FIXME convert to age -->
-                {{file.size}} bytes <!-- FIXME convert to human readable -->
+@for(entry of (folderData.entries | keyvalue); track entry) {
+    @if(! entry.value.isFolder) {
+            <div class="card">
+                <ng-icon name="MatFileDownloadOutline" size="60px"/>
+                <span class="title"> {{entry.value.title || entry.key}} </span>
+                <div class="info">
+                    <span>{{entry.value.timestamp}}</span>   <!-- TODO use pretty print -->
+                    <span>{{entry.value.size}} bytes</span>  <!-- TODO use pretty print -->
+                    <span>
+                        <ng-icon (click)="deleteFile(currentPath, entry.key)" name="MatDeleteOutline" color="red" size="30px"/>
+                    </span>
+                </div>
             </div>
-@if(!folderData.locked) {
-            <div class="actions">
-                <ng-icon (click)="deleteFile(currentPath, file.name)" name="MatDeleteOutline" color="red" size="30px"/>
-            </div>
-}
-        </div>
+    }
 }
     </div>
 </main>

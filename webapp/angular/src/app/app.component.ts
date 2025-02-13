@@ -2,28 +2,34 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { retry } from 'rxjs';
 
+import { KeyValuePipe } from '@angular/common';
+
 import { NgIcon } from '@ng-icons/core';
 
 import { Toolbar } from './components/toolbar';
 
 // Types per openapi/catalog.yml
 //==============================================================================
-type Folder = {
-  locked?: boolean;
-  subfolders?: string[];
-  files?: File[];
-};
-type File = {
-  name: string;
+type Entry = {
+  isFolder: boolean;
+  // following only for file entries (i.e. isFolder = false)
   size?: BigInteger;
   timestamp?: string;
   title?: string;
   hasIcon?: boolean;
 }
 
+type Folder = {
+  readonly locked?: boolean;
+  readonly entries?: {
+    [key: string]: Entry;
+  }
+};
+
+
 @Component({
   selector: 'app-root',
-  imports: [ Toolbar, NgIcon ],
+  imports: [ Toolbar, NgIcon, KeyValuePipe ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

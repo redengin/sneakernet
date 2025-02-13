@@ -5,42 +5,36 @@ const app = express();
 
 // fake catalog
 catalog = {
-    "/" : {
-        "locked" : false,
-        "subfolders" : [ "short", "long directory" ],
-        "files" : [
-            { "name" : "file 1", "size" : 1, "timestamp" : "", "hasIcon" : false },
-            { "name" : "file 2", "size" : 2, "timestamp" : "", "title" : "Title 2", "hasIcon" : false }
-        ]
+    "locked" : false,
+    "entries" : {
+        "short" : { isFolder: true },
+        "long directory" : { isFolder: true },
+        "file 1": { isFolder: false,
+            size: 1,
+            timestamp : "2025-02-12T19:26:24Z",
+            hasIcon: false,
+        },
+        "file 2": { isFolder: false,
+            size: 2,
+            timestamp : "2025-02-12T19:26:24Z",
+            title: "This is File 2",
+            hasIcon: false,
+        },
     },
-    "/short" : {
-        "locked" : false,
-        "files" : [
-            { "name" : "short file 1", "size" : 1, "timestamp" : "", "hasIcon" : false },
-            { "name" : "short file 2", "size" : 2, "timestamp" : "", "title" : "Short Title 2", "hasIcon" : false }
-        ]
-    },
-    "/long directory" : {
-        "locked" : false,
-        "files" : [
-            { "name" : "long file 1", "size" : 1, "timestamp" : "", "hasIcon" : false },
-            { "name" : "long file 2", "size" : 2, "timestamp" : "", "title" : "Long Title 2", "hasIcon" : false }
-        ]
-    }
 };
 
-app.get("/api/catalog/", (request, response) => {
-    response.send(catalog["/"]);
+app.get("/api/catalog/:path?/", (request, response) => {
+    // FIXME
+    // response.send(catalog["/" + (request.params.path || "")]);
+    response.send(catalog);
 });
 
-app.get("/api/catalog/:path/", (request, response) => {
-    response.send(catalog["/" + request.params.path]);
-});
 
-app.delete("/api/catalog/:file", (request, response) => {
+app.delete("/api/catalog/:path?/:file", (request, response) => {
     // TODO remove from catalog
     response.send();
 });
+
 
 const http = require('http');
 const restServer = http.createServer(app);

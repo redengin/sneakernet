@@ -32,8 +32,6 @@ div.card .title {
 
 div.card .info {
     font-size: small;
-}
-
-div.card .actions {
+    display: flexbox;
     text-align: right;
 }

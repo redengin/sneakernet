@@ -124,20 +124,34 @@ components:
         locked:
           type: boolean
           description: folder contents are locked (only admin can modify)
-        subfolders:
-          type: array
-          items:
-            type: string
-        files:
-          type: array
-          items: { '$ref': '#/components/schemas/File'}
-    File:
-      type: object
-      required: [name, size, timestamp]
-      properties:
-        name: { type: string }
-        size: { type: integer, description: "size in bytes" }
-        timestamp: { type: string, description: "ISO 8601 Z (aka UTC time)" }
-        title: { type: string }
-        hasIcon: { type: boolean }
+        entries:
+          type: object
+          $ref: '#/components/schemas/Entry'
 
+    Entry:
+      type: object
+      properties:
+        isFolder: { type: boolean }
+      discriminator:
+        propertyName: isFolder
+        mapping:
+          true: '#/components/schemas/FolderEntry'
+          false: '#/components/schemas/FileEntry'
+
+    FolderEntry:
+      allOf:
+        - $ref: '#components/schemas/Entry'
+        - type: object
+
+    FileEntry:
+      allOf:
+        - $ref: '#components/schemas/Entry'
+        - type: object
+          required:
+            - timestamp
+            - size
+          properties:
+            timestamp: { type: string, description: "ISO 8601 Z (aka UTC time)" }
+            size: { type: integer, description: "size in bytes" }
+            title: { type: string }
+            hasIcon: { type: boolean }
