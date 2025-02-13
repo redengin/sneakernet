@@ -9,8 +9,7 @@ idf_component_register(
         "rest/utils.cpp"
 
     EMBED_FILES
-        # FIXME
-        # "../../portal.html"
-        "~/keystore/sneakernet.pem" # public key
-        "~/keystore/sneakernet"     # private key
+        "~/keystore/sneakernet.pem" # HTTPS public key
+        "~/keystore/sneakernet"     # HTTPS private key
+        # TODO add portal files
 )
