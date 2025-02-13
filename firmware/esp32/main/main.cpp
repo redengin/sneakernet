@@ -14,11 +14,10 @@ void app_main(void)
 
     // create the access point
     static WifiAccessPoint wap;
-    // account for DNS socket
-    --available_sockets_count;
+    // account for used sockets
+    available_sockets_count -= wap.socketsUsed;
 
     // provide the frontend
-    available_sockets_count -= 3;   // account for HTTP server sockets
     static WebServer webserver(available_sockets_count);
 
     // provide the storage

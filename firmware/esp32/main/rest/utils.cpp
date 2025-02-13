@@ -36,7 +36,7 @@ void rest::timestamp(const time_t& timestamp, char buffer[20])
 {
     std::tm tm;
     gmtime_r(&timestamp, &tm);
-    strftime(buffer, sizeof(buffer), rest::ISO_8601_FORMAT, &tm);
+    strftime(buffer, 20, rest::ISO_8601_FORMAT, &tm);
 }
 
 
