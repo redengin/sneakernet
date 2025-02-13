@@ -18,10 +18,10 @@ paths:
     parameters:
       - name: path
         in: path
-        required: true
+        required: true    # FIXME not required for root
         schema: { type: string }
     get:
-      description: get subfolder content
+      description: get folder content
       responses:
         "200" :
           description: OK
@@ -41,15 +41,27 @@ paths:
         in: path
         required: true
         schema: { type: string }
+      - name: Content-Length
+        required: true
+        in: header
+        schema: { type: integer }
     get:
       description: download file
       responses:
         "200" :
           description: sending file
+          headers:
+            X-timestamp:
+              schema: { '$ref': '#components/schemas/timestamp' }
           content: { application/octet-stream: {} }
         "404": { description: File Not Found }
         "429": { description: Client should try again }
     put:
+      parameters:
+        - in: header
+          name: X-timestamp
+          required: true
+          schema: { '$ref': '#components/schemas/timestamp' }
       description: add a file
       responses:
         "200": { description: "file accepted" }
@@ -117,6 +129,7 @@ components:
     adminCurated:
       description: Only admin can modify contents
 
+
   schemas:
     Folder:
       type: object
@@ -155,3 +168,7 @@ components:
             size: { type: integer, description: "size in bytes" }
             title: { type: string }
             hasIcon: { type: boolean }
+
+    timestamp:
+      type: string
+      description: "ISO 8601 Z"

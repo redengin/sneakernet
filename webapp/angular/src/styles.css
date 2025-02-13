@@ -39,3 +39,11 @@ div.card .info {
 div.card .info span {
     margin-left: 10px;
 }
+
+.fab {
+    position: fixed;
+    --_viewport-margin: 2.5vmin;
+    inset-block: auto var(--_viewport-margin);
+    inset-inline: auto var(--_viewport-margin);
+    z-index: var(--layer-1);
+}

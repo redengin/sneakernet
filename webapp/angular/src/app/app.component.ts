@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { retry } from 'rxjs';
 
 import { KeyValuePipe } from '@angular/common';
@@ -29,7 +29,7 @@ type Folder = {
 
 @Component({
   selector: 'app-root',
-  imports: [ Toolbar, NgIcon, KeyValuePipe ],
+  imports: [Toolbar, NgIcon, KeyValuePipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -40,8 +40,7 @@ export class AppComponent {
   currentPath = '';
   folderData: Folder = {};
 
-  getFolderData() : void
-  {
+  getFolderData(): void {
     this.folderData = {};
     this.http.get<Folder>(`api/catalog/${this.currentPath}`)
       .pipe(
@@ -50,31 +49,56 @@ export class AppComponent {
       .subscribe(body => this.folderData = body);
   }
 
-  chooseParentFolder() : void
-  {
+  chooseParentFolder(): void {
     this.currentPath = this.currentPath.split('/').slice(0, -1).join('/');
     this.getFolderData();
   }
 
-  chooseSubfolder(subfolder: string) : void
-  {
+  chooseSubfolder(subfolder: string): void {
     this.currentPath += `/${subfolder}`;
     this.getFolderData();
   }
 
-  // delete file of current path
-  deleteFile(path: string, fileName: string) : void
-  {
+  deleteFile(path: string, fileName: string): void {
     this.http.delete(`api/catalog/${path}/${fileName}`)
       .pipe(
         retry({ delay: 500 /* ms */ }),
       )
-      .subscribe( {
+      .subscribe({
         complete: () => { this.getFolderData() },
         error: (error) => {
+          // TODO raise up error dialog
           console.error(error);
         }
       })
+  }
+
+  addFile(path: string, event: Event): void {
+    // get the files from the event target
+    const fileSelect = event.target as HTMLInputElement;
+    if (fileSelect.files) {
+      // TODO raise up upload dialog
+      const fileList: FileList = fileSelect.files;
+      for (const file of fileList) {
+        const timestamp = new Date(file.lastModified).toISOString();
+        this.http.put(`api/catalog/${path}/${file.name}`,
+          // data
+          file.arrayBuffer,
+          // additional options
+          {
+            headers: {
+              'X-timestamp': timestamp,
+            }
+          }
+        ).subscribe({
+          complete: () => { this.getFolderData() },
+          error: (error) => {
+            // TODO raise up error dialog
+            console.error(error);
+          }
+        });
+      }
+    }
   }
 }
 
