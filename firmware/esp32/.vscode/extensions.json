@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "gruntfuggly.todo-tree",
+        "espressif.esp-idf-extension",
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools-extension-pack"
+    ]
+}
