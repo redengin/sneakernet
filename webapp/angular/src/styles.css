@@ -35,3 +35,7 @@ div.card .info {
     display: flexbox;
     text-align: right;
 }
+
+div.card .info span {
+    margin-left: 10px;
+}
