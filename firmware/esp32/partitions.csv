@@ -1,7 +1,10 @@
-# ESP-IDF Partition Table
-# Name,   Type, SubType, Offset,   Size,     Flags
-nvs,      data, nvs,     0x0a000,  0x5000,
-otadata,  data, ota,            ,  0x2000,
-phy_init, data, phy,            ,  0x1000,
-ota_0,    app,  ota_0,   0x120000, 0x170000,
-ota_1,    app,  ota_1,           , 0x170000,
+# Name,   Type, SubType,  Offset,   Size,  Flags
+nvs,      data, nvs,      0x9000,  0x4000
+otadata,  data, ota,      0xd000,  0x2000
+phy_init, data, phy,      0xf000,  0x1000
+# removed factory app partition, instead place ota_0 there
+ota_0,    app,  ota_0,    0x10000,  1900K
+ota_1,    app,  ota_1,    ,         1900K
+# TODO Provide persistent storage
+# https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/storage/nvs_flash.html
+# nvs_key,  data, nvs_keys, ,        0x1000
