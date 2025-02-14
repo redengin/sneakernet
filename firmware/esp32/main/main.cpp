@@ -12,8 +12,8 @@
 extern "C"
 void app_main(void)
 {
-    // allow debug logging
-    esp_log_level_set("*", static_cast<esp_log_level_t>(CONFIG_FREE_LIBRARY_LOG_LEVEL));
+    // use the configured logging level for SneakerNet
+    esp_log_level_set("*", static_cast<esp_log_level_t>(CONFIG_SNEAKERNET_LOG_LEVEL));
 
     size_t available_sockets_count = CONFIG_LWIP_MAX_SOCKETS;
 

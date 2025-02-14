@@ -1,7 +1,7 @@
-menu "Free Library"
-    choice FREE_LIBRARY_LOG_LEVEL
+menu "SneakerNet"
+    choice SNEAKERNET_LOG_LEVEL
         bool "Default log verbosity"
-        default FREE_LIBRARY_LOG_DEFAULT_LEVEL_INFO
+        default SNEAKERNET_LOG_DEFAULT_LEVEL_INFO
         help
             Specify how much output to see in logs by default.
             You can set lower verbosity level at runtime using
@@ -13,27 +13,26 @@ menu "Free Library"
             at runtime will not be possible. To allow increasing log
             level above the default at runtime, see the next option.
 
-        config FREE_LIBRARY_LOG_DEFAULT_LEVEL_NONE
+        config SNEAKERNET_LOG_DEFAULT_LEVEL_NONE
             bool "No output"
-        config FREE_LIBRARY_LOG_DEFAULT_LEVEL_ERROR
+        config SNEAKERNET_LOG_DEFAULT_LEVEL_ERROR
             bool "Error"
-        config FREE_LIBRARY_LOG_DEFAULT_LEVEL_WARN
+        config SNEAKERNET_LOG_DEFAULT_LEVEL_WARN
             bool "Warning"
-        config FREE_LIBRARY_LOG_DEFAULT_LEVEL_INFO
+        config SNEAKERNET_LOG_DEFAULT_LEVEL_INFO
             bool "Info"
-        config FREE_LIBRARY_LOG_DEFAULT_LEVEL_DEBUG
+        config SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
             bool "Debug"
-        config FREE_LIBRARY_LOG_DEFAULT_LEVEL_VERBOSE
+        config SNEAKERNET_LOG_DEFAULT_LEVEL_VERBOSE
             bool "Verbose"
     endchoice
 
-    config FREE_LIBRARY_LOG_LEVEL
+    config SNEAKERNET_LOG_LEVEL
         int
-        default 0 if FREE_LIBRARY_LOG_DEFAULT_LEVEL_NONE
-        default 1 if FREE_LIBRARY_LOG_DEFAULT_LEVEL_ERROR
-        default 2 if FREE_LIBRARY_LOG_DEFAULT_LEVEL_WARN
-        default 3 if FREE_LIBRARY_LOG_DEFAULT_LEVEL_INFO
-        default 4 if FREE_LIBRARY_LOG_DEFAULT_LEVEL_DEBUG
-        default 5 if FREE_LIBRARY_LOG_DEFAULT_LEVEL_VERBOSE
-
+        default 0 if SNEAKERNET_LOG_DEFAULT_LEVEL_NONE
+        default 1 if SNEAKERNET_LOG_DEFAULT_LEVEL_ERROR
+        default 2 if SNEAKERNET_LOG_DEFAULT_LEVEL_WARN
+        default 3 if SNEAKERNET_LOG_DEFAULT_LEVEL_INFO
+        default 4 if SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+        default 5 if SNEAKERNET_LOG_DEFAULT_LEVEL_VERBOSE
 endmenu
