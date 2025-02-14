@@ -1,6 +1,6 @@
-#include <esp_ota_ops.h>
-#include <sdkconfig.h>
 #include <esp_log.h>
+#include <sdkconfig.h>  // used to select logging level for project
+#include <esp_ota_ops.h>
 
 #include "WifiAccessPoint.hpp"
 #include "WebServer.hpp"
@@ -12,15 +12,15 @@
 extern "C"
 void app_main(void)
 {
-    // use the configured logging level for SneakerNet
+    // use the configured logging level for project
     esp_log_level_set("*", static_cast<esp_log_level_t>(CONFIG_SNEAKERNET_LOG_LEVEL));
 
     size_t available_sockets_count = CONFIG_LWIP_MAX_SOCKETS;
 
     // create the access point
-    static WifiAccessPoint wap("Free Library");
+    static WifiAccessPoint wap;
     // account for DNS socket
-    --available_sockets_count;
+    available_sockets_count -= WifiAccessPoint::socketsUsed;
 
     // provide the frontend
     available_sockets_count -= 3;   // account for HTTP server sockets
