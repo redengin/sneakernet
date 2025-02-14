@@ -9,6 +9,7 @@ static void dns_service_task(void *pvParameters);
 
 #include <esp_log.h>
 #include <sdkconfig.h>
+// override LOG_LOCAL_LEVEL per project setting
 #undef LOG_LOCAL_LEVEL
 #define LOG_LOCAL_LEVEL     CONFIG_SNEAKERNET_LOG_LEVEL
 
