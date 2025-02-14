@@ -28,6 +28,7 @@ WebServer::WebServer(const size_t max_sockets)
         // allow wildcard uris
         httpsConfig.httpd.uri_match_fn = httpd_uri_match_wildcard;
         // provide the private key
+#if 0 // FIXME https doesn't understand keys
         extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_pem_start");
         extern const unsigned char prvtkey_pem_end[]   asm("_binary_sneakernet_pem_end");
         httpsConfig.prvtkey_pem = prvtkey_pem_start;
@@ -40,6 +41,7 @@ WebServer::WebServer(const size_t max_sockets)
         ESP_ERROR_CHECK(httpd_ssl_start(&httpsHandle, &httpsConfig));
         // upon 404, redirect to index
         ESP_ERROR_CHECK(httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, redirect));
+#endif
     }
 
     // create HTTP server
@@ -94,7 +96,9 @@ WebServer::WebServer(const size_t max_sockets)
 void WebServer::registerUriHandler(const httpd_uri_t& handler)
 {
     ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+#if 0 // FIXME HTTPS doesn't work
     ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
+#endif
 }
 
 /// provides captive portal redirect
