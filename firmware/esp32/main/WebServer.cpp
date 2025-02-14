@@ -21,6 +21,10 @@ WebServer::WebServer(const size_t max_sockets)
     // esp_log_level_set("httpd_txrx", ESP_LOG_WARN);
     // esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
 
+    // per httpd_main.c, http uses internal sockets
+    constexpr size_t HTTP_INTERNAL_SOCKET_COUNT = 3;
+    size_t max_http_sockets = max_sockets - HTTP_INTERNAL_SOCKET_COUNT;
+
     // create HTTPS server
     httpd_ssl_config_t httpsConfig = HTTPD_SSL_CONFIG_DEFAULT();
     {
@@ -51,7 +55,7 @@ WebServer::WebServer(const size_t max_sockets)
         // allow wildcard uris
         httpConfig.uri_match_fn = httpd_uri_match_wildcard;
         // maximize the availability to users
-        httpConfig.max_open_sockets = max_sockets - httpsConfig.httpd.max_open_sockets;
+        httpConfig.max_open_sockets = max_http_sockets - httpsConfig.httpd.max_open_sockets;
         // increase stack size
         httpConfig.stack_size = 10 * 1024;
         ESP_ERROR_CHECK(httpd_start(&httpHandle, &httpConfig));
