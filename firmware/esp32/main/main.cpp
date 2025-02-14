@@ -1,6 +1,6 @@
 #include <esp_log.h>
-#include <sdkconfig.h>  // used to select logging level for project
 #include <esp_ota_ops.h>
+#include <sdkconfig.h>  // used to select logging level for the project
 
 #include "WifiAccessPoint.hpp"
 #include "WebServer.hpp"
