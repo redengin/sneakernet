@@ -37,9 +37,15 @@ enum class UriType {
 };
 static UriType uriType(const std::string& uri)
 {
+    // fragments not allowed
+    if (uri.contains("#"))
+        return UriType::ILLEGAL;
+
+    // support send/receive of FILE icons
     if (uri.ends_with("?icon"))
         return UriType::ICON;
 
+    // support set of FILE title
     if (uri.contains("?title="))
         return UriType::TITLE;
 
@@ -47,10 +53,7 @@ static UriType uriType(const std::string& uri)
     if (uri.contains("?"))
         return UriType::ILLEGAL;
 
-    // fragments not allowed
-    if (uri.contains("#"))
-        return UriType::ILLEGAL;
-
+    // determine if FILE or FOLDER by last character
     if (uri.back() == '/')
         return UriType::FOLDER;
     else
@@ -60,6 +63,7 @@ static UriType uriType(const std::string& uri)
 // forward declarations
 static esp_err_t ILLEGAL_REQUEST(httpd_req_t* const request);
 static esp_err_t GET_FOLDER(httpd_req_t* const request);
+static esp_err_t PUT_FOLDER(httpd_req_t* const request);
 static esp_err_t DELETE_FOLDER(httpd_req_t* const request);
 static esp_err_t GET_FILE(httpd_req_t* const request);
 static esp_err_t PUT_FILE(httpd_req_t* const request);
@@ -77,9 +81,10 @@ esp_err_t handler(httpd_req_t* request)
             switch(request->method)
             {
                 case HTTP_GET : return GET_FOLDER(request);
+                case HTTP_PUT : return PUT_FOLDER(request);
                 case HTTP_DELETE: return DELETE_FOLDER(request);
-                default:
-                    return ILLEGAL_REQUEST(request);
+
+                default: return ILLEGAL_REQUEST(request);
             }
         }
 
@@ -91,8 +96,7 @@ esp_err_t handler(httpd_req_t* request)
                 case HTTP_PUT: return PUT_FILE(request);
                 case HTTP_DELETE: return DELETE_FILE(request);
 
-                default:
-                    return ILLEGAL_REQUEST(request);
+                default: return ILLEGAL_REQUEST(request);
             }
         }
 
@@ -103,8 +107,7 @@ esp_err_t handler(httpd_req_t* request)
                 case HTTP_GET : return GET_ICON(request);
                 case HTTP_PUT: return PUT_ICON(request);
 
-                default:
-                    return ILLEGAL_REQUEST(request);
+                default: return ILLEGAL_REQUEST(request);
             }
         }
 
@@ -114,8 +117,7 @@ esp_err_t handler(httpd_req_t* request)
             {
                 case HTTP_PUT: return PUT_TITLE(request);
 
-                default:
-                    return ILLEGAL_REQUEST(request);
+                default: return ILLEGAL_REQUEST(request);
             }
         }
 
@@ -158,7 +160,8 @@ esp_err_t GET_FOLDER(httpd_req_t* const request)
     if (! context.catalog.hasFolder(folderpath))
         return httpd_resp_send_404(request);
 
-    // // send the data
+    // send the data
+    // FIXME
     // auto subfolders = cJSON_CreateArray();
     // auto files = cJSON_CreateArray();
     // for (auto& entry : context.catalog.folderIterator(folderpath))
@@ -203,6 +206,12 @@ esp_err_t GET_FOLDER(httpd_req_t* const request)
     // cJSON_free(data);
 
     return ESP_OK;
+}
+
+esp_err_t PUT_FOLDER(httpd_req_t* const request)
+{
+    // TODO
+    return ESP_FAIL;
 }
 
 esp_err_t DELETE_FOLDER(httpd_req_t* const request)
