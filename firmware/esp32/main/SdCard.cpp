@@ -1,8 +1,12 @@
 #include "SdCard.hpp"
 
-#include <esp_log.h>
 #include <esp_vfs_fat.h>
 #include <sdmmc_cmd.h>
+
+#include <esp_log.h>
+#include <sdkconfig.h>
+#undef LOG_LOCAL_LEVEL
+#define LOG_LOCAL_LEVEL     CONFIG_FREE_LIBRARY_LOG_LEVEL
 
 SdCard::SdCard()
 {
