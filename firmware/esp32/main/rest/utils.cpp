@@ -7,7 +7,7 @@
 #include <esp_log.h>
 #include <sdkconfig.h>
 #undef LOG_LOCAL_LEVEL
-#define LOG_LOCAL_LEVEL     CONFIG_FREE_LIBRARY_LOG_LEVEL
+#define LOG_LOCAL_LEVEL     CONFIG_SNEAKERNET_LOG_LEVEL
 using rest::TAG;
 
 

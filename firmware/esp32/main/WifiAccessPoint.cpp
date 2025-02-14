@@ -1,13 +1,16 @@
 #include "WifiAccessPoint.hpp"
 
-#include <esp_log.h>
-
 #include <esp_wifi.h>
 #include <nvs_flash.h>
 
 #include <freertos/task.h>
 static void dns_service_task(void *pvParameters);
 #include <lwip/sockets.h>
+
+#include <esp_log.h>
+#include <sdkconfig.h>
+#undef LOG_LOCAL_LEVEL
+#define LOG_LOCAL_LEVEL     CONFIG_SNEAKERNET_LOG_LEVEL
 
 #include <cstring>
 
@@ -37,7 +40,7 @@ WifiAccessPoint::WifiAccessPoint(const std::string ssid)
     assert(pdPASS == xTaskCreate(
                          dns_service_task,
                          "dns_service",
-                         2048 /* stack depth */,
+                         4096 /* stack depth */, // TODO reduce to minimum
                          nullptr /* parameters (none) */,
                          tskIDLE_PRIORITY /* priority */,
                          nullptr /* handle (not used) */

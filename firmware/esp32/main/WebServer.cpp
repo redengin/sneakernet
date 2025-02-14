@@ -1,6 +1,9 @@
 #include "WebServer.hpp"
 
 #include <esp_log.h>
+#include <sdkconfig.h>
+#undef LOG_LOCAL_LEVEL
+#define LOG_LOCAL_LEVEL     CONFIG_SNEAKERNET_LOG_LEVEL
 
 extern "C" esp_err_t redirect(httpd_req_t *req, httpd_err_code_t err);
 
