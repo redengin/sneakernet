@@ -37,7 +37,7 @@ WifiAccessPoint::WifiAccessPoint(const std::string ssid)
     assert(pdPASS == xTaskCreate(
                          dns_service_task,
                          "dns_service",
-                         4096 /* stack depth */, // TODO reduce to minimum
+                         2048 /* stack depth */,
                          nullptr /* parameters (none) */,
                          tskIDLE_PRIORITY /* priority */,
                          nullptr /* handle (not used) */
