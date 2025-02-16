@@ -28,8 +28,21 @@ paths:
           content:
             application/json:
               schema: { '$ref': '#/components/schemas/Folder' }
-        "404": { description: Folder Not Found }
-        "429": { description: Client should try again }
+        "404" : { description: "folder Not Found" }
+        "429" : { description: "Client should try again" }
+    put:
+      description: create subfolder
+      responses:
+        "200" : { description: OK }
+        "403" : { description: FAIL }
+        "401": { $ref: '#/components/responses/adminCurated' }
+    delete:
+      description: remove empty subfolder
+      responses:
+        "200" : { description: OK }
+        "403" : { description: FAIL }
+        "401": { $ref: '#/components/responses/adminCurated' }
+
 
   /catalog/{path}/{file}:
     parameters:
@@ -45,35 +58,35 @@ paths:
         required: true
         in: header
         schema: { type: integer }
-    get:
-      description: download file
-      responses:
-        "200" :
-          description: sending file
-          headers:
-            X-timestamp:
-              schema: { '$ref': '#components/schemas/timestamp' }
-          content: { application/octet-stream: {} }
-        "404": { description: File Not Found }
-        "429": { description: Client should try again }
     put:
       parameters:
+        - in: header
+          name: Content-Length
+          required: true
+          schema: { type: integer }
         - in: header
           name: X-timestamp
           required: true
           schema: { '$ref': '#components/schemas/timestamp' }
       description: add a file
       responses:
-        "200": { description: "file accepted" }
-        "411": { description: "Content-Length required" }
-        "400": { description: "parent folder doesn't exist" }
+        "200" : { description: OK }
+        "403" : { description: FAIL }
         "401": { $ref: '#/components/responses/adminCurated' }
+        "429": { description: "client should try again" }
+    get:
+      description: download file
+      responses:
+        "200" :
+          description: sending file
+          content: { application/octet-stream: {} }
+        "404": { description: "file Not Found" }
         "429": { description: "client should try again" }
     delete:
       description: remove a file
       responses:
         "200": { description: "file removed" }
-        "404": { description: "File Not Found" }
+        "404": { description: "file Not Found" }
         "401": { $ref: '#/components/responses/adminCurated' }
         "429": { description: "client should try again" }
 

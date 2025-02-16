@@ -38,12 +38,15 @@ public:
         FolderInfo() : isLocked(true) {};
     };
     FolderInfo folderInfo(
-            const std::filesystem::path& folderpath ///< relative to catalog
+            const std::filesystem::path& folderpath
     ) const;
 
-    /// @pre folder must be empty to allow removal
+    bool addFolder(
+            const std::filesystem::path& folderpath
+    );
+
     bool removeFolder(
-            const std::filesystem::path& folderpath ///< relative to catalog
+            const std::filesystem::path& folderpath
     );
 
 //------------------------------------------------------------------------------
@@ -104,7 +107,8 @@ public:
 
     InWorkContent addFile(
         const std::filesystem::path& path, ///< relative to catalog
-        const std::optional<std::filesystem::file_time_type> timestamp
+        const std::optional<std::filesystem::file_time_type> timestamp,
+        const size_t size
     );
     InWorkContent addIcon(
         const std::filesystem::path& path ///< relative to catalog

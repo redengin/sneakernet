@@ -118,6 +118,7 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos)
     if (! buffer)
     {
         ESP_LOGD(TAG, "unable to create recieve buffer");
+        // send the HTTP error response
         TOO_MANY_REQUESTS(request);
         return false;
     }
@@ -126,6 +127,7 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos)
     while (fos.good())
     {
         const int received = httpd_req_recv(request, buffer.get(), rest::CHUNK_SIZE);
+    
         if (received < 0)
         {
             ESP_LOGD(TAG, "socket closed during upload");
@@ -141,7 +143,7 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos)
         fos.write(buffer.get(), received);
     };
 
-    ESP_LOGD(TAG, "invalid output stream [%s]", strerror(errno));
-    httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, nullptr);
+    // fos went bad
+    ESP_LOGE(TAG, "output stream failed [%s]", strerror(errno));
     return false;
 }

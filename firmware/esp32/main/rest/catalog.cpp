@@ -42,6 +42,10 @@ enum class UriType {
 };
 static UriType uriType(const std::string& uri)
 {
+    // fragments not allowed
+    if (uri.contains("#"))
+        return UriType::ILLEGAL;
+
     if (uri.ends_with("?icon"))
         return UriType::ICON;
 
@@ -52,10 +56,7 @@ static UriType uriType(const std::string& uri)
     if (uri.contains("?"))
         return UriType::ILLEGAL;
 
-    // fragments not allowed
-    if (uri.contains("#"))
-        return UriType::ILLEGAL;
-
+    // use final character to determine if folder or file
     if (uri.back() == '/')
         return UriType::FOLDER;
     else
@@ -63,13 +64,14 @@ static UriType uriType(const std::string& uri)
 }
 
 // forward declarations
+static esp_err_t PUT_FOLDER(httpd_req_t* const request);
 static esp_err_t GET_FOLDER(httpd_req_t* const request);
 static esp_err_t DELETE_FOLDER(httpd_req_t* const request);
-static esp_err_t GET_FILE(httpd_req_t* const request);
 static esp_err_t PUT_FILE(httpd_req_t* const request);
+static esp_err_t GET_FILE(httpd_req_t* const request);
 static esp_err_t DELETE_FILE(httpd_req_t* const request);
-static esp_err_t GET_ICON(httpd_req_t* const request);
 static esp_err_t PUT_ICON(httpd_req_t* const request);
+static esp_err_t GET_ICON(httpd_req_t* const request);
 static esp_err_t PUT_TITLE(httpd_req_t* const request);
 
 esp_err_t handler(httpd_req_t* request)
@@ -80,6 +82,7 @@ esp_err_t handler(httpd_req_t* request)
         {
             switch(request->method)
             {
+                case HTTP_PUT : return PUT_FOLDER(request);
                 case HTTP_GET : return GET_FOLDER(request);
                 case HTTP_DELETE: return DELETE_FOLDER(request);
                 default:
@@ -91,8 +94,8 @@ esp_err_t handler(httpd_req_t* request)
         {
             switch(request->method)
             {
-                case HTTP_GET : return GET_FILE(request);
                 case HTTP_PUT: return PUT_FILE(request);
+                case HTTP_GET : return GET_FILE(request);
                 case HTTP_DELETE: return DELETE_FILE(request);
 
                 default:
@@ -104,8 +107,8 @@ esp_err_t handler(httpd_req_t* request)
         {
             switch(request->method)
             {
-                case HTTP_GET : return GET_ICON(request);
                 case HTTP_PUT: return PUT_ICON(request);
+                case HTTP_GET : return GET_ICON(request);
 
                 default:
                     return rest::ILLEGAL_REQUEST(request);
@@ -147,6 +150,22 @@ static std::string catalogPath(const char* const requestUri)
 
     return path;
 }
+
+
+esp_err_t PUT_FOLDER(httpd_req_t* const request)
+{
+    // get the path portion of the URI
+    const auto folderpath = catalogPath(request->uri);
+    ESP_LOGD(TAG, "handling request[%s] for PUT FOLDER[%s]", request->uri, folderpath.c_str());
+
+    auto context = reinterpret_cast<Context*>(request->user_ctx);
+
+    if (context->catalog.addFolder(folderpath))
+        return ESP_OK;
+    else
+        return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, "unable to create folder");
+}
+
 
 esp_err_t GET_FOLDER(httpd_req_t* const request)
 {
@@ -192,93 +211,70 @@ esp_err_t GET_FOLDER(httpd_req_t* const request)
     return ret;
 }
 
+
 esp_err_t DELETE_FOLDER(httpd_req_t* const request)
 {
-    auto context = reinterpret_cast<Context*>(request->user_ctx);
+    // get the path portion of the URI
     const auto folderpath = catalogPath(request->uri);
-    ESP_LOGD(TAG, "handling request[%s] for DELETE FOLDER [/%s]", request->uri, folderpath.c_str());
+    ESP_LOGD(TAG, "handling request[%s] for DELETE FOLDER[%s]", request->uri, folderpath.c_str());
 
-    if (! context->catalog.hasFolder(folderpath))
-        return httpd_resp_send_404(request);
-
-    // requires admin access if this folder or parent folder is locked
-    auto path = std::filesystem::path(folderpath);
-    if (context->catalog.isLocked(path) || context->catalog.isLocked(path.parent_path()))
-    {
-        // TODO determine if caller has admin credentials
-        if (false /* hasAdminCredentials() */)
-            return httpd_resp_send_err(request, HTTPD_401_UNAUTHORIZED, "folder is locked by admin");
-    }
+    auto context = reinterpret_cast<Context*>(request->user_ctx);
 
     if (context->catalog.removeFolder(folderpath))
-        return httpd_resp_sendstr(request, "OK");
+        return ESP_OK;
     else
-        return httpd_resp_send_custom_err(request, "409 - Directory not empty", "failed");
-}
-
-esp_err_t GET_FILE(httpd_req_t* const request)
-{
-    auto context = reinterpret_cast<Context*>(request->user_ctx);
-    const auto filepath = catalogPath(request->uri);
-    ESP_LOGD(TAG, "handling request[%s] for GET FILE [/%s]", request->uri, filepath.c_str());
-
-    if (! context->catalog.hasFile(filepath))
-        return httpd_resp_send_404(request);
-
-    // set timestamp header
-    auto timestamp = rest::timestamp(context->catalog.timestamp(filepath));
-    httpd_resp_set_hdr(request, rest::catalog::XFILETIMESTAMP, timestamp.c_str());
-
-    auto fis = context->catalog.readContent(filepath);
-    return rest::sendOctetStream(request, fis);
+        return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, "unable to remove folder");
 }
 
 esp_err_t PUT_FILE(httpd_req_t* const request)
 {
-    auto context = reinterpret_cast<Context*>(request->user_ctx);
     const auto filepath = catalogPath(request->uri);
-    ESP_LOGD(TAG, "handling request[%s] for PUT FILE [/%s]", request->uri, filepath.c_str());
+    ESP_LOGD(TAG, "handling request[%s] for PUT FILE[%s]", request->uri, filepath.c_str());
 
-    // requires admin access if this folder is locked
-    auto path = std::filesystem::path(filepath).parent_path();
-    if (context->catalog.isLocked(path))
-    {
-        // TODO determine if caller has admin credentials
-        if (false /* hasAdminCredentials() */)
-            return httpd_resp_send_err(request, HTTPD_401_UNAUTHORIZED, "folder is locked by admin");
-    }
+    // check for content size in header
+    if (! request->content_len)
+        return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, "Content-Length header required");
 
-    // receive the data
-    // FIXME should check request->content_len (aka HTTP header CONTENT-LENGTH) to see if it it'll fit
+    // check for timestamp in header
+    char buffer[rest::catalog::ISO8601_MAX_LENGTH]; // Content-Length string must be shorter
+    if (ESP_OK != httpd_req_get_hdr_value_str(request, rest::catalog::XFILETIMESTAMP, buffer, sizeof(buffer)))
+        return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, "X-timestamp header required");
+    // convert timestamp header to internal representation
+    const auto timestamp = rest::timestamp(buffer);
 
-    // check for timestamp in X-FileTimeStamp header
-    std::optional<std::filesystem::file_time_type> timestamp = std::nullopt;
-    char buffer[21];
-    if (ESP_OK == httpd_req_get_hdr_value_str(request, rest::catalog::XFILETIMESTAMP, buffer, sizeof(buffer)))
-        timestamp = rest::timestamp(buffer);
-    else {
-        ESP_LOGW(TAG, "unable to get timestamp header");
-        ESP_LOGD(TAG, "X-FileTimeStamp header size was %i", httpd_req_get_hdr_value_len(request, "X-FileTimestamp"));
-    }
+    auto context = reinterpret_cast<Context*>(request->user_ctx);
 
-    auto inwork = context->catalog.addFile(filepath, timestamp);
+    // receive the data into a temporary location
+    auto inwork = context->catalog.addFile(filepath, timestamp, request->content_len);
     if (rest::receiveOctetStream(request, inwork.ofs))
     {
-        // complete the transfer by publishing the new file
+        // make the tempororary location real
         inwork.done();
-        return httpd_resp_sendstr(request, "OK");
+        return ESP_OK;
     }
-    
-    // upon error, rest::receieveOctetStream has already responded to client
-    return ESP_OK;
+    else
+        // upon error, rest::receieveOctetStream has already responded to client
+        return ESP_OK;
+} 
+
+esp_err_t GET_FILE(httpd_req_t* const request)
+{
+    const auto filepath = catalogPath(request->uri);
+    ESP_LOGD(TAG, "handling request[%s] for GET FILE[%s]", request->uri, filepath.c_str());
+
+    auto context = reinterpret_cast<Context*>(request->user_ctx);
+
+    // send the file content
+    auto fis = context->catalog.readContent(filepath);
+    return rest::sendOctetStream(request, fis);
 }
 
 esp_err_t DELETE_FILE(httpd_req_t* const request)
 {
-    auto context = reinterpret_cast<Context*>(request->user_ctx);
     const auto filepath = catalogPath(request->uri);
-    ESP_LOGD(TAG, "handling request[%s] for DELETE FILE [/%s]", request->uri, filepath.c_str());
+    ESP_LOGD(TAG, "handling request[%s] for DELETE FILE[%s]", request->uri, filepath.c_str());
 
+    auto context = reinterpret_cast<Context*>(request->user_ctx);
     if (! context->catalog.hasFile(filepath))
         return httpd_resp_send_404(request);
 
