@@ -344,3 +344,13 @@ bool Catalog::hasIcon(const std::filesystem::path &filepath) const
     // std::error_code ec;
     // return std::filesystem::is_regular_file(iconpath, ec);
 }
+
+
+bool Catalog::setTitle(
+    const std::filesystem::path& filepath, ///< relative to catalog
+    const std::string& title
+) const
+{
+    // TODO implement
+    return false;
+}

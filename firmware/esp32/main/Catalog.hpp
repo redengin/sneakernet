@@ -113,6 +113,7 @@ public:
     InWorkContent addIcon(
         const std::filesystem::path& path ///< relative to catalog
     );
+
 //------------------------------------------------------------------------------
 
 private:
