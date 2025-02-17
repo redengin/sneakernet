@@ -38,6 +38,37 @@ void rest::httpDecode(std::string& encoded)
     }
 }
 
+std::optional<std::string> rest::getQueryValue( const std::string& uri, const std::string& parameter)
+{
+    const auto queryStart = uri.find("?");
+    // if no query return
+    if (queryStart == std::string::npos)
+        return std::nullopt;
+
+    const std::string token = parameter + "=";
+    const auto tokenStart = uri.find(token, queryStart + 1);
+    // if no token return
+    if (tokenStart == std::string::npos)
+        return std::nullopt;
+
+    const auto tokenValueStart = tokenStart + token.length();
+    // find the end of the value
+    auto tokenValueEnd = uri.find('&', tokenValueStart);
+    if (tokenValueEnd == std::string::npos)
+        tokenValueEnd = uri.find('#', tokenValueStart);
+    if (tokenValueEnd == std::string::npos)
+        tokenValueEnd = uri.length();
+
+    // get the value
+    const auto tokenValueLength = tokenValueEnd - tokenValueStart;
+    auto tokenValue = uri.substr(tokenValueStart, tokenValueLength);
+
+    // http decode the value
+    rest::httpDecode(tokenValue);
+    return tokenValue;
+}
+
+
 std::string rest::timestamp(const std::filesystem::file_time_type& timestamp)
 {
     const auto timestamp_s = std::chrono::system_clock::to_time_t(

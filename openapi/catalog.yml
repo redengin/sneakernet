@@ -107,10 +107,10 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        "200": { description: "title changed" }
-        "404": { description: "File Not Found" }
-        "401": { $ref: '#/components/responses/adminCurated' }
-        "429": { description: "client should try again" }
+        "200" : { description: "title changed" }
+        "403" : { description: FAIL }
+        "404" : { description: "File Not Found" }
+        "401" : { $ref: '#/components/responses/adminCurated' }
 
   /catalog/{path}/{file}?icon:
     parameters:
@@ -128,10 +128,11 @@ paths:
         content:
           application/octet-stream: {}
       responses:
-        "200": { description: "icon changed" }
-        "404": { description: "File Not Found" }
-        "401": { $ref: '#/components/responses/adminCurated' }
-        "429": { description: "client should try again" }
+        "200" : { description: "OK" }
+        "403" : { description: "FAIL" }
+        "404" : { description: "File Not Found" }
+        "401" : { $ref: '#/components/responses/adminCurated' }
+        "429" : { description: "client should try again" }
         
 
 

@@ -317,12 +317,14 @@ esp_err_t PUT_TITLE(httpd_req_t *const request)
     const auto filepath = catalogPath(request->uri);
     ESP_LOGI(TAG, "handling request[%s] for PUT TITLE [%s]", request->uri, filepath.c_str());
 
-    // TODO get the title value from request
-    auto title = "";
+    // get the title value from request
+    auto title = rest::getQueryValue(request->uri, "title");
+    if (! title.has_value())
+        return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, "unable to set title");
 
     auto context = reinterpret_cast<Context *>(request->user_ctx);
 
-    if (context->catalog.setTitle(filepath, title))
+    if (context->catalog.setTitle(filepath, title.value()))
         return ESP_OK;
     else
         return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, "unable to set title");

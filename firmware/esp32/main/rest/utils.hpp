@@ -13,8 +13,13 @@ static constexpr char TAG[] = "rest::utils"; ///< ESP logging tag
 /// replaces HTTP tokens inplace
 void httpDecode(std::string& encoded);
 
+// returns http decoded query value
+std::optional<std::string> getQueryValue(
+    const std::string& uri,         ///< raw (not http decoded)
+    const std::string& parameter
+);
+
 /// timestamp format
-// static constexpr char ISO_8601_Z_FORMAT[] = "%FT%TZ";
 static constexpr char ISO_8601_Z_FORMAT[] = "%Y-%m-%dT%TZ";
 std::string timestamp(const std::filesystem::file_time_type&);
 std::optional<std::filesystem::file_time_type> timestamp(const std::string&);
