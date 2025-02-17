@@ -1,23 +1,23 @@
 #pragma once
 
-#include <esp_http_server.h>
 #include <esp_err.h>
+#include <esp_http_server.h>
+
 #include <filesystem>
 #include <fstream>
 #include <optional>
 
 namespace rest {
 
-static constexpr char TAG[] = "rest::utils"; ///< ESP logging tag
+static constexpr char TAG[] = "rest::utils";  ///< ESP logging tag
 
 /// replaces HTTP tokens inplace
 void httpDecode(std::string& encoded);
 
 // returns http decoded query value
 std::optional<std::string> getQueryValue(
-    const std::string& uri,         ///< raw (not http decoded)
-    const std::string& parameter
-);
+    const std::string& uri,  ///< raw (not http decoded)
+    const std::string& parameter);
 
 /// timestamp format
 static constexpr char ISO_8601_Z_FORMAT[] = "%Y-%m-%dT%TZ";
@@ -30,15 +30,10 @@ esp_err_t TOO_MANY_REQUESTS(httpd_req_t* request);
 
 static constexpr std::size_t CHUNK_SIZE = 1450;
 /// @brief send chunked HTTP stream
-esp_err_t sendOctetStream(
-    httpd_req_t* const request,
-    std::ifstream& fis
-);
+void sendOctetStream(httpd_req_t* const request, std::ifstream& fis);
+
 /// @brief receive chunked HTTP stream
 /// @post upon success, caller provides the response
-bool receiveOctetStream(
-    httpd_req_t* const request,
-    std::ofstream& fos
-);
+bool receiveOctetStream(httpd_req_t* const request, std::ofstream& fos);
 
-};
+};  // namespace rest

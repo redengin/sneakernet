@@ -15,5 +15,6 @@
     "idf.toolsPath": "/home/redengin/opt/esp/.espressif",
     "files.associations": {
         "sdkconfig*": "properties"
-    }
+    },
+    "C_Cpp.clang_format_fallbackStyle": "Google"
 }

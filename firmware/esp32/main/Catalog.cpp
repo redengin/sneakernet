@@ -207,7 +207,7 @@ Catalog::InWorkContent::InWorkContent(const std::filesystem::path &filepath, con
     ofs = std::ofstream(inwork_filepath, std::ios_base::out | std::ios_base::binary);
 }
 
-void Catalog::InWorkContent::done()
+bool Catalog::InWorkContent::done()
 {
     std::error_code ec;
 
@@ -248,6 +248,9 @@ void Catalog::InWorkContent::done()
             }
         }
     }
+
+    // FIXME
+    return false;
 }
 
 Catalog::InWorkContent::~InWorkContent()

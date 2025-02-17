@@ -133,6 +133,14 @@ paths:
         "404" : { description: "File Not Found" }
         "401" : { $ref: '#/components/responses/adminCurated' }
         "429" : { description: "client should try again" }
+    get:
+      description: download icon
+      responses:
+        "200" :
+          description: "sending icon"
+          content: { application/octet-stream: {} }
+        "404": { description: "FAIL" }
+        "429": { description: "client should try again" }
         
 
 

@@ -13,5 +13,4 @@ namespace rest::catalog {
 
     static constexpr std::string_view uri_wildcard = "/api/catalog/*";
     void registerHandlers(WebServer& webserver, Catalog& catalog);
-
 };
