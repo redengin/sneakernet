@@ -256,14 +256,17 @@ esp_err_t PUT_FILE(httpd_req_t *const request) {
   // receive the data into a temporary location
   auto inwork =
       context->catalog.addFile(filepath, timestamp, request->content_len);
-  if (rest::receiveOctetStream(request, inwork.ofs)) {
+
+  if (!inwork.has_value())
+    return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, nullptr);
+
+  if (rest::receiveOctetStream(request, inwork.value().ofs)) {
     // complete the inwork
-    if (!inwork.done())
-      return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN,
-                                 "unable to accept file");
+    if (!inwork.value().done())
+      return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, nullptr);
   }
 
-  // receieveOctetStream has already notified client of any errors
+  // previous methods have already notified client of errors
   return ESP_OK;
 }
 
@@ -275,11 +278,14 @@ esp_err_t GET_FILE(httpd_req_t *const request) {
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
   // send the file content
-  auto fis = context->catalog.readContent(filepath);
-  rest::sendOctetStream(request, fis);
+  auto data = context->catalog.readContent(filepath);
+  if (data.has_value()) {
+    rest::sendOctetStream(request, data.value());
 
-  // sendOctetStream has notified client of any errors
-  return ESP_OK;
+    // sendOctetStream has notified client of any errors
+    return ESP_OK;
+  } else
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 }
 
 esp_err_t DELETE_FILE(httpd_req_t *const request) {
@@ -304,11 +310,13 @@ esp_err_t GET_ICON(httpd_req_t *const request) {
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
   // send the icon
-  auto fis = context->catalog.readIcon(filepath);
-  rest::sendOctetStream(request, fis);
-
-  // sendOctetStream has notified client of any errors
-  return ESP_OK;
+  auto data = context->catalog.readIcon(filepath);
+  if (data.has_value()) {
+    rest::sendOctetStream(request, data.value());
+    // sendOctetStream has notified client of any errors
+    return ESP_OK;
+  } else
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 }
 
 esp_err_t PUT_ICON(httpd_req_t *const request) {
@@ -318,12 +326,11 @@ esp_err_t PUT_ICON(httpd_req_t *const request) {
 
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
-  auto inwork = context->catalog.addIcon(filepath);
+  auto inwork = context->catalog.setIcon(filepath);
   if (rest::receiveOctetStream(request, inwork.ofs)) {
     // complete the inwork
     if (!inwork.done())
-      return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN,
-                                 "unable to accept file");
+      return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, nullptr);
   }
 
   // receieveOctetStream has already notified client of any errors

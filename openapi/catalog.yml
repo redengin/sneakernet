@@ -72,6 +72,7 @@ paths:
       responses:
         "200" : { description: OK }
         "403" : { description: FAIL }
+        "404" : { description: "File Not Found" }
         "401": { $ref: '#/components/responses/adminCurated' }
         "429": { description: "client should try again" }
     get:
@@ -80,7 +81,7 @@ paths:
         "200" :
           description: sending file
           content: { application/octet-stream: {} }
-        "404": { description: "file Not Found" }
+        "404" : { description: "File Not Found" }
         "429": { description: "client should try again" }
     delete:
       description: remove a file

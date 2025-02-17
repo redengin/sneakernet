@@ -13,31 +13,24 @@ class Catalog {
 
   // Folder support
   //------------------------------------------------------------------------------
-  /// @returns true if folder exists
-  bool hasFolder(
-      const std::filesystem::path& folderpath
-  ) const;
-
   /// @returns true if folder is admin only
-  bool isLocked(
-      const std::filesystem::path& folderpath
-  ) const;
+  bool isLocked(const std::filesystem::path& folderpath) const;
 
-  struct FileInfo {
-    std::string name;
-    std::size_t size;
-    std::filesystem::file_time_type timestamp;
-    std::optional<std::string> title;
-    bool hasIcon;
-  };
-  struct FolderInfo {
-    bool isLocked;
-    std::vector<std::string> subfolders;
-    std::vector<FileInfo> files;
+  //   struct FileInfo {
+  //     std::string name;
+  //     std::size_t size;
+  //     std::filesystem::file_time_type timestamp;
+  //     std::optional<std::string> title;
+  //     bool hasIcon;
+  //   };
+  //   struct FolderInfo {
+  //     bool isLocked;
+  //     std::vector<std::string> subfolders;
+  //     std::vector<FileInfo> files;
 
-    FolderInfo() : isLocked(true) {};
-  };
-  FolderInfo folderInfo(const std::filesystem::path& folderpath) const;
+  //     FolderInfo() : isLocked(true) {};
+  //   };
+  //   FolderInfo folderInfo(const std::filesystem::path& folderpath) const;
 
   bool addFolder(const std::filesystem::path& folderpath);
 
@@ -46,29 +39,16 @@ class Catalog {
   //------------------------------------------------------------------------------
   // File support
   //------------------------------------------------------------------------------
-  /// @returns true if content exists
-  bool hasFile(const std::filesystem::path& filepath  ///< relative to catalog
-  ) const;
+  std::optional<std::ifstream> readContent(
+      const std::filesystem::path& filepath) const;
 
-  /// @pre should call hasFile() to determine if file exists
-  std::filesystem::file_time_type timestamp(
-      const std::filesystem::path& filepath  ///< relative to catalog
-  ) const;
+  std::optional<std::ifstream> readIcon(
+      const std::filesystem::path& filepath) const;
 
-  std::ifstream readContent(
-      const std::filesystem::path& filepath  ///< relative to catalog
-  ) const;
-
-  bool setTitle(const std::filesystem::path& filepath,  ///< relative to catalog
+  bool setTitle(const std::filesystem::path& filepath,
                 const std::string& title) const;
 
-  std::ifstream readIcon(
-      const std::filesystem::path& filepath  ///< relative to catalog
-  ) const;
-
-  bool removeFile(
-      const std::filesystem::path& filepath  ///< relative to catalog
-  ) const;
+  bool removeFile(const std::filesystem::path& filepath) const;
 
   //------------------------------------------------------------------------------
   // Upload Support
@@ -83,8 +63,8 @@ class Catalog {
     /// @brief  cleans up inwork content
     ~InWorkContent();
 
-    // FIXME limit access
-    // protected:
+// FIXME limit access
+// protected:
     InWorkContent(
         const std::filesystem::path& filepath,
         const std::optional<std::filesystem::file_time_type> timestamp);
@@ -95,12 +75,13 @@ class Catalog {
     const std::optional<std::filesystem::file_time_type> timestamp;
   };
 
-  InWorkContent addFile(
-      const std::filesystem::path& path,  ///< relative to catalog
+  std::optional<InWorkContent> addFile(
+      const std::filesystem::path& path,
       const std::optional<std::filesystem::file_time_type> timestamp,
       const size_t size);
-  InWorkContent addIcon(
-      const std::filesystem::path& path  ///< relative to catalog
+
+  InWorkContent setIcon(
+      const std::filesystem::path& path
   );
 
   //------------------------------------------------------------------------------
