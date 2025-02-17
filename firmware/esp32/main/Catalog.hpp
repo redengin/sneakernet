@@ -53,6 +53,17 @@ class Catalog {
   //------------------------------------------------------------------------------
   // Upload Support
   //------------------------------------------------------------------------------
+  class InWorkContent;
+
+  std::optional<InWorkContent> addFile(
+      const std::filesystem::path& path,
+      const std::optional<std::filesystem::file_time_type> timestamp,
+      const size_t size);
+
+  InWorkContent setIcon(
+      const std::filesystem::path& path
+  );
+
   class InWorkContent {
    public:
     std::ofstream ofs;
@@ -75,20 +86,10 @@ class Catalog {
     const std::optional<std::filesystem::file_time_type> timestamp;
   };
 
-  std::optional<InWorkContent> addFile(
-      const std::filesystem::path& path,
-      const std::optional<std::filesystem::file_time_type> timestamp,
-      const size_t size);
-
-  InWorkContent setIcon(
-      const std::filesystem::path& path
-  );
-
   //------------------------------------------------------------------------------
 
  private:
   const std::filesystem::path root;
-  std::filesystem::file_time_type latest_timestamp{};
 
   /// hidden file/folder prefix
   static constexpr char HIDDEN_PREFIX = '.';

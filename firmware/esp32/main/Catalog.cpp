@@ -14,18 +14,13 @@ Catalog::Catalog(const std::filesystem::path _root) : root(_root) {
   // cleanup catalog state
   for (const auto &entry :
        std::filesystem::recursive_directory_iterator(root)) {
-    // track the latest filetime
-    if (entry.last_write_time() > latest_timestamp)
-      latest_timestamp = entry.last_write_time();
-
     const auto filename = entry.path().filename();
     // remove any INWORK files
     if (filename.string().starts_with(INWORK_PREFIX)) {
       ESP_LOGI(TAG, "removing INWORK %s", entry.path().c_str());
       std::error_code ec;
-      std::filesystem::remove(entry, ec);
-      if (ec) {
-        ESP_LOGW(TAG, "failed to remove %s [%s]", entry.path().c_str(),
+      if (!std::filesystem::remove(entry, ec)) {
+        ESP_LOGE(TAG, "failed to remove %s [%s]", entry.path().c_str(),
                  ec.message().c_str());
       }
     }
@@ -78,6 +73,7 @@ bool Catalog::isLocked(const std::filesystem::path &folderpath) const {
 // }
 
 bool Catalog::addFolder(const std::filesystem::path &folderpath) {
+  // ignore empty
   if (folderpath.empty()) return false;
 
   // don't allow catalog folders to conflict with hidden files/folders
@@ -150,8 +146,7 @@ bool Catalog::removeFile(const std::filesystem::path &filepath) const {
       ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", filepath.c_str(),
                ec.message().c_str());
     return ret;
-  }
-  else {
+  } else {
     if (ec)
       ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", filepath.c_str(),
                ec.message().c_str());
@@ -176,22 +171,21 @@ std::optional<Catalog::InWorkContent> Catalog::addFile(
     const std::filesystem::path &filepath,
     const std::optional<std::filesystem::file_time_type> timestamp,
     const size_t size) {
-
   // make sure there is a parent folder
   std::error_code ec;
-  if (! std::filesystem::is_directory(root / filepath.parent_path(), ec)) {
+  if (!std::filesystem::is_directory(root / filepath.parent_path(), ec)) {
     if (ec)
-      ESP_LOGE(TAG, "failed is_directory [%s ec:%s]", filepath.parent_path().c_str(),
-               ec.message().c_str());
+      ESP_LOGE(TAG, "failed is_directory [%s ec:%s]",
+               filepath.parent_path().c_str(), ec.message().c_str());
     return std::nullopt;
   }
 
   return std::nullopt;
-//   if (timestamp) {
-//     if (timestamp > latest_timestamp) latest_timestamp = timestamp.value();
-//     return InWorkContent(root / filepath, timestamp);
-//   } else
-//     return InWorkContent(root / filepath, latest_timestamp);
+  //   if (timestamp) {
+  //     if (timestamp > latest_timestamp) latest_timestamp = timestamp.value();
+  //     return InWorkContent(root / filepath, timestamp);
+  //   } else
+  //     return InWorkContent(root / filepath, latest_timestamp);
 }
 
 Catalog::InWorkContent Catalog::setIcon(const std::filesystem::path &filepath) {
@@ -199,10 +193,6 @@ Catalog::InWorkContent Catalog::setIcon(const std::filesystem::path &filepath) {
   auto iconpath = ICON_PREFIX;
   return InWorkContent(root / iconpath, std::nullopt);
 }
-
-
-
-
 
 Catalog::InWorkContent::InWorkContent(
     const std::filesystem::path &filepath,
