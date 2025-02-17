@@ -96,12 +96,19 @@ bool Catalog::removeFolder(const std::filesystem::path &folderpath) {
   if (isHidden(folderpath)) return false;
 
   std::error_code ec;
-  bool ret = std::filesystem::remove(root / folderpath, ec);
-  if (!ret)
-    ESP_LOGE(TAG, "failed to remove directory [%s] (error: %s)",
-             folderpath.c_str(), ec.message().c_str());
-
-  return ret;
+  if (std::filesystem::is_directory(root / folderpath, ec)) {
+    // remove the folder
+    bool ret = std::filesystem::remove(root / folderpath, ec);
+    if (ec)
+      ESP_LOGE(TAG, "failed to remove directory [%s ec:%s]", folderpath.c_str(),
+               ec.message().c_str());
+    return ret;
+  } else {
+    if (ec)
+      ESP_LOGE(TAG, "failed is_directory [%s ec:%s]", folderpath.c_str(),
+               ec.message().c_str());
+    return false;
+  }
 }
 
 // File Support
