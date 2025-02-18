@@ -243,9 +243,7 @@ std::optional<Catalog::InWorkContent> Catalog::addFile(
     const size_t size) const {
   if (!hasFolder(filepath.parent_path())) return std::nullopt;
 
-  // FIXME implement
-
-  return std::nullopt;
+  return InWorkContent(root / filepath, timestamp);
   //   if (timestamp) {
   //     if (timestamp > latest_timestamp) latest_timestamp = timestamp.value();
   //     return InWorkContent(root / filepath, timestamp);
@@ -271,14 +269,14 @@ Catalog::InWorkContent::InWorkContent(
   const auto inworkfile = filepath.filename().string().insert(0, INWORK_PREFIX);
   inwork_filepath = filepath.parent_path() / inworkfile;
 
-  ofs = std::ofstream(inwork_filepath,
+}
+
+std::ofstream Catalog::InWorkContent::open() {
+  return std::ofstream(inwork_filepath,
                       std::ios_base::out | std::ios_base::binary);
 }
 
 void Catalog::InWorkContent::done() {
-  // flush all writes
-  ofs.close();
-
   // remove the old file
   std::error_code ec;
   if (std::filesystem::exists(filepath, ec))
@@ -316,13 +314,12 @@ void Catalog::InWorkContent::done() {
 }
 
 Catalog::InWorkContent::~InWorkContent() {
-  if (ofs.is_open()) {
-    ofs.close();
-    std::error_code ec;
-    std::filesystem::remove(inwork_filepath, ec);
-    if (ec)
-      ESP_LOGE(TAG, "remove inwork file failed [%s]", ec.message().c_str());
-  }
+  // remove the inwork file
+  std::error_code ec;
+  std::filesystem::remove(inwork_filepath, ec);
+  if (ec)
+    ESP_LOGE(TAG, "unable to remove old file [%s ec:%s]", filepath.c_str(),
+             ec.message().c_str());
 }
 
 // PRIVATE

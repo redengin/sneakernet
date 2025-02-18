@@ -260,10 +260,13 @@ esp_err_t PUT_FILE(httpd_req_t *const request) {
   if (!inwork.has_value())
     return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, nullptr);
 
-  if (rest::receiveOctetStream(request, inwork.value().ofs))
+  auto ofs = inwork.value().open();
+  if (rest::receiveOctetStream(request, ofs)) {
+    ofs.close();
     inwork.value().done();
+  }
 
-  // previous methods have already notified client of errors
+  // receieveOctetStream has already notified client of any errors
   return ESP_OK;
 }
 
@@ -280,6 +283,7 @@ esp_err_t GET_FILE(httpd_req_t *const request) {
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
   rest::sendOctetStream(request, data.value());
+
   // sendOctetStream has notified client of any errors
   return ESP_OK;
 }
@@ -311,6 +315,7 @@ esp_err_t GET_ICON(httpd_req_t *const request) {
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
   rest::sendOctetStream(request, data.value());
+
   // sendOctetStream has notified client of any errors
   return ESP_OK;
 }
@@ -326,8 +331,12 @@ esp_err_t PUT_ICON(httpd_req_t *const request) {
   if (!inwork.has_value())
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
-  if (rest::receiveOctetStream(request, inwork.value().ofs))
-      inwork.value().done();
+  auto ofs = inwork.value().open();
+  if (rest::receiveOctetStream(request, ofs)) {
+    ofs.close();
+    inwork.value().done();
+  }
+
   // receieveOctetStream has already notified client of any errors
   return ESP_OK;
 }

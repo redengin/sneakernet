@@ -72,9 +72,10 @@ class Catalog {
 
   class InWorkContent {
    public:
-    std::ofstream ofs;
+    std::ofstream open();
 
     /// @brief swaps original file (if exists) with new file
+    /// @pre ofstream should be closed to flush writes
     void done();
 
     /// @brief  cleans up inwork content
