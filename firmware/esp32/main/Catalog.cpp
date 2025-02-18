@@ -31,6 +31,19 @@ Catalog::Catalog(const std::filesystem::path _root) : root(_root) {
 
 // Folder Support
 //==============================================================================
+bool Catalog::hasFolder(const std::filesystem::path &folderpath) const {
+  // don't allow catalog folders to conflict with hidden files/folders
+  if (isHidden(folderpath)) return false;
+
+  std::error_code ec;
+  bool ret = std::filesystem::is_directory(root / folderpath, ec);
+  if (ec)
+    ESP_LOGE(TAG, "failed is_directory [%s ec:%s]", folderpath.c_str(),
+             ec.message().c_str());
+
+  return ret;
+}
+
 bool Catalog::isLocked(const std::filesystem::path &folderpath) const {
   if (isHidden(folderpath)) return true;
 
@@ -81,9 +94,9 @@ bool Catalog::addFolder(const std::filesystem::path &folderpath) {
 
   std::error_code ec;
   bool ret = std::filesystem::create_directory(root / folderpath, ec);
-  if (!ret)
-    ESP_LOGE(TAG, "failed to create directory [%s] (error: %s)",
-             folderpath.c_str(), ec.message().c_str());
+  if (ec)
+    ESP_LOGE(TAG, "failed to create directory [%s ec:%s]", folderpath.c_str(),
+             ec.message().c_str());
 
   return ret;
 }
@@ -96,40 +109,99 @@ bool Catalog::removeFolder(const std::filesystem::path &folderpath) {
   if (isHidden(folderpath)) return false;
 
   std::error_code ec;
-  if (std::filesystem::is_directory(root / folderpath, ec)) {
+  bool ret = std::filesystem::is_directory(root / folderpath, ec);
+  if (ec)
+    ESP_LOGE(TAG, "failed is_directory [%s ec:%s]", folderpath.c_str(),
+             ec.message().c_str());
+
+  if (ret) {
     // remove the folder
-    bool ret = std::filesystem::remove(root / folderpath, ec);
+    ret = std::filesystem::remove(root / folderpath, ec);
     if (ec)
       ESP_LOGE(TAG, "failed to remove directory [%s ec:%s]", folderpath.c_str(),
                ec.message().c_str());
     return ret;
-  } else {
-    if (ec)
-      ESP_LOGE(TAG, "failed is_directory [%s ec:%s]", folderpath.c_str(),
-               ec.message().c_str());
-    return false;
   }
+
+  return ret;
 }
 
 // File Support
 //==============================================================================
-std::optional<std::ifstream> Catalog::readContent(
-    const std::filesystem::path &filepath) const {
+bool Catalog::hasFile(const std::filesystem::path &filepath) const {
   // don't allow catalog folders to conflict with hidden files/folders
-  if (isHidden(filepath)) return std::nullopt;
+  if (isHidden(filepath)) return false;
 
   std::error_code ec;
-  if (std::filesystem::is_regular_file(root / filepath, ec))
-    return std::ifstream(root / filepath,
-                         std::ios_base::in | std::ios_base::binary);
-  else
-    return std::nullopt;
+  bool ret = std::filesystem::is_regular_file(root / filepath, ec);
+  if (ec)
+    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", filepath.c_str(),
+             ec.message().c_str());
+
+  return ret;
+}
+
+std::optional<std::ifstream> Catalog::readContent(
+    const std::filesystem::path &filepath) const {
+  if (!hasFile(filepath)) return std::nullopt;
+
+  return std::ifstream(root / filepath,
+                       std::ios_base::in | std::ios_base::binary);
+}
+
+std::optional<std::string> Catalog::getTitle(
+    const std::filesystem::path &filepath) const {
+  if (isHidden(filepath)) return std::nullopt;
+
+  // FIXME make this a generic prefix modifier (for use by icon methods)
+  auto parentpath = std::filesystem::path(filepath).parent_path();
+  auto filename = std::filesystem::path(filepath).filename().string();
+  auto titlefilename = filename.insert(0, TITLE_PREFIX);
+  auto titlepath = root / parentpath / titlefilename;
+  ESP_LOGI(TAG, "looking for title in %s", titlepath.c_str());
+
+  std::error_code ec;
+  if (std::filesystem::is_regular_file(titlepath, ec)) {
+    std::ifstream ifs(titlepath);
+    std::stringstream ss;
+    ss << ifs.rdbuf();
+    ESP_LOGI(TAG, "found title [%s]", ss.str().c_str());
+    return ss.str();
+  }
+
+  // no title file
+  return std::nullopt;
+}
+
+bool Catalog::setTitle(
+    const std::filesystem::path &filepath,  ///< relative to catalog
+    const std::string &title) const {
+  if (!hasFile(filepath)) return false;
+
+  // FIXME implement
+
+  return false;
+}
+
+bool Catalog::hasIcon(const std::filesystem::path &filepath) const {
+  if (isHidden(filepath)) return false;
+
+  // TODO
+  return false;
+
+  // auto parentpath = std::filesystem::path(filepath).parent_path();
+  // auto filename = std::filesystem::path(filepath).filename().string();
+  // auto iconfilename = filename.insert(0, ICON_PREFIX);
+  // auto iconpath = root/parentpath/iconfilename;
+  // ESP_LOGI(TAG, "looking for icon in %s", iconpath.c_str());
+
+  // std::error_code ec;
+  // return std::filesystem::is_regular_file(iconpath, ec);
 }
 
 std::optional<std::ifstream> Catalog::readIcon(
     const std::filesystem::path &filepath) const {
-  // don't allow catalog folders to conflict with hidden files/folders
-  if (isHidden(filepath)) return std::nullopt;
+  if (!hasFile(filepath)) return std::nullopt;
 
   // FIXME use a generic FILE->ICON naming
   // auto parentpath = std::filesystem::path(filepath).parent_path();
@@ -142,23 +214,16 @@ std::optional<std::ifstream> Catalog::readIcon(
 }
 
 bool Catalog::removeFile(const std::filesystem::path &filepath) const {
-  // don't allow catalog folders to conflict with hidden files/folders
-  if (isHidden(filepath)) return false;
+  if (!hasFile(filepath)) return false;
 
+  // remove the file
   std::error_code ec;
-  if (std::filesystem::is_regular_file(root / filepath, ec)) {
-    // remove the file
-    bool ret = std::filesystem::remove(root / filepath, ec);
-    if (ec)
-      ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", filepath.c_str(),
-               ec.message().c_str());
-    return ret;
-  } else {
-    if (ec)
-      ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", filepath.c_str(),
-               ec.message().c_str());
-    return false;
-  }
+  bool ret = std::filesystem::remove(root / filepath, ec);
+  if (ec)
+    ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", filepath.c_str(),
+             ec.message().c_str());
+
+  return ret;
 }
 
 // std::filesystem::file_time_type Catalog::timestamp(const
@@ -177,15 +242,10 @@ bool Catalog::removeFile(const std::filesystem::path &filepath) const {
 std::optional<Catalog::InWorkContent> Catalog::addFile(
     const std::filesystem::path &filepath,
     const std::optional<std::filesystem::file_time_type> timestamp,
-    const size_t size) {
-  // make sure there is a parent folder
-  std::error_code ec;
-  if (!std::filesystem::is_directory(root / filepath.parent_path(), ec)) {
-    if (ec)
-      ESP_LOGE(TAG, "failed is_directory [%s ec:%s]",
-               filepath.parent_path().c_str(), ec.message().c_str());
-    return std::nullopt;
-  }
+    const size_t size) const {
+  if (!hasFolder(filepath.parent_path())) return std::nullopt;
+
+  // FIXME implement
 
   return std::nullopt;
   //   if (timestamp) {
@@ -195,12 +255,17 @@ std::optional<Catalog::InWorkContent> Catalog::addFile(
   //     return InWorkContent(root / filepath, latest_timestamp);
 }
 
-Catalog::InWorkContent Catalog::setIcon(const std::filesystem::path &filepath) {
-  // FIXME use generic filepath->icon
+std::optional<Catalog::InWorkContent> Catalog::setIcon(
+    const std::filesystem::path &filepath) const {
+  // FIXME implement
   auto iconpath = ICON_PREFIX;
-  return InWorkContent(root / iconpath, std::nullopt);
+  // return InWorkContent(root / iconpath, std::nullopt);
+
+  return std::nullopt;
 }
 
+// InWork Content
+//==============================================================================
 Catalog::InWorkContent::InWorkContent(
     const std::filesystem::path &filepath,
     const std::optional<std::filesystem::file_time_type> timestamp)
@@ -273,54 +338,7 @@ Catalog::InWorkContent::~InWorkContent() {
 bool Catalog::isHidden(const std::filesystem::path &path) {
   for (const auto &i : path) {
     // ignore hidden files/folders and relative paths
-    if (*(i.c_str()) == HIDDEN_PREFIX) return true;
+    if (i.filename().string().front() == HIDDEN_PREFIX) return true;
   }
-  return false;
-}
-
-std::optional<std::string> Catalog::getTitle(
-    const std::filesystem::path &filepath) const {
-  if (isHidden(filepath)) return std::nullopt;
-
-  // FIXME make this a generic prefix modifier (for use by icon methods)
-  auto parentpath = std::filesystem::path(filepath).parent_path();
-  auto filename = std::filesystem::path(filepath).filename().string();
-  auto titlefilename = filename.insert(0, TITLE_PREFIX);
-  auto titlepath = root / parentpath / titlefilename;
-  ESP_LOGI(TAG, "looking for title in %s", titlepath.c_str());
-
-  std::error_code ec;
-  if (std::filesystem::is_regular_file(titlepath, ec)) {
-    std::ifstream ifs(titlepath);
-    std::stringstream ss;
-    ss << ifs.rdbuf();
-    ESP_LOGI(TAG, "found title [%s]", ss.str().c_str());
-    return ss.str();
-  }
-
-  // no title file
-  return std::nullopt;
-}
-
-bool Catalog::hasIcon(const std::filesystem::path &filepath) const {
-  if (isHidden(filepath)) return false;
-
-  // TODO
-  return false;
-
-  // auto parentpath = std::filesystem::path(filepath).parent_path();
-  // auto filename = std::filesystem::path(filepath).filename().string();
-  // auto iconfilename = filename.insert(0, ICON_PREFIX);
-  // auto iconpath = root/parentpath/iconfilename;
-  // ESP_LOGI(TAG, "looking for icon in %s", iconpath.c_str());
-
-  // std::error_code ec;
-  // return std::filesystem::is_regular_file(iconpath, ec);
-}
-
-bool Catalog::setTitle(
-    const std::filesystem::path &filepath,  ///< relative to catalog
-    const std::string &title) const {
-  // TODO implement
   return false;
 }

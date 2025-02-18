@@ -152,7 +152,7 @@ esp_err_t GET_FOLDER(httpd_req_t *const request) {
   ESP_LOGD(TAG, "handling request[%s] for GET FOLDER[%s]", request->uri,
            folderpath.c_str());
 
-  auto context = reinterpret_cast<Context *>(request->user_ctx);
+  // auto context = reinterpret_cast<Context *>(request->user_ctx);
 
   return ESP_FAIL;
   //   auto context = reinterpret_cast<Context *>(request->user_ctx);
@@ -263,7 +263,8 @@ esp_err_t PUT_FILE(httpd_req_t *const request) {
   if (rest::receiveOctetStream(request, inwork.value().ofs)) {
     // complete the inwork
     if (!inwork.value().done())
-      return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, nullptr);
+      return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR,
+                                 nullptr);
   }
 
   // previous methods have already notified client of errors
@@ -327,12 +328,13 @@ esp_err_t PUT_ICON(httpd_req_t *const request) {
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
   auto inwork = context->catalog.setIcon(filepath);
-  if (rest::receiveOctetStream(request, inwork.ofs)) {
-    // complete the inwork
-    if (!inwork.done())
-      return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, nullptr);
+  if (inwork.has_value()) {
+    if (rest::receiveOctetStream(request, inwork.value().ofs)) {
+      if (!inwork.value().done())
+        return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR,
+                                   nullptr);
+    }
   }
-
   // receieveOctetStream has already notified client of any errors
   return ESP_OK;
 }

@@ -13,6 +13,8 @@ class Catalog {
 
   // Folder support
   //------------------------------------------------------------------------------
+  bool hasFolder(const std::filesystem::path& folderpath) const;
+
   /// @returns true if folder is admin only
   bool isLocked(const std::filesystem::path& folderpath) const;
 
@@ -39,14 +41,20 @@ class Catalog {
   //------------------------------------------------------------------------------
   // File support
   //------------------------------------------------------------------------------
+  bool hasFile(const std::filesystem::path& filepath) const;
+
   std::optional<std::ifstream> readContent(
       const std::filesystem::path& filepath) const;
 
-  std::optional<std::ifstream> readIcon(
-      const std::filesystem::path& filepath) const;
+  std::optional<std::string> getTitle(const std::filesystem::path& filepath) const;
 
   bool setTitle(const std::filesystem::path& filepath,
                 const std::string& title) const;
+
+  bool hasIcon(const std::filesystem::path& filepath) const;
+
+  std::optional<std::ifstream> readIcon(
+      const std::filesystem::path& filepath) const;
 
   bool removeFile(const std::filesystem::path& filepath) const;
 
@@ -58,11 +66,9 @@ class Catalog {
   std::optional<InWorkContent> addFile(
       const std::filesystem::path& path,
       const std::optional<std::filesystem::file_time_type> timestamp,
-      const size_t size);
+      const size_t size) const;
 
-  InWorkContent setIcon(
-      const std::filesystem::path& path
-  );
+  std::optional<InWorkContent> setIcon(const std::filesystem::path& path) const;
 
   class InWorkContent {
    public:
@@ -74,8 +80,8 @@ class Catalog {
     /// @brief  cleans up inwork content
     ~InWorkContent();
 
-// FIXME limit access
-// protected:
+    // FIXME limit access
+    // protected:
     InWorkContent(
         const std::filesystem::path& filepath,
         const std::optional<std::filesystem::file_time_type> timestamp);
@@ -102,14 +108,6 @@ class Catalog {
   ///< tempororary filename used during receive
   static constexpr char INWORK_PREFIX[] = ".inwork-";
 
-  static bool isHidden(
-      const std::filesystem::path& path  ///< relative to catalog
-  );
+  static bool isHidden(const std::filesystem::path& path);
 
-  std::optional<std::string> getTitle(
-      const std::filesystem::path& filepath  ///< relative to catalog
-  ) const;
-
-  bool hasIcon(const std::filesystem::path& filepath  ///< relative to catalog
-  ) const;
 };
