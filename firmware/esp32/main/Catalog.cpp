@@ -44,12 +44,18 @@ bool Catalog::hasFolder(const std::filesystem::path &folderpath) const {
   return ret;
 }
 
-bool Catalog::isLocked(const std::filesystem::path &folderpath) const {
-  if (isHidden(folderpath)) return true;
+std::optional<bool> Catalog::isLocked(
+    const std::filesystem::path &folderpath) const {
+  if (!hasFolder(folderpath)) return std::nullopt;
 
   std::error_code ec;
-  return std::filesystem::is_regular_file(root / folderpath / LOCKED_FILENAME,
-                                          ec);
+  bool ret =
+      std::filesystem::is_regular_file(root / folderpath / LOCKED_FILENAME, ec);
+  if (ec)
+    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", folderpath.c_str(),
+             ec.message().c_str());
+
+  return ret;
 }
 
 // Catalog::FolderInfo Catalog::folderInfo(const std::filesystem::path
@@ -105,23 +111,14 @@ bool Catalog::removeFolder(const std::filesystem::path &folderpath) {
   // never remove the root folder
   if (folderpath.empty()) return false;
 
-  // don't allow catalog folders to conflict with hidden files/folders
-  if (isHidden(folderpath)) return false;
+  if (!hasFolder(folderpath)) return false;
 
+  // remove the folder
   std::error_code ec;
-  bool ret = std::filesystem::is_directory(root / folderpath, ec);
+  bool ret = std::filesystem::remove(root / folderpath, ec);
   if (ec)
-    ESP_LOGE(TAG, "failed is_directory [%s ec:%s]", folderpath.c_str(),
+    ESP_LOGE(TAG, "failed to remove directory [%s ec:%s]", folderpath.c_str(),
              ec.message().c_str());
-
-  if (ret) {
-    // remove the folder
-    ret = std::filesystem::remove(root / folderpath, ec);
-    if (ec)
-      ESP_LOGE(TAG, "failed to remove directory [%s ec:%s]", folderpath.c_str(),
-               ec.message().c_str());
-    return ret;
-  }
 
   return ret;
 }
@@ -129,7 +126,7 @@ bool Catalog::removeFolder(const std::filesystem::path &folderpath) {
 // File Support
 //==============================================================================
 bool Catalog::hasFile(const std::filesystem::path &filepath) const {
-  // don't allow catalog folders to conflict with hidden files/folders
+  // don't allow catalog folders/files to conflict with hidden files/folders
   if (isHidden(filepath)) return false;
 
   std::error_code ec;
@@ -151,66 +148,54 @@ std::optional<std::ifstream> Catalog::readContent(
 
 std::optional<std::string> Catalog::getTitle(
     const std::filesystem::path &filepath) const {
-  if (isHidden(filepath)) return std::nullopt;
-
-  // FIXME make this a generic prefix modifier (for use by icon methods)
-  auto parentpath = std::filesystem::path(filepath).parent_path();
-  auto filename = std::filesystem::path(filepath).filename().string();
-  auto titlefilename = filename.insert(0, TITLE_PREFIX);
-  auto titlepath = root / parentpath / titlefilename;
-  ESP_LOGI(TAG, "looking for title in %s", titlepath.c_str());
+  auto titlepath = titlepathFor(filepath);
+  if (!titlepath.has_value()) return std::nullopt;
 
   std::error_code ec;
-  if (std::filesystem::is_regular_file(titlepath, ec)) {
-    std::ifstream ifs(titlepath);
-    std::stringstream ss;
-    ss << ifs.rdbuf();
-    ESP_LOGI(TAG, "found title [%s]", ss.str().c_str());
-    return ss.str();
-  }
+  bool exists = std::filesystem::is_regular_file(titlepath.value(), ec);
+  if (ec)
+    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]",
+             titlepath.value().c_str(), ec.message().c_str());
 
-  // no title file
-  return std::nullopt;
+  if (!exists) return std::nullopt;
+
+  std::string ret;
+  std::ifstream ifs(titlepath.value());
+  ifs >> ret;
+  return ret;
 }
 
-bool Catalog::setTitle(
-    const std::filesystem::path &filepath,  ///< relative to catalog
-    const std::string &title) const {
-  if (!hasFile(filepath)) return false;
+bool Catalog::setTitle(const std::filesystem::path &filepath,
+                       const std::string &title) const {
+  auto titlepath = titlepathFor(filepath);
+  if (!titlepath.has_value()) return false;
 
-  // FIXME implement
-
-  return false;
+  std::ofstream ofs(titlepath.value());
+  ofs << title;
+  ofs.close();
+  return true;
 }
 
 bool Catalog::hasIcon(const std::filesystem::path &filepath) const {
-  if (isHidden(filepath)) return false;
+  auto iconpath = iconpathFor(filepath);
+  if (!iconpath.has_value()) return false;
 
-  // TODO
-  return false;
+  std::error_code ec;
+  bool ret = std::filesystem::is_regular_file(iconpath.value(), ec);
+  if (ec)
+    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", iconpath.value().c_str(),
+             ec.message().c_str());
 
-  // auto parentpath = std::filesystem::path(filepath).parent_path();
-  // auto filename = std::filesystem::path(filepath).filename().string();
-  // auto iconfilename = filename.insert(0, ICON_PREFIX);
-  // auto iconpath = root/parentpath/iconfilename;
-  // ESP_LOGI(TAG, "looking for icon in %s", iconpath.c_str());
-
-  // std::error_code ec;
-  // return std::filesystem::is_regular_file(iconpath, ec);
+  return ret;
 }
 
 std::optional<std::ifstream> Catalog::readIcon(
     const std::filesystem::path &filepath) const {
-  if (!hasFile(filepath)) return std::nullopt;
+  if (!hasIcon(filepath)) return std::nullopt;
 
-  // FIXME use a generic FILE->ICON naming
-  // auto parentpath = std::filesystem::path(filepath).parent_path();
-  // auto filename = std::filesystem::path(filepath).filename().string();
-  // auto iconfilename = filename.insert(0, ICON_PREFIX);
-  // auto iconpath = root/parentpath/iconfilename;
-  // ESP_LOGI(TAG, "looking for icon in %s", iconpath.c_str());
-  // return std::ifstream(iconpath, std::ios_base::in | std::ios_base::binary);
-  return std::nullopt;
+  auto iconpath = iconpathFor(filepath);
+  return std::ifstream(iconpath.value(),
+                       std::ios_base::in | std::ios_base::binary);
 }
 
 bool Catalog::removeFile(const std::filesystem::path &filepath) const {
@@ -270,39 +255,37 @@ Catalog::InWorkContent::InWorkContent(
     const std::filesystem::path &filepath,
     const std::optional<std::filesystem::file_time_type> timestamp)
     : filepath(filepath), timestamp(timestamp) {
-  auto parentpath = filepath.parent_path();
-  auto filename = filepath.filename().string();
-  auto inwork_filename = filename.insert(0, INWORK_PREFIX);
-  inwork_filepath = parentpath / inwork_filename;
+  const auto inworkfile = filepath.filename().string().insert(0, INWORK_PREFIX);
+  inwork_filepath = filepath.parent_path() / inworkfile;
+
   ofs = std::ofstream(inwork_filepath,
                       std::ios_base::out | std::ios_base::binary);
 }
 
-bool Catalog::InWorkContent::done() {
-  std::error_code ec;
-
+void Catalog::InWorkContent::done() {
   // flush all writes
   ofs.close();
 
   // remove the old file
+  std::error_code ec;
   if (std::filesystem::exists(filepath, ec))
     std::filesystem::remove(filepath, ec);
   if (ec)
-    ESP_LOGW(TAG, "unable to remove old file [%s ec:%s]", filepath.c_str(),
+    ESP_LOGE(TAG, "unable to remove old file [%s ec:%s]", filepath.c_str(),
              ec.message().c_str());
 
   // swap in the new file
   std::filesystem::rename(inwork_filepath, filepath, ec);
   if (ec)
-    ESP_LOGW(TAG, "unable to rename inwork file [from:%s to:%s ec:%s]",
+    ESP_LOGE(TAG, "unable to rename inwork file [from:%s to:%s ec:%s]",
              inwork_filepath.c_str(), filepath.c_str(), ec.message().c_str());
 
-  if (timestamp) {
+  if (timestamp.has_value()) {
     // set the timestamp
     std::filesystem::last_write_time(filepath, timestamp.value(), ec);
     if (ec) {
-      // FIXME
-      ESP_LOGD(TAG, "unable to set timestamp [%s ec:%s], will attemp via C api",
+      // FIXME workaround for incomplete ESP32 std::filesystem implementation
+      ESP_LOGE(TAG, "unable to set timestamp [%s ec:%s], will attemp via C api",
                filepath.c_str(), ec.message().c_str());
 
       // use c api (since not implemented in std::filesystem)
@@ -310,16 +293,13 @@ bool Catalog::InWorkContent::done() {
           std::chrono::file_clock::to_sys(timestamp.value()));
       struct utimbuf c_timestamp{.actime = timestamp_s, .modtime = timestamp_s};
       if (0 != utime(filepath.c_str(), &c_timestamp)) {
-        ESP_LOGW(TAG, "unable to set timestamp [%s ec:%s]", filepath.c_str(),
+        ESP_LOGE(TAG, "unable to set timestamp [%s ec:%s]", filepath.c_str(),
                  std::strerror(errno));
         ESP_LOGD(TAG, "utimebuf{.actime = %lli, .modtime = %lli}",
                  c_timestamp.actime, c_timestamp.modtime);
       }
     }
   }
-
-  // FIXME
-  return false;
 }
 
 Catalog::InWorkContent::~InWorkContent() {
@@ -328,7 +308,7 @@ Catalog::InWorkContent::~InWorkContent() {
     std::error_code ec;
     std::filesystem::remove(inwork_filepath, ec);
     if (ec)
-      ESP_LOGW(TAG, "remove inwork file failed [%s]", ec.message().c_str());
+      ESP_LOGE(TAG, "remove inwork file failed [%s]", ec.message().c_str());
   }
 }
 
@@ -341,4 +321,22 @@ bool Catalog::isHidden(const std::filesystem::path &path) {
     if (i.filename().string().front() == HIDDEN_PREFIX) return true;
   }
   return false;
+}
+
+std::optional<std::filesystem::path> Catalog::titlepathFor(
+    const std::filesystem::path &filepath) const {
+  // ignore hidden files/folders and relative paths
+  if (isHidden(filepath)) return std::nullopt;
+
+  const auto titlefile = filepath.filename().string().insert(0, TITLE_PREFIX);
+  return root / filepath.parent_path() / titlefile;
+}
+
+std::optional<std::filesystem::path> Catalog::iconpathFor(
+    const std::filesystem::path &filepath) const {
+  // ignore hidden files/folders and relative paths
+  if (isHidden(filepath)) return std::nullopt;
+
+  const auto iconfile = filepath.filename().string().insert(0, ICON_PREFIX);
+  return root / filepath.parent_path() / iconfile;
 }

@@ -16,7 +16,7 @@ class Catalog {
   bool hasFolder(const std::filesystem::path& folderpath) const;
 
   /// @returns true if folder is admin only
-  bool isLocked(const std::filesystem::path& folderpath) const;
+  std::optional<bool> isLocked(const std::filesystem::path& folderpath) const;
 
   //   struct FileInfo {
   //     std::string name;
@@ -75,7 +75,7 @@ class Catalog {
     std::ofstream ofs;
 
     /// @brief swaps original file (if exists) with new file
-    bool done();
+    void done();
 
     /// @brief  cleans up inwork content
     ~InWorkContent();
@@ -110,4 +110,9 @@ class Catalog {
 
   static bool isHidden(const std::filesystem::path& path);
 
+  // get the absolute path of the title file
+  std::optional<std::filesystem::path> titlepathFor(const std::filesystem::path& filepath) const;
+
+  // get the absolute path of the icon file
+  std::optional<std::filesystem::path> iconpathFor(const std::filesystem::path& filepath) const;
 };

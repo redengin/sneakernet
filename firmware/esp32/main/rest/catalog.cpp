@@ -260,12 +260,8 @@ esp_err_t PUT_FILE(httpd_req_t *const request) {
   if (!inwork.has_value())
     return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, nullptr);
 
-  if (rest::receiveOctetStream(request, inwork.value().ofs)) {
-    // complete the inwork
-    if (!inwork.value().done())
-      return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR,
-                                 nullptr);
-  }
+  if (rest::receiveOctetStream(request, inwork.value().ofs))
+    inwork.value().done();
 
   // previous methods have already notified client of errors
   return ESP_OK;
@@ -329,11 +325,8 @@ esp_err_t PUT_ICON(httpd_req_t *const request) {
 
   auto inwork = context->catalog.setIcon(filepath);
   if (inwork.has_value()) {
-    if (rest::receiveOctetStream(request, inwork.value().ofs)) {
-      if (!inwork.value().done())
-        return httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR,
-                                   nullptr);
-    }
+    if (rest::receiveOctetStream(request, inwork.value().ofs))
+      inwork.value().done();
   }
   // receieveOctetStream has already notified client of any errors
   return ESP_OK;
