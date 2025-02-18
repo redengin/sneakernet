@@ -276,13 +276,12 @@ esp_err_t GET_FILE(httpd_req_t *const request) {
 
   // send the file content
   auto data = context->catalog.readContent(filepath);
-  if (data.has_value()) {
-    rest::sendOctetStream(request, data.value());
-
-    // sendOctetStream has notified client of any errors
-    return ESP_OK;
-  } else
+  if (!data.has_value())
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+  rest::sendOctetStream(request, data.value());
+  // sendOctetStream has notified client of any errors
+  return ESP_OK;
 }
 
 esp_err_t DELETE_FILE(httpd_req_t *const request) {
@@ -308,12 +307,12 @@ esp_err_t GET_ICON(httpd_req_t *const request) {
 
   // send the icon
   auto data = context->catalog.readIcon(filepath);
-  if (data.has_value()) {
-    rest::sendOctetStream(request, data.value());
-    // sendOctetStream has notified client of any errors
-    return ESP_OK;
-  } else
+  if (!data.has_value())
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+  rest::sendOctetStream(request, data.value());
+  // sendOctetStream has notified client of any errors
+  return ESP_OK;
 }
 
 esp_err_t PUT_ICON(httpd_req_t *const request) {
@@ -324,10 +323,11 @@ esp_err_t PUT_ICON(httpd_req_t *const request) {
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
   auto inwork = context->catalog.setIcon(filepath);
-  if (inwork.has_value()) {
-    if (rest::receiveOctetStream(request, inwork.value().ofs))
+  if (!inwork.has_value())
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+  if (rest::receiveOctetStream(request, inwork.value().ofs))
       inwork.value().done();
-  }
   // receieveOctetStream has already notified client of any errors
   return ESP_OK;
 }
