@@ -46,7 +46,8 @@ class Catalog {
   std::optional<std::ifstream> readContent(
       const std::filesystem::path& filepath) const;
 
-  std::optional<std::string> getTitle(const std::filesystem::path& filepath) const;
+  std::optional<std::string> getTitle(
+      const std::filesystem::path& filepath) const;
 
   bool setTitle(const std::filesystem::path& filepath,
                 const std::string& title) const;
@@ -71,6 +72,13 @@ class Catalog {
   std::optional<InWorkContent> setIcon(const std::filesystem::path& path) const;
 
   class InWorkContent {
+    friend std::optional<InWorkContent> Catalog::addFile(
+        const std::filesystem::path& path,
+        const std::optional<std::filesystem::file_time_type> timestamp,
+        const size_t size) const;
+    friend std::optional<InWorkContent> Catalog::setIcon(
+        const std::filesystem::path& path) const;
+
    public:
     std::ofstream open();
 
@@ -81,11 +89,10 @@ class Catalog {
     /// @brief  cleans up inwork content
     ~InWorkContent();
 
-    // FIXME limit access
-    // protected:
-    InWorkContent(
-        const std::filesystem::path& filepath,
-        const std::optional<std::filesystem::file_time_type> timestamp);
+   protected:
+    InWorkContent(const std::filesystem::path& filepath,
+                  const std::optional<std::filesystem::file_time_type>
+                      timestamp = std::nullopt);
 
    private:
     const std::filesystem::path filepath;
@@ -112,8 +119,10 @@ class Catalog {
   static bool isHidden(const std::filesystem::path& path);
 
   // get the absolute path of the title file
-  std::optional<std::filesystem::path> titlepathFor(const std::filesystem::path& filepath) const;
+  std::optional<std::filesystem::path> titlepathFor(
+      const std::filesystem::path& filepath) const;
 
   // get the absolute path of the icon file
-  std::optional<std::filesystem::path> iconpathFor(const std::filesystem::path& filepath) const;
+  std::optional<std::filesystem::path> iconpathFor(
+      const std::filesystem::path& filepath) const;
 };

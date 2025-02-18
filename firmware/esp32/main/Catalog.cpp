@@ -244,20 +244,17 @@ std::optional<Catalog::InWorkContent> Catalog::addFile(
   if (!hasFolder(filepath.parent_path())) return std::nullopt;
 
   return InWorkContent(root / filepath, timestamp);
-  //   if (timestamp) {
-  //     if (timestamp > latest_timestamp) latest_timestamp = timestamp.value();
-  //     return InWorkContent(root / filepath, timestamp);
-  //   } else
-  //     return InWorkContent(root / filepath, latest_timestamp);
 }
 
 std::optional<Catalog::InWorkContent> Catalog::setIcon(
     const std::filesystem::path &filepath) const {
-  // FIXME implement
-  // auto iconpath = ICON_PREFIX;
-  // return InWorkContent(root / iconpath, std::nullopt);
 
-  return std::nullopt;
+  if (!hasFile(filepath)) return std::nullopt;
+
+  const auto iconpath = iconpathFor(filepath);
+  if (!iconpath.has_value()) return std::nullopt;
+
+  return InWorkContent(iconpath.value());
 }
 
 // InWork Content
