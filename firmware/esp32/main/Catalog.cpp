@@ -35,6 +35,7 @@ bool Catalog::hasFolder(const std::filesystem::path &folderpath) const {
   // don't allow catalog folders to conflict with hidden files/folders
   if (isHidden(folderpath)) return false;
 
+  // check if folder exists
   std::error_code ec;
   bool ret = std::filesystem::is_directory(root / folderpath, ec);
   if (ec)
@@ -48,6 +49,7 @@ std::optional<bool> Catalog::isLocked(
     const std::filesystem::path &folderpath) const {
   if (!hasFolder(folderpath)) return std::nullopt;
 
+  // check if LOCKED file exists
   std::error_code ec;
   bool ret =
       std::filesystem::is_regular_file(root / folderpath / LOCKED_FILENAME, ec);
@@ -98,6 +100,7 @@ bool Catalog::addFolder(const std::filesystem::path &folderpath) {
   // don't allow catalog folders to conflict with hidden files/folders
   if (isHidden(folderpath)) return false;
 
+  // create the directory
   std::error_code ec;
   bool ret = std::filesystem::create_directory(root / folderpath, ec);
   if (ec)
@@ -111,6 +114,7 @@ bool Catalog::removeFolder(const std::filesystem::path &folderpath) {
   // never remove the root folder
   if (folderpath.empty()) return false;
 
+  // check if folder exists
   if (!hasFolder(folderpath)) return false;
 
   // remove the folder
@@ -129,6 +133,7 @@ bool Catalog::hasFile(const std::filesystem::path &filepath) const {
   // don't allow catalog folders/files to conflict with hidden files/folders
   if (isHidden(filepath)) return false;
 
+  // check that file exists
   std::error_code ec;
   bool ret = std::filesystem::is_regular_file(root / filepath, ec);
   if (ec)
@@ -151,6 +156,7 @@ std::optional<std::string> Catalog::getTitle(
   auto titlepath = titlepathFor(filepath);
   if (!titlepath.has_value()) return std::nullopt;
 
+  // check if title file exists
   std::error_code ec;
   bool exists = std::filesystem::is_regular_file(titlepath.value(), ec);
   if (ec)
@@ -159,6 +165,7 @@ std::optional<std::string> Catalog::getTitle(
 
   if (!exists) return std::nullopt;
 
+  // return title file contents
   std::string ret;
   std::ifstream ifs(titlepath.value());
   ifs >> ret;
@@ -167,9 +174,12 @@ std::optional<std::string> Catalog::getTitle(
 
 bool Catalog::setTitle(const std::filesystem::path &filepath,
                        const std::string &title) const {
+  if (!hasFile(filepath)) return false;
+
   auto titlepath = titlepathFor(filepath);
   if (!titlepath.has_value()) return false;
 
+  // set the new title file contents
   std::ofstream ofs(titlepath.value());
   ofs << title;
   ofs.close();
@@ -177,9 +187,12 @@ bool Catalog::setTitle(const std::filesystem::path &filepath,
 }
 
 bool Catalog::hasIcon(const std::filesystem::path &filepath) const {
+  if (!hasFile(filepath)) return false;
+
   auto iconpath = iconpathFor(filepath);
   if (!iconpath.has_value()) return false;
 
+  // check if icon exists
   std::error_code ec;
   bool ret = std::filesystem::is_regular_file(iconpath.value(), ec);
   if (ec)
@@ -243,7 +256,7 @@ std::optional<Catalog::InWorkContent> Catalog::addFile(
 std::optional<Catalog::InWorkContent> Catalog::setIcon(
     const std::filesystem::path &filepath) const {
   // FIXME implement
-  auto iconpath = ICON_PREFIX;
+  // auto iconpath = ICON_PREFIX;
   // return InWorkContent(root / iconpath, std::nullopt);
 
   return std::nullopt;
