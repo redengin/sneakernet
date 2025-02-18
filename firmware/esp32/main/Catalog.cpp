@@ -60,38 +60,13 @@ std::optional<bool> Catalog::isLocked(
   return ret;
 }
 
-// Catalog::FolderInfo Catalog::folderInfo(const std::filesystem::path
-// &folderpath) const
-// {
-//     FolderInfo ret;
+std::optional<std::filesystem::directory_iterator> Catalog::folderEntries(const std::filesystem::path& folderpath)
+{
+  if (!hasFolder(folderpath))
+    return std::nullopt;
 
-//     if (isHidden(folderpath))
-//         return ret;
-
-//     for (auto &entry : std::filesystem::directory_iterator(root /
-//     folderpath))
-//     {
-//         if (isHidden(entry.path()))
-//             continue;
-
-//         if (entry.is_directory())
-//             ret.subfolders.push_back(entry.path().filename());
-
-//         if (entry.is_regular_file())
-//         {
-//             FileInfo fileInfo;
-//             fileInfo.name = entry.path().filename();
-//             fileInfo.size = entry.file_size();
-//             fileInfo.timestamp = entry.last_write_time();
-//             fileInfo.title = getTitle(folderpath / fileInfo.name);
-//             fileInfo.hasIcon = hasIcon(folderpath / fileInfo.name);
-
-//             ret.files.push_back(fileInfo);
-//         }
-//     }
-
-//     return ret;
-// }
+  return std::filesystem::directory_iterator(root / folderpath);
+}
 
 bool Catalog::addFolder(const std::filesystem::path &folderpath) {
   // ignore empty

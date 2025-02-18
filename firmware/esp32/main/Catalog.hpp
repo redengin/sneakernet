@@ -18,21 +18,7 @@ class Catalog {
   /// @returns true if folder is admin only
   std::optional<bool> isLocked(const std::filesystem::path& folderpath) const;
 
-  //   struct FileInfo {
-  //     std::string name;
-  //     std::size_t size;
-  //     std::filesystem::file_time_type timestamp;
-  //     std::optional<std::string> title;
-  //     bool hasIcon;
-  //   };
-  //   struct FolderInfo {
-  //     bool isLocked;
-  //     std::vector<std::string> subfolders;
-  //     std::vector<FileInfo> files;
-
-  //     FolderInfo() : isLocked(true) {};
-  //   };
-  //   FolderInfo folderInfo(const std::filesystem::path& folderpath) const;
+  std::optional<std::filesystem::directory_iterator> folderEntries(const std::filesystem::path& folderpath);
 
   bool addFolder(const std::filesystem::path& folderpath);
 
