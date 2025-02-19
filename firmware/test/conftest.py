@@ -1,6 +1,6 @@
 import pytest
 
-# from pythonwifi.iwlibs import Wireless
+from pywifi import PyWiFi, const, Profile
 
 @pytest.fixture
 def sneakernet():
