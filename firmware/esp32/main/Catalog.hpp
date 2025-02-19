@@ -18,7 +18,8 @@ class Catalog {
   /// @returns true if folder is admin only
   std::optional<bool> isLocked(const std::filesystem::path& folderpath) const;
 
-  std::optional<std::filesystem::directory_iterator> folderEntries(const std::filesystem::path& folderpath);
+  std::optional<std::filesystem::directory_iterator> folderEntries(
+      const std::filesystem::path& folderpath);
 
   bool addFolder(const std::filesystem::path& folderpath);
 
@@ -105,10 +106,15 @@ class Catalog {
   static bool isHidden(const std::filesystem::path& path);
 
   // get the absolute path of the title file
-  std::optional<std::filesystem::path> titlepathFor(
+  std::filesystem::path titlepathFor(
       const std::filesystem::path& filepath) const;
 
   // get the absolute path of the icon file
-  std::optional<std::filesystem::path> iconpathFor(
+  std::filesystem::path iconpathFor(
       const std::filesystem::path& filepath) const;
+
+  // convert absolute path to catalog relative path
+  std::filesystem::path relative_path(
+      std::filesystem::path& absoultepath) const;
+
 };

@@ -129,20 +129,19 @@ std::optional<std::ifstream> Catalog::readContent(
 std::optional<std::string> Catalog::getTitle(
     const std::filesystem::path &filepath) const {
   auto titlepath = titlepathFor(filepath);
-  if (!titlepath.has_value()) return std::nullopt;
 
   // check if title file exists
   std::error_code ec;
-  bool exists = std::filesystem::is_regular_file(titlepath.value(), ec);
+  bool exists = std::filesystem::is_regular_file(titlepath, ec);
   if (ec)
     ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]",
-             titlepath.value().c_str(), ec.message().c_str());
+             titlepath.c_str(), ec.message().c_str());
 
   if (!exists) return std::nullopt;
 
   // return title file contents
   std::string ret;
-  std::ifstream ifs(titlepath.value());
+  std::ifstream ifs(titlepath);
   ifs >> ret;
   return ret;
 }
@@ -152,10 +151,9 @@ bool Catalog::setTitle(const std::filesystem::path &filepath,
   if (!hasFile(filepath)) return false;
 
   auto titlepath = titlepathFor(filepath);
-  if (!titlepath.has_value()) return false;
 
   // set the new title file contents
-  std::ofstream ofs(titlepath.value());
+  std::ofstream ofs(titlepath);
   ofs << title;
   ofs.close();
   return true;
@@ -165,13 +163,12 @@ bool Catalog::hasIcon(const std::filesystem::path &filepath) const {
   if (!hasFile(filepath)) return false;
 
   auto iconpath = iconpathFor(filepath);
-  if (!iconpath.has_value()) return false;
 
   // check if icon exists
   std::error_code ec;
-  bool ret = std::filesystem::is_regular_file(iconpath.value(), ec);
+  bool ret = std::filesystem::is_regular_file(iconpath, ec);
   if (ec)
-    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", iconpath.value().c_str(),
+    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", iconpath.c_str(),
              ec.message().c_str());
 
   return ret;
@@ -182,7 +179,7 @@ std::optional<std::ifstream> Catalog::readIcon(
   if (!hasIcon(filepath)) return std::nullopt;
 
   auto iconpath = iconpathFor(filepath);
-  return std::ifstream(iconpath.value(),
+  return std::ifstream(iconpath,
                        std::ios_base::in | std::ios_base::binary);
 }
 
@@ -227,9 +224,8 @@ std::optional<Catalog::InWorkContent> Catalog::setIcon(
   if (!hasFile(filepath)) return std::nullopt;
 
   const auto iconpath = iconpathFor(filepath);
-  if (!iconpath.has_value()) return std::nullopt;
 
-  return InWorkContent(iconpath.value());
+  return InWorkContent(iconpath);
 }
 
 // InWork Content
@@ -305,20 +301,24 @@ bool Catalog::isHidden(const std::filesystem::path &path) {
   return false;
 }
 
-std::optional<std::filesystem::path> Catalog::titlepathFor(
+std::filesystem::path Catalog::titlepathFor(
     const std::filesystem::path &filepath) const {
-  // ignore hidden files/folders and relative paths
-  if (isHidden(filepath)) return std::nullopt;
-
   const auto titlefile = filepath.filename().string().insert(0, TITLE_PREFIX);
   return root / filepath.parent_path() / titlefile;
 }
 
-std::optional<std::filesystem::path> Catalog::iconpathFor(
+std::filesystem::path Catalog::iconpathFor(
     const std::filesystem::path &filepath) const {
-  // ignore hidden files/folders and relative paths
-  if (isHidden(filepath)) return std::nullopt;
-
   const auto iconfile = filepath.filename().string().insert(0, ICON_PREFIX);
   return root / filepath.parent_path() / iconfile;
 }
+
+std::filesystem::path Catalog::relative_path(std::filesystem::path &absolutepath) const
+{
+  auto s = absolutepath.string();
+  if (strncmp(s.c_str(), root.string().c_str(), root.string().length()) == 0)
+    s.erase(0, root.string().length());
+
+  return std::filesystem::path(s).relative_path();
+}
+

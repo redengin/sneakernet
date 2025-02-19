@@ -173,8 +173,13 @@ esp_err_t GET_FOLDER(httpd_req_t *const request) {
       cJSON_AddBoolToObject(fileObject, "isFolder", false);
       cJSON_AddStringToObject(fileObject, "timestamp", rest::timestamp(entry.last_write_time()).c_str());
       cJSON_AddNumberToObject(fileObject, "size", entry.file_size());
-      // TODO add title
-      // TODO add hasIcon
+
+      // FIXME
+      auto filepath = entry.path().relative_path();
+      auto title = context->catalog.getTitle(filepath);
+      if (title.has_value())
+        cJSON_AddStringToObject(fileObject, "title", title.value().c_str());
+      cJSON_AddBoolToObject(fileObject, "hasIcon", context->catalog.hasIcon(filepath));
       cJSON_AddItemToObject(entries, entry.path().filename().c_str(), fileObject);
     }
   }
@@ -283,7 +288,7 @@ esp_err_t DELETE_FILE(httpd_req_t *const request) {
 
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
-  if (context->catalog.removeFolder(filepath))
+  if (context->catalog.removeFile(filepath))
     return ESP_OK;
   else
     return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN,
