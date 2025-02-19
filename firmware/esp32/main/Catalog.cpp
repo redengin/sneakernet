@@ -87,7 +87,7 @@ std::optional<Catalog::FolderInfo> Catalog::getFolder(
     }
   }
 
-  return std::nullopt;
+  return ret;
 }
 
 // std::optional<std::filesystem::directory_iterator>
