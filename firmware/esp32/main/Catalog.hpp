@@ -18,8 +18,38 @@ class Catalog {
   /// @returns true if folder is admin only
   std::optional<bool> isLocked(const std::filesystem::path& folderpath) const;
 
-  std::optional<std::filesystem::directory_iterator> folderEntries(
-      const std::filesystem::path& folderpath);
+  struct FolderEntry {
+    std::string name;
+    bool isFolder;
+    /// file information
+    struct {
+      std::filesystem::file_time_type timestamp;
+      std::uintmax_t size;
+      std::optional<std::string> title;
+      bool hasIcon;
+    } fileInfo;
+
+    // directory entry constructor
+    FolderEntry(const std::string& name) : name(name), isFolder(true) {}
+
+    // file entry constructor
+    FolderEntry(const std::string& name,
+                const std::filesystem::file_time_type& timestamp,
+                const std::uintmax_t& size,
+                const std::optional<std::string>& title, const bool hasIcon)
+        : name(name), isFolder(false) {
+      fileInfo.timestamp = timestamp;
+      fileInfo.size = size;
+      fileInfo.title = title;
+      fileInfo.hasIcon = hasIcon;
+    }
+  };
+  struct FolderInfo {
+    bool isLocked;
+    std::vector<FolderEntry> entries;
+  };
+  std::optional<FolderInfo> getFolder(
+      const std::filesystem::path& folderpath) const;
 
   bool addFolder(const std::filesystem::path& folderpath);
 
@@ -115,6 +145,5 @@ class Catalog {
 
   // convert absolute path to catalog relative path
   std::filesystem::path relative_path(
-      std::filesystem::path& absoultepath) const;
-
+      const std::filesystem::path& absoultepath) const;
 };

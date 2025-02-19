@@ -60,13 +60,44 @@ std::optional<bool> Catalog::isLocked(
   return ret;
 }
 
-std::optional<std::filesystem::directory_iterator> Catalog::folderEntries(const std::filesystem::path& folderpath)
-{
-  if (!hasFolder(folderpath))
-    return std::nullopt;
+std::optional<Catalog::FolderInfo> Catalog::getFolder(
+    const std::filesystem::path &folderpath) const {
+  if (!hasFolder(folderpath)) return std::nullopt;
 
-  return std::filesystem::directory_iterator(root / folderpath);
+  Catalog::FolderInfo ret;
+
+  // determine if locked
+  ret.isLocked = isLocked(folderpath).value_or(true);
+
+  // inspect the entries
+  for (const auto &entry :
+       std::filesystem::directory_iterator(root / folderpath)) {
+    // skip hidden files
+    if (isHidden(entry.path())) continue;
+
+    // handle directories
+    if (entry.is_directory()) ret.entries.emplace_back(entry.path().filename());
+
+    // handle files
+    if (entry.is_regular_file()) {
+      const auto filepath = relative_path(entry.path());
+      ret.entries.emplace_back(entry.path().filename(), entry.last_write_time(),
+                               entry.file_size(), getTitle(filepath),
+                               hasIcon(filepath));
+    }
+  }
+
+  return std::nullopt;
 }
+
+// std::optional<std::filesystem::directory_iterator>
+// Catalog::folderEntries(const std::filesystem::path& folderpath)
+// {
+//   if (!hasFolder(folderpath))
+//     return std::nullopt;
+
+//   return std::filesystem::directory_iterator(root / folderpath);
+// }
 
 bool Catalog::addFolder(const std::filesystem::path &folderpath) {
   // ignore empty
@@ -134,8 +165,8 @@ std::optional<std::string> Catalog::getTitle(
   std::error_code ec;
   bool exists = std::filesystem::is_regular_file(titlepath, ec);
   if (ec)
-    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]",
-             titlepath.c_str(), ec.message().c_str());
+    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", titlepath.c_str(),
+             ec.message().c_str());
 
   if (!exists) return std::nullopt;
 
@@ -179,8 +210,7 @@ std::optional<std::ifstream> Catalog::readIcon(
   if (!hasIcon(filepath)) return std::nullopt;
 
   auto iconpath = iconpathFor(filepath);
-  return std::ifstream(iconpath,
-                       std::ios_base::in | std::ios_base::binary);
+  return std::ifstream(iconpath, std::ios_base::in | std::ios_base::binary);
 }
 
 bool Catalog::removeFile(const std::filesystem::path &filepath) const {
@@ -220,7 +250,6 @@ std::optional<Catalog::InWorkContent> Catalog::addFile(
 
 std::optional<Catalog::InWorkContent> Catalog::setIcon(
     const std::filesystem::path &filepath) const {
-
   if (!hasFile(filepath)) return std::nullopt;
 
   const auto iconpath = iconpathFor(filepath);
@@ -236,12 +265,11 @@ Catalog::InWorkContent::InWorkContent(
     : filepath(filepath), timestamp(timestamp) {
   const auto inworkfile = filepath.filename().string().insert(0, INWORK_PREFIX);
   inwork_filepath = filepath.parent_path() / inworkfile;
-
 }
 
 std::ofstream Catalog::InWorkContent::open() {
   return std::ofstream(inwork_filepath,
-                      std::ios_base::out | std::ios_base::binary);
+                       std::ios_base::out | std::ios_base::binary);
 }
 
 void Catalog::InWorkContent::done() {
@@ -313,12 +341,11 @@ std::filesystem::path Catalog::iconpathFor(
   return root / filepath.parent_path() / iconfile;
 }
 
-std::filesystem::path Catalog::relative_path(std::filesystem::path &absolutepath) const
-{
+std::filesystem::path Catalog::relative_path(
+    const std::filesystem::path &absolutepath) const {
   auto s = absolutepath.string();
   if (strncmp(s.c_str(), root.string().c_str(), root.string().length()) == 0)
     s.erase(0, root.string().length());
 
   return std::filesystem::path(s).relative_path();
 }
-
