@@ -152,51 +152,44 @@ esp_err_t GET_FOLDER(httpd_req_t *const request) {
   ESP_LOGD(TAG, "handling request[%s] for GET FOLDER[%s]", request->uri,
            folderpath.c_str());
 
-  return ESP_FAIL;
-  // FIXME
-  // auto context = reinterpret_cast<Context *>(request->user_ctx);
-  // auto folderEntries = context->catalog.folderEntries(folderpath);
+  auto context = reinterpret_cast<Context *>(request->user_ctx);
+  auto folderInfo = context->catalog.getFolder(folderpath);
 
-  // if (!folderEntries.has_value())
-  //   return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+  if (!folderInfo.has_value())
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
-  // auto response = cJSON_CreateObject();
-  // cJSON_AddBoolToObject(response, "locked",
-  // context->catalog.isLocked(folderpath).value_or(false)); auto entries =
-  // cJSON_CreateObject(); for (const auto& entry : folderEntries.value())
-  // {
-  //   if (entry.is_directory()) {
-  //     auto folderObject = cJSON_CreateObject();
-  //     cJSON_AddBoolToObject(folderObject, "isFolder", true);
-  //     cJSON_AddItemToObject(entries, entry.path().filename().c_str(),
-  //     folderObject);
-  //   }
-  //   else if (entry.is_regular_file()) {
-  //     auto fileObject = cJSON_CreateObject();
-  //     cJSON_AddBoolToObject(fileObject, "isFolder", false);
-  //     cJSON_AddStringToObject(fileObject, "timestamp",
-  //     rest::timestamp(entry.last_write_time()).c_str());
-  //     cJSON_AddNumberToObject(fileObject, "size", entry.file_size());
+  // turn the folderInfo into JSON
+  auto response = cJSON_CreateObject();
 
-  //     // FIXME
-  //     auto filepath = entry.path().relative_path();
-  //     auto title = context->catalog.getTitle(filepath);
-  //     if (title.has_value())
-  //       cJSON_AddStringToObject(fileObject, "title", title.value().c_str());
-  //     cJSON_AddBoolToObject(fileObject, "hasIcon",
-  //     context->catalog.hasIcon(filepath)); cJSON_AddItemToObject(entries,
-  //     entry.path().filename().c_str(), fileObject);
-  //   }
-  // }
-  // char *const data = cJSON_PrintUnformatted(response);
-  // cJSON_Delete(response);
-  // if (data == nullptr) return rest::TOO_MANY_REQUESTS(request);
+  cJSON_AddBoolToObject(response, "locked", folderInfo.value().isLocked);
 
-  // // return the data
-  // httpd_resp_set_type(request, "application/json");
-  // auto ret = httpd_resp_send(request, data, strlen(data));
-  // cJSON_free(data);
-  // return ret;
+  auto entries = cJSON_CreateObject();
+  for (auto &entry : folderInfo.value().entries)
+  {
+    auto e = cJSON_CreateObject();
+    if (entry.isFolder) {
+      cJSON_AddBoolToObject(e, "isFolder", true);
+    }
+    else {
+      cJSON_AddBoolToObject(e, "isFolder", false);
+      cJSON_AddStringToObject(e, "timestamp", rest::timestamp(entry.fileInfo.timestamp).c_str());
+      cJSON_AddNumberToObject(e, "size", entry.fileInfo.size);
+      if (entry.fileInfo.title.has_value())
+        cJSON_AddStringToObject(e, "title", entry.fileInfo.title.value().c_str());
+      cJSON_AddBoolToObject(e, "hasIcon", entry.fileInfo.hasIcon);
+    }
+    cJSON_AddItemToObject(entries, entry.name.c_str(), e);
+  }
+  cJSON_AddItemToObject(response, "entries", entries);
+  char *const data = cJSON_PrintUnformatted(response);
+  cJSON_Delete(response);
+  if (data == nullptr) return rest::TOO_MANY_REQUESTS(request);
+
+  // return the data
+  httpd_resp_set_type(request, "application/json");
+  auto ret = httpd_resp_send(request, data, strlen(data));
+  cJSON_free(data);
+  return ret;
 }
 
 esp_err_t PUT_FOLDER(httpd_req_t *const request) {
