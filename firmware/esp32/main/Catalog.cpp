@@ -90,15 +90,6 @@ std::optional<Catalog::FolderInfo> Catalog::getFolder(
   return ret;
 }
 
-// std::optional<std::filesystem::directory_iterator>
-// Catalog::folderEntries(const std::filesystem::path& folderpath)
-// {
-//   if (!hasFolder(folderpath))
-//     return std::nullopt;
-
-//   return std::filesystem::directory_iterator(root / folderpath);
-// }
-
 bool Catalog::addFolder(const std::filesystem::path &folderpath) {
   // ignore empty
   if (folderpath.empty()) return false;
@@ -223,19 +214,20 @@ bool Catalog::removeFile(const std::filesystem::path &filepath) const {
     ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", filepath.c_str(),
              ec.message().c_str());
 
+  // remove title file
+  std::filesystem::remove(titlepathFor(filepath), ec);
+  if (ec)
+    ESP_LOGD(TAG, "failed to remove file [%s ec:%s]", titlepathFor(filepath).c_str(),
+             ec.message().c_str());
+
+  // remove icon file
+  std::filesystem::remove(iconpathFor(filepath), ec);
+  if (ec)
+    ESP_LOGD(TAG, "failed to remove file [%s ec:%s]", iconpathFor(filepath).c_str(),
+             ec.message().c_str());
+
   return ret;
 }
-
-// std::filesystem::file_time_type Catalog::timestamp(const
-// std::filesystem::path &filepath) const
-// {
-//     std::error_code ec;
-//     auto ret = std::filesystem::last_write_time(root / filepath, ec);
-//     if (ec)
-//         ESP_LOGW(TAG, "unable to get last file write time [%s]",
-//         ec.message().c_str());
-//     return ret;
-// }
 
 // Upload Support
 //==============================================================================
