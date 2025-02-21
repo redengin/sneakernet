@@ -14,6 +14,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     font-size: x-large;
 }
 
+#emptyFolder {
+    font-size: xx-large;
+}
+
 div.centered {
     margin-left: 5%;
     margin-right: 5%;

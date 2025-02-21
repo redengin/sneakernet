@@ -1,32 +1,33 @@
 <app-toolbar/>
 
 <main>
-<!-- @if(!folderData.subfolders && !folderData.files) { -->
-    <!-- TODO dialog prompt for empty folder -->
-<!-- } -->
     <div id="currentPath">
-        <span>{{currentPath}}</span>
+        <span>{{currentPath}}/</span>
+        <!-- TODO <ng-icon (click)="createNewFolder" name="MatCreateNewFolderOutline" size="30px"/> -->
     </div>
+
     <div class="centered">
 <!-- provide link to parent folder -->
-@if(currentPath !== '') {
+    @if(currentPath !== '') {
         <div class="card" (click)="chooseParentFolder()">
             <ng-icon name="MatFolderOutline" size="60px"/>
             <span class="title">..</span>
         </div>
-}
+    }
+
+@if(folderData.entries) {
 <!-- provide links to subfolders -->
-@for(entry of (folderData.entries | keyvalue); track entry) {
-    @if(entry.value.isFolder) {
+    @for(entry of (folderData.entries | keyvalue); track entry) {
+        @if(entry.value.isFolder) {
         <div class="card" (click)="chooseSubfolder(entry.key)">
             <ng-icon name="MatFolderOutline" size="60px"/>
             <span class="title">{{entry.key}}</span>
         </div>
+        }
     }
-}
 <!-- provide links to files -->
-@for(entry of (folderData.entries | keyvalue); track entry) {
-    @if(! entry.value.isFolder) {
+    @for(entry of (folderData.entries | keyvalue); track entry) {
+        @if(! entry.value.isFolder) {
             <div class="card">
                 <ng-icon name="MatFileDownloadOutline" size="60px"/>
                 <span class="title"> {{entry.value.title || entry.key}} </span>
@@ -38,9 +39,17 @@
                     </span>
                 </div>
             </div>
+        }
     }
 }
+@else {
+    <div id="emptyFolder">
+        This folder is empty
+        <br clear="all"/>
+        Upload some files to share
     </div>
+}
+</div>
 
 <!-- provide add file functionality -->
 <input #fileSelect type="file" multiple class="file-input" (change)="addFile(currentPath, $event)" style="display: none;"/>
