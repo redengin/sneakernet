@@ -10,7 +10,7 @@ def test_catalog(sneakernet):
     TEST_FILENAME = "testing..."
     assert 200 == createFile(TEST_FILENAME)
 
-    #TODO validate file
+    # TODO validate file
 
     # remove the file
     assert 200 == deleteFile(TEST_FILENAME)
@@ -23,7 +23,7 @@ def test_catalog(sneakernet):
     # upload a file into directory
     assert 200 == createFile(TEST_DIRECTORY + TEST_FILENAME)
 
-    #TODO validate file
+    # TODO validate file
 
     # remove the file
     assert 200 == deleteFile(TEST_DIRECTORY + TEST_FILENAME)
@@ -43,7 +43,24 @@ def test_catalog(sneakernet):
                                    "title": "this is a test"
                                }).status_code
 
-    #TODO validate title change
+    # TODO validate title change
+
+    # remove the file
+    assert 200 == deleteFile(TEST_FILENAME)
+
+# test changing file icon
+    # upload a file
+    assert 200 == createFile(TEST_FILENAME)
+
+    # change icon
+    ICON_DATA = b'X' * 100
+    assert 200 == requests.put(catalog_base_url + TEST_FILENAME + "?icon",
+                               data=ICON_DATA).status_code
+
+    # TODO validate icon change
+
+    # get icon
+    assert 200 == requests.get(catalog_base_url + TEST_FILENAME + "?icon").status_code
 
     # remove the file
     assert 200 == deleteFile(TEST_FILENAME)

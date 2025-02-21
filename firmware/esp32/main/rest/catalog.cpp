@@ -325,7 +325,7 @@ esp_err_t PUT_TITLE(httpd_req_t *const request) {
 
 esp_err_t GET_ICON(httpd_req_t *const request) {
   const auto filepath = catalogPath(request->uri);
-  ESP_LOGI(TAG, "handling request[%s] for PUT ICON [%s]", request->uri,
+  ESP_LOGI(TAG, "handling request[%s] for GET ICON [%s]", request->uri,
            filepath.c_str());
 
   auto context = reinterpret_cast<Context *>(request->user_ctx);
