@@ -5,7 +5,8 @@ import { provideHttpClient } from '@angular/common/http';
 // use @ng-icons to embed material icons
 import { provideIcons, provideNgIconsConfig } from '@ng-icons/core';
 import { matInfo, matUploadFile } from '@ng-icons/material-icons/baseline';
-import { matCreateNewFolderOutline, matFolderOutline, matFileDownloadOutline, matDeleteOutline } from '@ng-icons/material-icons/outline';
+import { matCreateNewFolderOutline, matFolderDeleteOutline,
+         matFolderOutline, matFileDownloadOutline, matDeleteOutline } from '@ng-icons/material-icons/outline';
 
 // Change the title here
 export const globals = {
@@ -17,7 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideIcons({
       matInfo,
-      matCreateNewFolderOutline,
+      matCreateNewFolderOutline, matFolderDeleteOutline,
       matFolderOutline, matFileDownloadOutline, matDeleteOutline,
       matUploadFile
     }),

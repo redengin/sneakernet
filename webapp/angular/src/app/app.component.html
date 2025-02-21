@@ -50,9 +50,15 @@
 }
 @else {
     <div id="emptyFolder">
-        This folder is empty
+        This folder is empty...
         <br clear="all"/>
         Upload some files to share
+    @if(currentPath !== 'x') {
+        <br clear="all"/>
+        (or remove this folder
+        <ng-icon (click)="removeFolder(currentPath)" name="matFolderDeleteOutline" size="30px" color="red"/>
+        )
+    }
     </div>
 }
 </div>

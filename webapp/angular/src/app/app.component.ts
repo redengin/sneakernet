@@ -10,7 +10,7 @@ import { Toolbar } from './components/toolbar';
 
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
-import {MatIconModule} from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 
 // Types per openapi/catalog.yml
 //==============================================================================
@@ -64,16 +64,27 @@ export class AppComponent {
     this.getFolderData();
   }
 
-  createSubfolder(event: any) : void {
+  createSubfolder(event: any): void {
     const subfolderName = event.target.value;
     event.target.value = null;
     this.http.put(`api/catalog/${this.currentPath}/${subfolderName}/`, null)
       .subscribe({
         complete: () => {
-           this.currentPath += `/${subfolderName}`;
-           this.getFolderData();
+          this.currentPath += `/${subfolderName}`;
+          this.getFolderData();
         }
       });
+  }
+
+  removeFolder(path: string): void {
+    this.http.delete(`api/catalog/${path}/`)
+      .subscribe({
+        complete: () => { this.chooseParentFolder() },
+        error: (error) => {
+          // TODO raise up error dialog
+          console.error(error);
+        }
+      })
   }
 
   deleteFile(path: string, fileName: string): void {
