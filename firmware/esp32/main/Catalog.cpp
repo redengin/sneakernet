@@ -165,7 +165,7 @@ std::optional<std::string> Catalog::getTitle(
   // return title file contents
   std::string ret;
   std::ifstream ifs(titlepath);
-  ifs >> ret;
+  std::getline(ifs, ret);
   return ret;
 }
 
