@@ -35,14 +35,14 @@ paths:
       responses:
         "200" : { description: OK }
         "403" : { description: FAIL }
-        "401": { $ref: '#/components/responses/adminCurated' }
+        "401" : { $ref: '#/components/responses/adminCurated' }
     delete:
       description: remove empty subfolder
       responses:
         "200" : { description: OK }
         "403" : { description: "folder not empty" }
         "404" : { description: "folder Not Found" }
-        "401": { $ref: '#/components/responses/adminCurated' }
+        "401" : { $ref: '#/components/responses/adminCurated' }
 
 
   /catalog/{path}/{file}:

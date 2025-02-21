@@ -39,7 +39,8 @@ bool Catalog::hasFolder(const std::filesystem::path &folderpath) const {
   std::error_code ec;
   bool ret = std::filesystem::is_directory(root / folderpath, ec);
   if (ec)
-    ESP_LOGE(TAG, "failed is_directory [%s ec:%s]", folderpath.c_str(),
+    // "No such file or directory" results in ec, so using DEBUG
+    ESP_LOGD(TAG, "failed is_directory [%s ec:%s]", folderpath.c_str(),
              ec.message().c_str());
 
   return ret;
@@ -316,7 +317,10 @@ Catalog::InWorkContent::~InWorkContent() {
 bool Catalog::isHidden(const std::filesystem::path &path) {
   for (const auto &i : path) {
     // ignore hidden files/folders and relative paths
-    if (i.filename().string().front() == HIDDEN_PREFIX) return true;
+    if (i.filename().string().front() == HIDDEN_PREFIX) {
+      ESP_LOGD(TAG, "ignoring hidden path [%s]", path.c_str());
+      return true;
+    }
   }
   return false;
 }

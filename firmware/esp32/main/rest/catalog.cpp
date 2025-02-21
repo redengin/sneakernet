@@ -205,8 +205,16 @@ esp_err_t PUT_FOLDER(httpd_req_t *const request) {
 
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
-  if (!context->catalog.addFolder(folderpath))
-    httpd_resp_set_status(request, rest::FORBIDDEN);
+  // check that parent folder isn't locked
+  auto parentPath = std::filesystem::path(folderpath).parent_path();
+  if (context->catalog.isLocked(parentPath))
+      httpd_resp_set_status(request, rest::FORBIDDEN);
+
+  // create the folder if it doesn't exist
+  if (!context->catalog.hasFolder(folderpath)) {
+    if (!context->catalog.addFolder(folderpath))
+      httpd_resp_set_status(request, rest::FORBIDDEN);
+  }
 
   return httpd_resp_send(request, nullptr, 0);
 }
