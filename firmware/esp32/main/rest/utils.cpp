@@ -64,7 +64,7 @@ std::optional<std::string> rest::getQueryValue(const std::string& uri,
 std::string rest::timestamp(const std::filesystem::file_time_type& timestamp) {
   const auto timestamp_s = std::chrono::system_clock::to_time_t(
       std::chrono::file_clock::to_sys(timestamp));
-  ESP_LOGD(TAG, "timestamp from file_time_type is %lli", timestamp_s);
+  ESP_LOGV(TAG, "timestamp from file_time_type is %lli", timestamp_s);
 
   std::tm tm;
   gmtime_r(&timestamp_s, &tm);
@@ -90,7 +90,7 @@ std::optional<std::filesystem::file_time_type> rest::timestamp(
   }
 
   std::time_t timestamp_s = std::mktime(&tm);
-  ESP_LOGD(TAG, "timestamp from string is %lli", timestamp_s);
+  ESP_LOGV(TAG, "timestamp from string is %lli", timestamp_s);
 
   return std::filesystem::file_time_type::clock::from_sys(
       std::chrono::system_clock::from_time_t(timestamp_s));
@@ -100,19 +100,13 @@ esp_err_t rest::ILLEGAL_REQUEST(httpd_req_t* request) {
   return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, nullptr);
 }
 
-esp_err_t rest::TOO_MANY_REQUESTS(httpd_req_t* request) {
-  return httpd_resp_send_custom_err(request, "429 Too many requests",
-                                    "try-again");
-}
-
-void rest::sendOctetStream(httpd_req_t* const request, std::ifstream& fis) {
+bool rest::sendOctetStream(httpd_req_t* const request, std::ifstream& fis) {
   // create a chunk buffer
   std::unique_ptr<char[]> buffer = std::make_unique<char[]>(rest::CHUNK_SIZE);
   if (!buffer) {
     ESP_LOGD(TAG, "unable to create recieve buffer");
-    // send the HTTP error response
-    TOO_MANY_REQUESTS(request);
-    return;
+    httpd_resp_set_status(request, rest::TOO_MANY_REQUESTS);
+    return false;
   }
 
   // set the response mime type
@@ -123,10 +117,10 @@ void rest::sendOctetStream(httpd_req_t* const request, std::ifstream& fis) {
     const size_t sz = fis.readsome(buffer.get(), rest::CHUNK_SIZE);
     if (ESP_OK != httpd_resp_send_chunk(request, buffer.get(), sz))
       // file transfer interrupted
-      return;
+      return false;
 
     // send is complete once we've sent a 0 length chunk
-    if (sz == 0) return;
+    if (sz == 0) return true;
 
   } while (true);
 }
@@ -135,9 +129,8 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
   // create a chunk buffer
   std::unique_ptr<char[]> buffer = std::make_unique<char[]>(rest::CHUNK_SIZE);
   if (!buffer) {
-    ESP_LOGD(TAG, "unable to create recieve buffer");
-    // send the HTTP error response
-    TOO_MANY_REQUESTS(request);
+    ESP_LOGD(TAG, "unable to create receive buffer");
+    httpd_resp_set_status(request, rest::TOO_MANY_REQUESTS);
     return false;
   }
 
@@ -151,15 +144,15 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
       return false;
     }
 
-    if (received == 0) {
-      ESP_LOGD(TAG, "upload completed");
+    // http receive complete upon empty chunk
+    if (received == 0)
       return true;
-    }
 
     fos.write(buffer.get(), received);
   };
 
   // fos went bad
   ESP_LOGE(TAG, "output stream failed [%s]", strerror(errno));
+  httpd_resp_set_status(request, "500 output stream failed");
   return false;
 }

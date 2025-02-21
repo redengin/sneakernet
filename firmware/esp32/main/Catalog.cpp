@@ -283,11 +283,11 @@ void Catalog::InWorkContent::done() {
     // set the timestamp
     std::filesystem::last_write_time(filepath, timestamp.value(), ec);
     if (ec) {
-      // FIXME workaround for incomplete ESP32 std::filesystem implementation
-      ESP_LOGE(TAG, "unable to set timestamp [%s ec:%s], will attemp via C api",
+      // FIXME incomplete ESP32 std::filesystem implementation
+      ESP_LOGD(TAG, "unable to set timestamp [%s ec:%s], will use C api",
                filepath.c_str(), ec.message().c_str());
 
-      // use c api (since not implemented in std::filesystem)
+      // use C api (since not implemented in std::filesystem)
       const auto timestamp_s = std::chrono::system_clock::to_time_t(
           std::chrono::file_clock::to_sys(timestamp.value()));
       struct utimbuf c_timestamp{.actime = timestamp_s, .modtime = timestamp_s};

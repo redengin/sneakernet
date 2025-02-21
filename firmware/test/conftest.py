@@ -31,6 +31,7 @@ def sneakernet():
             continue
         break
     assert iface.status() == pywifi.const.IFACE_CONNECTED
+    time.sleep(5)
 
     # perform the test
     yield

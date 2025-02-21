@@ -164,18 +164,18 @@ esp_err_t GET_FOLDER(httpd_req_t *const request) {
   cJSON_AddBoolToObject(response, "locked", folderInfo.value().isLocked);
 
   auto entries = cJSON_CreateObject();
-  for (auto &entry : folderInfo.value().entries)
-  {
+  for (auto &entry : folderInfo.value().entries) {
     auto e = cJSON_CreateObject();
     if (entry.isFolder) {
       cJSON_AddBoolToObject(e, "isFolder", true);
-    }
-    else {
+    } else {
       cJSON_AddBoolToObject(e, "isFolder", false);
-      cJSON_AddStringToObject(e, "timestamp", rest::timestamp(entry.fileInfo.timestamp).c_str());
+      cJSON_AddStringToObject(
+          e, "timestamp", rest::timestamp(entry.fileInfo.timestamp).c_str());
       cJSON_AddNumberToObject(e, "size", entry.fileInfo.size);
       if (entry.fileInfo.title.has_value())
-        cJSON_AddStringToObject(e, "title", entry.fileInfo.title.value().c_str());
+        cJSON_AddStringToObject(e, "title",
+                                entry.fileInfo.title.value().c_str());
       cJSON_AddBoolToObject(e, "hasIcon", entry.fileInfo.hasIcon);
     }
     cJSON_AddItemToObject(entries, entry.name.c_str(), e);
@@ -183,13 +183,18 @@ esp_err_t GET_FOLDER(httpd_req_t *const request) {
   cJSON_AddItemToObject(response, "entries", entries);
   char *const data = cJSON_PrintUnformatted(response);
   cJSON_Delete(response);
-  if (data == nullptr) return rest::TOO_MANY_REQUESTS(request);
 
   // return the data
-  httpd_resp_set_type(request, "application/json");
-  auto ret = httpd_resp_send(request, data, strlen(data));
-  cJSON_free(data);
-  return ret;
+  if (data != nullptr) {
+    httpd_resp_set_type(request, "application/json");
+    auto ret = httpd_resp_send(request, data, strlen(data));
+    // cleanup json allocations
+    cJSON_free(data);
+    return ret;
+  }
+
+  // send an error response
+  return httpd_resp_send_custom_err(request, rest::TOO_MANY_REQUESTS, nullptr);
 }
 
 esp_err_t PUT_FOLDER(httpd_req_t *const request) {
@@ -200,11 +205,10 @@ esp_err_t PUT_FOLDER(httpd_req_t *const request) {
 
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
-  if (context->catalog.addFolder(folderpath))
-    return ESP_OK;
-  else
-    return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN,
-                               "unable to create folder");
+  if (!context->catalog.addFolder(folderpath))
+    httpd_resp_set_status(request, rest::FORBIDDEN);
+
+  return httpd_resp_send(request, nullptr, 0);
 }
 
 esp_err_t DELETE_FOLDER(httpd_req_t *const request) {
@@ -215,11 +219,13 @@ esp_err_t DELETE_FOLDER(httpd_req_t *const request) {
 
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
-  if (context->catalog.removeFolder(folderpath))
-    return ESP_OK;
-  else
-    return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN,
-                               "unable to remove folder");
+  if (!context->catalog.hasFolder(folderpath))
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, "path doesn't exist");
+
+  if (!context->catalog.removeFolder(folderpath))
+    httpd_resp_set_status(request, rest::FORBIDDEN);
+
+  return httpd_resp_send(request, nullptr, 0);
 }
 
 esp_err_t PUT_FILE(httpd_req_t *const request) {
@@ -244,21 +250,21 @@ esp_err_t PUT_FILE(httpd_req_t *const request) {
 
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
-  // receive the data into a temporary location
+  // create a temporary location for the file
   auto inwork =
       context->catalog.addFile(filepath, timestamp, request->content_len);
-
   if (!inwork.has_value())
-    return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN, nullptr);
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
+  // receive the file
   auto ofs = inwork.value().open();
   if (rest::receiveOctetStream(request, ofs)) {
     ofs.close();
     inwork.value().done();
   }
 
-  // receieveOctetStream has already notified client of any errors
-  return ESP_OK;
+  // receiveOctetStream has already set the httpd status
+  return httpd_resp_send(request, nullptr, 0);
 }
 
 esp_err_t GET_FILE(httpd_req_t *const request) {
@@ -273,9 +279,10 @@ esp_err_t GET_FILE(httpd_req_t *const request) {
   if (!data.has_value())
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
-  rest::sendOctetStream(request, data.value());
+  if (!rest::sendOctetStream(request, data.value()))
+    // sendOctetStream has set the reponse status
+    return httpd_resp_send(request, nullptr, 0);
 
-  // sendOctetStream has notified client of any errors
   return ESP_OK;
 }
 
@@ -286,11 +293,26 @@ esp_err_t DELETE_FILE(httpd_req_t *const request) {
 
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
-  if (context->catalog.removeFile(filepath))
-    return ESP_OK;
-  else
-    return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN,
-                               "unable to remove file");
+  if (!context->catalog.removeFile(filepath))
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+  return httpd_resp_send(request, nullptr, 0);
+}
+
+esp_err_t PUT_TITLE(httpd_req_t *const request) {
+  const auto filepath = catalogPath(request->uri);
+  ESP_LOGI(TAG, "handling request[%s] for PUT TITLE [%s]", request->uri,
+           filepath.c_str());
+
+  // get the title value from request
+  auto title = rest::getQueryValue(request->uri, "title");
+
+  auto context = reinterpret_cast<Context *>(request->user_ctx);
+
+  if (!context->catalog.setTitle(filepath, title.value_or("")))
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
+
+  return httpd_resp_send(request, nullptr, 0);
 }
 
 esp_err_t GET_ICON(httpd_req_t *const request) {
@@ -305,9 +327,10 @@ esp_err_t GET_ICON(httpd_req_t *const request) {
   if (!data.has_value())
     return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, nullptr);
 
-  rest::sendOctetStream(request, data.value());
+  if (!rest::sendOctetStream(request, data.value()))
+    // sendOctetStream has set the reponse status
+    return httpd_resp_send(request, nullptr, 0);
 
-  // sendOctetStream has notified client of any errors
   return ESP_OK;
 }
 
@@ -328,23 +351,7 @@ esp_err_t PUT_ICON(httpd_req_t *const request) {
     inwork.value().done();
   }
 
-  // receieveOctetStream has already notified client of any errors
-  return ESP_OK;
+  // receiveOctetStream has already set the httpd status
+  return httpd_resp_send(request, nullptr, 0);
 }
 
-esp_err_t PUT_TITLE(httpd_req_t *const request) {
-  const auto filepath = catalogPath(request->uri);
-  ESP_LOGI(TAG, "handling request[%s] for PUT TITLE [%s]", request->uri,
-           filepath.c_str());
-
-  // get the title value from request
-  auto title = rest::getQueryValue(request->uri, "title");
-
-  auto context = reinterpret_cast<Context *>(request->user_ctx);
-
-  if (context->catalog.setTitle(filepath, title.value_or("")))
-    return ESP_OK;
-  else
-    return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN,
-                               "unable to set title");
-}

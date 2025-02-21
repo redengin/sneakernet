@@ -26,14 +26,15 @@ std::optional<std::filesystem::file_time_type> timestamp(const std::string&);
 
 // common HTTP request handlers
 esp_err_t ILLEGAL_REQUEST(httpd_req_t* request);
-esp_err_t TOO_MANY_REQUESTS(httpd_req_t* request);
+static constexpr char FORBIDDEN[] = "403 Forbidden";
+static constexpr char TOO_MANY_REQUESTS[] = "429 Too Many Requests";
 
 static constexpr std::size_t CHUNK_SIZE = 1450;
 /// @brief send chunked HTTP stream
-void sendOctetStream(httpd_req_t* const request, std::ifstream& fis);
+bool sendOctetStream(httpd_req_t* const request, std::ifstream& fis);
 
 /// @brief receive chunked HTTP stream
-/// @post upon success, caller provides the response
+/// @post set's request's response HTTPD status
 bool receiveOctetStream(httpd_req_t* const request, std::ofstream& fos);
 
 };  // namespace rest
