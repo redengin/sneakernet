@@ -3,6 +3,12 @@
 <main>
     <div id="currentPath">
         <span>{{currentPath}}/</span>
+        <mat-form-field>
+            <mat-label>
+                <ng-icon name="MatCreateNewFolderOutline" size="50px"/>
+            </mat-label>
+            <input (change)="createSubfolder($event)" matInput/>
+        </mat-form-field>
         <!-- TODO <ng-icon (click)="createNewFolder" name="MatCreateNewFolderOutline" size="30px"/> -->
     </div>
 

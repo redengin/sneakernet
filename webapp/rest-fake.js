@@ -29,6 +29,10 @@ app.get("/api/catalog/:path?/", (request, response) => {
     response.send(catalog);
 });
 
+app.put("/api/catalog/:path?/", (request, response) => {
+    // FIXME
+    response.send();
+});
 
 app.delete("/api/catalog/:path?/:file", (request, response) => {
     // TODO remove from catalog

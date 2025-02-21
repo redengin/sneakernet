@@ -8,6 +8,10 @@ import { NgIcon } from '@ng-icons/core';
 
 import { Toolbar } from './components/toolbar';
 
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatInputModule } from '@angular/material/input'
+import {MatIconModule} from '@angular/material/icon';
+
 // Types per openapi/catalog.yml
 //==============================================================================
 type Entry = {
@@ -29,7 +33,8 @@ type Folder = {
 
 @Component({
   selector: 'app-root',
-  imports: [Toolbar, NgIcon, KeyValuePipe],
+  imports: [Toolbar, NgIcon, KeyValuePipe,
+    MatFormFieldModule, MatInputModule, MatIconModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -57,6 +62,18 @@ export class AppComponent {
   chooseSubfolder(subfolder: string): void {
     this.currentPath += `/${subfolder}`;
     this.getFolderData();
+  }
+
+  createSubfolder(event: any) : void {
+    const subfolderName = event.target.value;
+    event.target.value = null;
+    this.http.put(`api/catalog/${this.currentPath}/${subfolderName}/`, null)
+      .subscribe({
+        complete: () => {
+           this.currentPath += `/${subfolderName}`;
+           this.getFolderData();
+        }
+      });
   }
 
   deleteFile(path: string, fileName: string): void {
