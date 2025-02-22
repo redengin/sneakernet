@@ -41,8 +41,8 @@ SdCard::SdCard()
     };
     const spi_bus_config_t spi_bus_config {
         // pins configured for straight-thru to mmc peripheral
-        .mosi_io_num = GPIO_NUM_4,
-        .miso_io_num = GPIO_NUM_15,
+        .mosi_io_num = GPIO_NUM_15,
+        .miso_io_num = GPIO_NUM_4,
         .sclk_io_num = GPIO_NUM_2,
         .quadwp_io_num = GPIO_NUM_NC, /* not used */
         .quadhd_io_num = GPIO_NUM_NC, /* not used */
