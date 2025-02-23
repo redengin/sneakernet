@@ -1,9 +1,10 @@
 idf_component_register(
     SRCS
         "main.cpp"
+        "SdCard.cpp"
         "WifiAccessPoint.cpp"
         "WebServer.cpp"
-        "SdCard.cpp"
+        "rest/firmware.cpp"
         "Catalog.cpp"
         "rest/catalog.cpp"
         "rest/utils.cpp"

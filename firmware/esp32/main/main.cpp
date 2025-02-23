@@ -5,9 +5,11 @@
 #include "WifiAccessPoint.hpp"
 #include "WebServer.hpp"
 #include "SdCard.hpp"
+
 #include "Catalog.hpp"
 #include "rest/catalog.hpp"
 
+#include "rest/firmware.hpp"
 
 extern "C"
 void app_main(void)
@@ -33,6 +35,8 @@ void app_main(void)
     static WebServer webserver(available_sockets_count);
     // register the catalog REST API
     rest::catalog::registerHandlers(webserver, catalog);
+    // register the firmware REST API
+    rest::firmware::registerHandlers(webserver);
 
     // accept working firmware
     ESP_ERROR_CHECK(esp_ota_mark_app_valid_cancel_rollback());
