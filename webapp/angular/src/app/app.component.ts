@@ -8,6 +8,9 @@ import { NgIcon } from '@ng-icons/core';
 
 import { Toolbar } from './components/toolbar';
 
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { ProgressDialog } from './components/progress_dialog';
+
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import { MatIconModule } from '@angular/material/icon';
@@ -33,25 +36,24 @@ type Folder = {
 
 @Component({
   selector: 'app-root',
-  imports: [Toolbar, NgIcon, KeyValuePipe,
+  imports: [Toolbar,
+    NgIcon, KeyValuePipe,
     MatFormFieldModule, MatInputModule, MatIconModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private dialog: MatDialog) { }
   ngOnInit() { this.getFolderData(); }
 
   currentPath = '';
   folderData: Folder = {};
 
   getFolderData(): void {
+    const dialog = this.openLoadingDialog();
     this.folderData = {};
     this.http.get<Folder>(`api/catalog/${this.currentPath}`)
-      .pipe(
-        retry({ delay: 500 /* ms */ }),
-      )
-      .subscribe(body => this.folderData = body);
+      .subscribe(body => { this.folderData = body; this.closeLoadingDialog(dialog); });
   }
 
   chooseParentFolder(): void {
@@ -66,21 +68,33 @@ export class AppComponent {
 
   createSubfolder(event: any): void {
     const subfolderName = event.target.value;
-    event.target.value = null;
+    event.target.value = null; /* clear the DOM value */
+    const dialog = this.openLoadingDialog();
     this.http.put(`api/catalog/${this.currentPath}/${subfolderName}/`, null)
       .subscribe({
         complete: () => {
+          this.closeLoadingDialog(dialog);
           this.currentPath += `/${subfolderName}`;
           this.getFolderData();
-        }
+        },
+        error: (error) => {
+          this.closeLoadingDialog(dialog);
+          // TODO alert user of failure
+          console.error(`Failed to create subfolder ${error}`);
+        } 
       });
   }
 
   removeFolder(path: string): void {
+    const dialog = this.openLoadingDialog();
     this.http.delete(`api/catalog/${path}/`)
       .subscribe({
-        complete: () => { this.chooseParentFolder() },
+        complete: () => {
+          this.closeLoadingDialog(dialog);
+          this.chooseParentFolder()
+        },
         error: (error) => {
+          this.closeLoadingDialog(dialog);
           // TODO raise up error dialog
           console.error(error);
         }
@@ -88,13 +102,18 @@ export class AppComponent {
   }
 
   deleteFile(path: string, fileName: string): void {
+    const dialog = this.openLoadingDialog();
     this.http.delete(`api/catalog/${path}/${fileName}`)
       .pipe(
         retry({ delay: 500 /* ms */ }),
       )
       .subscribe({
-        complete: () => { this.getFolderData() },
+        complete: () => {
+          this.closeLoadingDialog(dialog);
+          this.getFolderData()
+        },
         error: (error) => {
+          this.closeLoadingDialog(dialog);
           // TODO raise up error dialog
           console.error(error);
         }
@@ -105,9 +124,9 @@ export class AppComponent {
     // get the files from the event target
     const fileSelect = event.target as HTMLInputElement;
     if (fileSelect.files) {
-      // TODO raise up upload dialog
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
+        const dialog = this.openLoadingDialog();
         const timestamp = new Date(file.lastModified).toISOString();
         this.http.put(`api/catalog/${path}/${file.name}`,
           // data
@@ -119,14 +138,26 @@ export class AppComponent {
             }
           }
         ).subscribe({
-          complete: () => { this.getFolderData() },
+          complete: () => {
+            this.closeLoadingDialog(dialog);
+            this.getFolderData()
+          },
           error: (error) => {
+            this.closeLoadingDialog(dialog);
             // TODO raise up error dialog
             console.error(error);
           }
         });
       }
     }
+  }
+
+  openLoadingDialog() {
+    return this.dialog.open(ProgressDialog, { disableClose: true });
+  }
+
+  closeLoadingDialog(dialogRef: any) {
+    dialogRef.close();
   }
 }
 
