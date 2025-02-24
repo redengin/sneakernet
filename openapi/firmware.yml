@@ -24,11 +24,21 @@ paths:
                 type: object
                 properties:
                   version:  { type: string, description: "firmware version" }
-                  hardware: { type: string, description: "hardware type" }
+                  hardware:
+                    type: string
+                    description: "hardware type"
+                    enum: ["ESP32"]
     put:
       summary: update firmware
       description: "new firmware must later than current"
       requestBody: { application/octet-stream: {} }
+      parameters:
+        - in: header
+          name: Content-Length
+          required: true
+          schema: { type: integer }
       responses:
         "200": { description: OK }
         "403": { description: FAIL }
+        "411": { description: "Length Required" }
+        "429": { description: "Too Many Requests" }
