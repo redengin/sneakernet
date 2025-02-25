@@ -4,9 +4,16 @@ import pywifi
 
 import time
 
+def pytest_addoption(parser):
+    parser.addoption(
+        '--firmware',
+        action='store_true',
+        default=False,
+        help="run firmware tests"
+    )
+
 @pytest.fixture
 def sneakernet():
-
     # SneakerNet node profile
     profile = pywifi.Profile()
     profile.ssid = "SneakerNet"
