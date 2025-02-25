@@ -1,14 +1,14 @@
 #include "catalog.hpp"
 
-#include <cJSON.h>
-#include <esp_log.h>
-#include <sdkconfig.h>
-
 #include "utils.hpp"
 // override LOG_LOCAL_LEVEL per project setting
 #undef LOG_LOCAL_LEVEL
 #define LOG_LOCAL_LEVEL CONFIG_SNEAKERNET_LOG_LEVEL
 using rest::catalog::TAG;
+
+#include <cJSON.h>
+#include <esp_log.h>
+#include <sdkconfig.h>
 
 // generic handler (rather than registering each handler)
 extern "C" esp_err_t handler(httpd_req_t *);
@@ -208,7 +208,7 @@ esp_err_t PUT_FOLDER(httpd_req_t *const request) {
   // check that parent folder isn't locked
   auto parentPath = std::filesystem::path(folderpath).parent_path();
   if (context->catalog.isLocked(parentPath))
-      httpd_resp_set_status(request, rest::FORBIDDEN);
+    httpd_resp_set_status(request, rest::FORBIDDEN);
 
   // create the folder if it doesn't exist
   if (!context->catalog.hasFolder(folderpath)) {
@@ -228,7 +228,8 @@ esp_err_t DELETE_FOLDER(httpd_req_t *const request) {
   auto context = reinterpret_cast<Context *>(request->user_ctx);
 
   if (!context->catalog.hasFolder(folderpath))
-    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND, "path doesn't exist");
+    return httpd_resp_send_err(request, HTTPD_404_NOT_FOUND,
+                               "path doesn't exist");
 
   if (!context->catalog.removeFolder(folderpath))
     httpd_resp_set_status(request, rest::FORBIDDEN);
@@ -362,4 +363,3 @@ esp_err_t PUT_ICON(httpd_req_t *const request) {
   // receiveOctetStream has already set the httpd status
   return httpd_resp_send(request, nullptr, 0);
 }
-

@@ -2,14 +2,15 @@
 
 #include <esp_log.h>
 #include <sdkconfig.h>
-#include <time.h>
-
-#include <algorithm>
-#include <memory>
 // override LOG_LOCAL_LEVEL per project setting
 #undef LOG_LOCAL_LEVEL
 #define LOG_LOCAL_LEVEL CONFIG_SNEAKERNET_LOG_LEVEL
 using rest::TAG;
+
+#include <time.h>
+
+#include <algorithm>
+#include <memory>
 
 void rest::httpDecode(std::string& encoded) {
   // replace '+' with space
@@ -114,10 +115,12 @@ bool rest::sendOctetStream(httpd_req_t* const request, std::ifstream& fis) {
 
   // send the data
   do {
-    const size_t sz = fis.readsome(buffer.get(), rest::CHUNK_SIZE);
-    if (ESP_OK != httpd_resp_send_chunk(request, buffer.get(), sz))
+    const auto sz = fis.readsome(buffer.get(), rest::CHUNK_SIZE);
+    if (ESP_OK != httpd_resp_send_chunk(request, buffer.get(), sz)) {
       // file transfer interrupted
+      httpd_resp_set_status(request, HTTPD_408);
       return false;
+    }
 
     // send is complete once we've sent a 0 length chunk
     if (sz == 0) return true;
@@ -136,23 +139,23 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
 
   // receive the data
   while (fos.good()) {
-    const int received =
+    const auto received =
         httpd_req_recv(request, buffer.get(), rest::CHUNK_SIZE);
 
     if (received < 0) {
       ESP_LOGD(TAG, "socket closed during upload");
+      httpd_resp_set_status(request, HTTPD_408);
       return false;
     }
 
-    // http receive complete upon empty chunk
-    if (received == 0)
-      return true;
+    // complete upon empty chunk
+    if (received == 0) return true;
 
     fos.write(buffer.get(), received);
   };
 
   // fos went bad
   ESP_LOGE(TAG, "output stream failed [%s]", strerror(errno));
-  httpd_resp_set_status(request, "500 output stream failed");
+  httpd_resp_set_status(request, HTTPD_500);
   return false;
 }
