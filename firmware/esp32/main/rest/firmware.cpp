@@ -161,6 +161,7 @@ esp_err_t PUT_FIRMWARE(httpd_req_t *const request) {
 
     // send the response
     httpd_resp_send(request, nullptr, 0);
+    sleep(1); // give it a second to send the response
 
     // reboot
     ESP_LOGD(TAG, "rebooting to new OTA partition");
