@@ -39,6 +39,6 @@ paths:
           schema: { type: integer }
       responses:
         "200": { description: OK }
-        "403": { description: FAIL }
+        "403": { description: "version older than current" }
         "411": { description: "Length Required" }
         "429": { description: "Too Many Requests" }

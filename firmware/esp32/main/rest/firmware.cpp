@@ -168,5 +168,5 @@ esp_err_t PUT_FIRMWARE(httpd_req_t *const request) {
     esp_restart();
   } else
     return httpd_resp_send_err(request, HTTPD_403_FORBIDDEN,
-                               "firmware version not newer than current");
+                               "firmware version older than current");
 }
