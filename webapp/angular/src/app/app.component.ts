@@ -57,7 +57,10 @@ export class AppComponent {
   }
 
   chooseParentFolder(): void {
-    this.currentPath = this.currentPath.split('/').slice(0, -1).join('/');
+    const folders = this.currentPath.split('/');
+    if (folders.length > 2)
+      this.currentPath = folders.slice(0, -1).join('/');
+    else this.currentPath = "";
     this.getFolderData();
   }
 
@@ -71,13 +74,13 @@ export class AppComponent {
     event.target.value = null; /* clear the DOM value */
     const dialog = this.openLoadingDialog();
     const path = this.currentPath.length ?
-      this.currentPath + '/' + subfolderName + '/'
-      : subfolderName + '/';
-    this.http.put(`api/catalog/${path}`, null)
+      this.currentPath + '/' + subfolderName
+      : subfolderName;
+    this.http.put(`api/catalog/${path}/`, null)
       .subscribe({
         complete: () => {
           this.closeLoadingDialog(dialog);
-          this.currentPath = path;
+          this.currentPath = path + '/';
           this.getFolderData();
         },
         error: (error) => {
