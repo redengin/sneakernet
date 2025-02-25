@@ -82,7 +82,7 @@ static uint32_t version(const std::string s) {
 static bool isValidUpdate(const esp_partition_t *const partition) {
   // get the udpate info
   esp_app_desc_t update_description;
-  if (!esp_ota_get_partition_description(partition, &update_description)) {
+  if (ESP_OK != esp_ota_get_partition_description(partition, &update_description)) {
     ESP_LOGE(TAG, "unable to get app description for update");
     return false;
   }
