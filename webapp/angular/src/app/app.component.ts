@@ -62,7 +62,7 @@ export class AppComponent {
   }
 
   chooseSubfolder(subfolder: string): void {
-    this.currentPath += `/${subfolder}`;
+    this.currentPath += `${subfolder}/`;
     this.getFolderData();
   }
 
@@ -70,18 +70,21 @@ export class AppComponent {
     const subfolderName = event.target.value;
     event.target.value = null; /* clear the DOM value */
     const dialog = this.openLoadingDialog();
-    this.http.put(`api/catalog/${this.currentPath}/${subfolderName}/`, null)
+    const path = this.currentPath.length ?
+      this.currentPath + '/' + subfolderName + '/'
+      : subfolderName + '/';
+    this.http.put(`api/catalog/${path}`, null)
       .subscribe({
         complete: () => {
           this.closeLoadingDialog(dialog);
-          this.currentPath += `/${subfolderName}`;
+          this.currentPath = path;
           this.getFolderData();
         },
         error: (error) => {
           this.closeLoadingDialog(dialog);
           // TODO alert user of failure
           console.error(`Failed to create subfolder ${error}`);
-        } 
+        }
       });
   }
 
