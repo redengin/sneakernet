@@ -2,7 +2,7 @@
 
 <main>
     <div id="currentPath">
-        <span>{{currentPath}}</span>
+        <span>{{currentPath}}/</span>
         <mat-form-field>
             <mat-label>
                 <ng-icon name="MatCreateNewFolderOutline" size="50px"/>
@@ -41,7 +41,7 @@
                     <span>{{entry.value.timestamp}}</span>   <!-- TODO use pretty print -->
                     <span>{{entry.value.size}} bytes</span>  <!-- TODO use pretty print -->
                     <span>
-                        <ng-icon (click)="deleteFile(currentPath, entry.key)" name="MatDeleteOutline" color="red" size="30px"/>
+                        <ng-icon (click)="deleteFile(entry.key)" name="MatDeleteOutline" color="red" size="30px"/>
                     </span>
                 </div>
             </div>
@@ -62,7 +62,7 @@
     </div>
 
 <!-- provide add file functionality -->
-<input #fileSelect type="file" multiple class="file-input" (change)="addFile(currentPath, $event)" style="display: none;"/>
+<input #fileSelect type="file" multiple class="file-input" (change)="addFile($event)" style="display: none;"/>
 <ng-icon (click)="fileSelect.click()" class="fab" name="MatUploadFile" color="blue" size="60px"/>
 
 </main>

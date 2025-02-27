@@ -33,7 +33,6 @@ type Folder = {
   }
 };
 
-
 @Component({
   selector: 'app-root',
   imports: [Toolbar,
@@ -52,7 +51,8 @@ export class AppComponent {
   getFolderData(): void {
     const dialog = this.openLoadingDialog();
     this.folderData = {};
-    this.http.get<Folder>(`api/catalog/${this.currentPath}`)
+    const path = this.currentPath ? `${this.currentPath}/` : "";
+    this.http.get<Folder>(`api/catalog/${path}`)
       .subscribe(body => { this.folderData = body; this.closeLoadingDialog(dialog); });
   }
 
@@ -60,12 +60,12 @@ export class AppComponent {
     const folders = this.currentPath.split('/');
     if (folders.length > 2)
       this.currentPath = folders.slice(0, -1).join('/');
-    else this.currentPath = "";
+    else this.currentPath = '';
     this.getFolderData();
   }
 
   chooseSubfolder(subfolder: string): void {
-    this.currentPath += `${subfolder}/`;
+    this.currentPath += `${subfolder}`;
     this.getFolderData();
   }
 
@@ -73,14 +73,12 @@ export class AppComponent {
     const subfolderName = event.target.value;
     event.target.value = null; /* clear the DOM value */
     const dialog = this.openLoadingDialog();
-    const path = this.currentPath.length ?
-      this.currentPath + '/' + subfolderName
-      : subfolderName;
+    const path = this.currentPath ? `${this.currentPath}/${subfolderName}` : subfolderName;
     this.http.put(`api/catalog/${path}/`, null)
       .subscribe({
         complete: () => {
           this.closeLoadingDialog(dialog);
-          this.currentPath = path + '/';
+          this.currentPath = path;
           this.getFolderData();
         },
         error: (error) => {
@@ -107,12 +105,10 @@ export class AppComponent {
       })
   }
 
-  deleteFile(path: string, fileName: string): void {
+  deleteFile(filename: string): void {
     const dialog = this.openLoadingDialog();
-    this.http.delete(`api/catalog/${path}/${fileName}`)
-      .pipe(
-        retry({ delay: 500 /* ms */ }),
-      )
+    const path = this.currentPath ? `${this.currentPath}/${filename}` : filename;
+    this.http.delete(`api/catalog/${path}`)
       .subscribe({
         complete: () => {
           this.closeLoadingDialog(dialog);
@@ -126,15 +122,16 @@ export class AppComponent {
       })
   }
 
-  addFile(path: string, event: Event): void {
+  addFile(event: Event): void {
     // get the files from the event target
     const fileSelect = event.target as HTMLInputElement;
     if (fileSelect.files) {
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
         const dialog = this.openLoadingDialog();
+        const path = this.currentPath ? `${this.currentPath}/${file.name}` : file.name;
         const timestamp = new Date(file.lastModified).toISOString();
-        this.http.put(`api/catalog/${path}/${file.name}`,
+        this.http.put(`api/catalog/${path}`,
           // data
           file.arrayBuffer,
           // additional options
