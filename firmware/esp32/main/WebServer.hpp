@@ -9,6 +9,8 @@ class WebServer
 public:
     static constexpr char TAG[] = "WebServer";    ///< ESP logging tag
 
+    static constexpr char INDEX_URI[] = "/app/";
+
     /// Creates both an HTTP and HTTPS server
     WebServer(const size_t max_sockets);
 
