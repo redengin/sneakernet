@@ -25,4 +25,4 @@ ng-serve: ~/.npm
 ng-build: ~/.npm
 	@DOCKER_USER=$(DOCKER_USER) \
 		docker compose run --rm ng \
-			ng build
+			ng build --deploy-url=app/

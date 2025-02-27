@@ -58,32 +58,29 @@ WebServer::WebServer(const size_t max_sockets) {
     // increase stack size
     httpConfig.stack_size = 10 * 1024;
     ESP_ERROR_CHECK(httpd_start(&httpHandle, &httpConfig));
-    // upon 404, redirect to index
-    ESP_ERROR_CHECK(
-        httpd_register_err_handler(httpHandle, HTTPD_404_NOT_FOUND, redirect));
   }
 
   // provide captive portal
   registerUriHandler(httpd_uri_t{
-      .uri = "/",
+      .uri = "/app/",
       .method = HTTP_GET,
       .handler = PORTAL,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
-      .uri = "/styles.css",
+      .uri = "/app/styles.css",
       .method = HTTP_GET,
       .handler = STYLES_CSS,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
-      .uri = "/main.js",
+      .uri = "/app/main.js",
       .method = HTTP_GET,
       .handler = MAIN_JS,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
-      .uri = "/polyfills.js",
+      .uri = "/app/polyfills.js",
       .method = HTTP_GET,
       .handler = POLYFILLS_JS,
       .user_ctx = nullptr,
