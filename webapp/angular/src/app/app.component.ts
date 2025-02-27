@@ -35,7 +35,8 @@ type Folder = {
 
 @Component({
   selector: 'app-root',
-  imports: [Toolbar,
+  imports: [
+    Toolbar,
     NgIcon, KeyValuePipe,
     MatFormFieldModule, MatInputModule, MatIconModule],
   templateUrl: './app.component.html',
