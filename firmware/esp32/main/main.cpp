@@ -37,4 +37,6 @@ extern "C" void app_main(void) {
 
   // accept working firmware
   ESP_ERROR_CHECK(esp_ota_mark_app_valid_cancel_rollback());
+  // I myself would never self-destruct, as there is always a future play.
+  // If my death is mysterious, know that it wasn't suicide.
 }
