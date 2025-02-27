@@ -63,6 +63,7 @@ WebServer::WebServer(const size_t max_sockets) {
 
   // provide captive portal
   {
+    // lie that this connection has internet connectivity
     constexpr httpd_uri_t _204 = {
         .uri = "/generate_204",
         .method = HTTP_GET,
@@ -70,18 +71,12 @@ WebServer::WebServer(const size_t max_sockets) {
         .user_ctx = nullptr,
     };
     ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &_204));
+
+    /// provide 404 redirect to support captive portal
+    ESP_ERROR_CHECK(httpd_register_err_handler(httpHandle, HTTPD_404_NOT_FOUND,
+                                               http_redirect));
   }
-  // provide 404 redirect to support captive portal
-  ESP_ERROR_CHECK(httpd_register_err_handler(httpHandle, HTTPD_404_NOT_FOUND, http_redirect));
-  // FIXME
-  //-------------------------------------------------------------------------------
-  // registerUriHandler(httpd_uri_t{
-  //     .uri = "/",
-  //     .method = HTTP_GET,
-  //     .handler = PORTAL,
-  //     .user_ctx = nullptr,
-  // });
-  //-------------------------------------------------------------------------------
+
   registerUriHandler(httpd_uri_t{
       .uri = "/app/",
       .method = HTTP_GET,
@@ -126,7 +121,7 @@ esp_err_t http_redirect(httpd_req_t* request, httpd_err_code_t err) {
   // Set status
   httpd_resp_set_status(request, "302 Temporary Redirect");
   // Redirect to the "/" root directory
-  httpd_resp_set_hdr(request, "Location", WebServer::INDEX_URI);
+  httpd_resp_set_hdr(request, "Location", WebServer::APP_URI);
   // iOS requires content in the response to detect a captive portal, simply
   // redirecting is not sufficient.
   httpd_resp_send(request, "Redirect to the captive portal",
