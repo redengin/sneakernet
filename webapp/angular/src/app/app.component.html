@@ -35,8 +35,10 @@
     @for(entry of (folderData.entries | keyvalue); track entry) {
         @if(! entry.value.isFolder) {
             <div class="card">
-                <ng-icon name="MatFileDownloadOutline" size="60px"/>
-                <span class="title"> {{entry.value.title || entry.key}} </span>
+                <a download="{{entry.key}}" href="{{currentPath}}/{{entry.key}}"><div>
+                    <ng-icon name="MatFileDownloadOutline" size="60px"/>
+                    <span class="title"> {{entry.value.title || entry.key}} </span>
+                </div></a>
                 <div class="info">
                     <span>{{entry.value.timestamp}}</span>   <!-- TODO use pretty print -->
                     <span>{{entry.value.size}} bytes</span>  <!-- TODO use pretty print -->
@@ -64,6 +66,5 @@
 <!-- provide add file functionality -->
 <input #fileSelect type="file" multiple class="file-input" (change)="addFile($event)" style="display: none;"/>
 <ng-icon (click)="fileSelect.click()" class="fab" name="MatUploadFile" color="blue" size="60px"/>
-
 </main>
 
