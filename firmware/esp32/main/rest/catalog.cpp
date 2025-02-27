@@ -133,6 +133,11 @@ static std::string catalogPath(const char *const requestUri) {
   // skip the base uri
   auto path = std::string(requestUri +
                           (rest::catalog::uri_wildcard.length() - sizeof('*')));
+
+  // remove redundant root
+  while (path[1] == '/')
+    path.erase(1,1);
+
   // remove query
   auto pos = path.find('?');
   if (pos != std::string::npos) path.erase(pos);
