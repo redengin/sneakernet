@@ -8,6 +8,7 @@
 
 extern "C" esp_err_t redirect(httpd_req_t* req, httpd_err_code_t err);
 
+extern "C" esp_err_t GENERATE_204(httpd_req_t*);
 extern "C" esp_err_t PORTAL(httpd_req_t*);
 extern "C" esp_err_t STYLES_CSS(httpd_req_t*);
 extern "C" esp_err_t MAIN_JS(httpd_req_t*);
@@ -61,6 +62,24 @@ WebServer::WebServer(const size_t max_sockets) {
   }
 
   // provide captive portal
+  // {
+  //   constexpr httpd_uri_t _204 = {
+  //     .uri = "/generate_204",
+  //     .method = HTTP_GET,
+  //     .handler = GENERATE_204,
+  //     .user_ctx = nullptr,
+  //   };
+  //   ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &_204));
+  // }
+// FIXME
+//-------------------------------------------------------------------------------
+  registerUriHandler(httpd_uri_t{
+      .uri = "/",
+      .method = HTTP_GET,
+      .handler = PORTAL,
+      .user_ctx = nullptr,
+  });
+//-------------------------------------------------------------------------------
   registerUriHandler(httpd_uri_t{
       .uri = "/app/",
       .method = HTTP_GET,
@@ -94,17 +113,9 @@ void WebServer::registerUriHandler(const httpd_uri_t& handler) {
 #endif
 }
 
-/// provides captive portal redirect
-esp_err_t redirect(httpd_req_t* request, httpd_err_code_t err) {
-  ESP_LOGV(WebServer::TAG, "Serving 302 redirect");
-  // Set status
-  httpd_resp_set_status(request, "302 Temporary Redirect");
-  httpd_resp_set_hdr(request, "Location", "/");
-  // iOS requires content in the response to detect a captive portal, simply
-  // redirecting is not sufficient.
-  httpd_resp_send(request, "Redirect to the captive portal",
-                  HTTPD_RESP_USE_STRLEN);
-  return ESP_OK;
+/// signal that this has internet connectivity
+esp_err_t GENERATE_204(httpd_req_t* request) {
+  return httpd_resp_send_custom_err(request, "204 No Content", "");
 }
 
 extern "C" const char portalHtml_start[] asm("_binary_index_html_start");

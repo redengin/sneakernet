@@ -35,7 +35,7 @@
     @for(entry of (folderData.entries | keyvalue); track entry) {
         @if(! entry.value.isFolder) {
             <div class="card">
-                <a download href="{{currentPath}}/{{entry.key}}"><div>
+                <a download href="api/catalog/{{currentPath}}/{{entry.key}}"><div>
                     <ng-icon name="MatFileDownloadOutline" size="60px"/>
                     <span class="title"> {{entry.value.title || entry.key}} </span>
                 </div></a>
