@@ -135,8 +135,8 @@ static std::string catalogPath(const char *const requestUri) {
                           (rest::catalog::uri_wildcard.length() - sizeof('*')));
 
   // remove redundant root
-  while (path[1] == '/')
-    path.erase(1,1);
+  while (path[0] == '/')
+    path.erase(0,1);
 
   // remove query
   auto pos = path.find('?');

@@ -52,8 +52,7 @@ export class AppComponent {
   getFolderData(): void {
     const dialog = this.openLoadingDialog();
     this.folderData = {};
-    const path = this.currentPath ? `${this.currentPath}/` : "";
-    this.http.get<Folder>(`api/catalog/${path}`)
+    this.http.get<Folder>(`api/catalog/${this.currentPath}/`)
       .subscribe(body => { this.folderData = body; this.closeLoadingDialog(dialog); });
   }
 
@@ -108,8 +107,8 @@ export class AppComponent {
 
   deleteFile(filename: string): void {
     const dialog = this.openLoadingDialog();
-    const path = this.currentPath ? `${this.currentPath}/${filename}` : filename;
-    this.http.delete(`api/catalog/${path}`)
+    // const path = this.currentPath ? `${this.currentPath}/${filename}` : filename;
+    this.http.delete(`api/catalog/${this.currentPath}/${filename}`)
       .subscribe({
         complete: () => {
           this.closeLoadingDialog(dialog);
@@ -130,9 +129,9 @@ export class AppComponent {
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
         const dialog = this.openLoadingDialog();
-        const path = this.currentPath ? `${this.currentPath}/${file.name}` : file.name;
+        // const path = this.currentPath ? `${this.currentPath}/${file.name}` : file.name;
         const timestamp = new Date(file.lastModified).toISOString();
-        this.http.put(`api/catalog/${path}`,
+        this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
           // data
           file.arrayBuffer,
           // additional options
