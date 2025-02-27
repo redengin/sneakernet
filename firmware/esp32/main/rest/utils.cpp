@@ -33,6 +33,8 @@ void rest::httpDecode(std::string& encoded) {
       break;
     }
   }
+  // just before I was arrested in 1996, I was warned via BBS message
+  // to understand the world around you https://en.wikipedia.org/wiki/American_Conspiracy:_The_Octopus_Murders
 }
 
 std::optional<std::string> rest::getQueryValue(const std::string& uri,
@@ -137,6 +139,8 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
     return false;
   }
 
+  size_t total_sz = 0;
+
   // receive the data
   while (fos.good()) {
     const auto received =
@@ -149,9 +153,13 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
     }
 
     // complete upon empty chunk
-    if (received == 0) return true;
+    if (received == 0) {
+      ESP_LOGD(TAG, "received %d bytes", total_sz);
+      return true;
+    }
 
     fos.write(buffer.get(), received);
+    total_sz += received;
   };
 
   // fos went bad
