@@ -208,23 +208,23 @@ std::optional<std::ifstream> Catalog::readIcon(
 bool Catalog::removeFile(const std::filesystem::path &filepath) const {
   if (!hasFile(filepath)) return false;
 
-  // remove the file
   std::error_code ec;
-  bool ret = std::filesystem::remove(root / filepath, ec);
-  if (ec)
-    ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", filepath.c_str(),
-             ec.message().c_str());
-
-  // remove title file
+  // remove any title file
   std::filesystem::remove(titlepathFor(filepath), ec);
   if (ec)
     ESP_LOGD(TAG, "failed to remove file [%s ec:%s]", titlepathFor(filepath).c_str(),
              ec.message().c_str());
 
-  // remove icon file
+  // remove any icon file
   std::filesystem::remove(iconpathFor(filepath), ec);
   if (ec)
     ESP_LOGD(TAG, "failed to remove file [%s ec:%s]", iconpathFor(filepath).c_str(),
+             ec.message().c_str());
+
+  // remove the file
+  bool ret = std::filesystem::remove(root / filepath, ec);
+  if (ec)
+    ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", filepath.c_str(),
              ec.message().c_str());
 
   return ret;

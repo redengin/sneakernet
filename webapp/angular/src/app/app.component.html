@@ -14,7 +14,7 @@
 
     <div class="centered">
 <!-- provide link to parent folder -->
-    @if(currentPath !== '') {
+    @if(currentPath) {
         <div class="card" (click)="chooseParentFolder()">
             <ng-icon name="MatFolderOutline" size="60px"/>
             <span class="title">..</span>
@@ -52,11 +52,11 @@
             <div class="card">
                 <div class="title"> This folder is empty </div>
                 <div> Share some files to get it started </div>
+    @if(currentPath) {
                 <div class="info">
-    @if(currentPath !== 'x') {
                     <ng-icon (click)="removeFolder(currentPath)" name="matFolderDeleteOutline" size="30px" color="red"/>
-    }
                 </div>
+    }
             </div>
 }
     </div>
