@@ -60,7 +60,27 @@ def test_catalog(sneakernet):
     # TODO validate icon change
 
     # get icon
-    assert 200 == requests.get(catalog_base_url + TEST_FILENAME + "?icon").status_code
+    assert 200 == requests.get(
+        catalog_base_url + TEST_FILENAME + "?icon").status_code
+
+    # remove the file
+    assert 200 == deleteFile(TEST_FILENAME)
+
+
+def test_catalog_file(sneakernet):
+    TEST_FILENAME = "testing..."
+    TEST_DATA = 5000*b'0'
+    assert 200 == requests.put(catalog_base_url + TEST_FILENAME,
+                             headers={
+                                 "X-timestamp": "2025-01-06T01:02:03Z"
+                             },
+                             data=TEST_DATA
+                             ).status_code
+
+    response = requests.get(catalog_base_url + TEST_FILENAME)
+    assert 200 == response.status_code
+    assert len(TEST_DATA) == len(response.content)
+    assert TEST_DATA == response.content
 
     # remove the file
     assert 200 == deleteFile(TEST_FILENAME)
@@ -73,7 +93,7 @@ def createFile(filepath: str):
                         headers={
                             "X-timestamp": "2025-01-06T01:02:03Z"
                         },
-                        data="0"
+                        data="this is a test file."
                         ).status_code
 
 
