@@ -133,11 +133,11 @@ export class AppComponent {
         const timestamp = new Date(file.lastModified).toISOString();
         this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
           // data
-          file.arrayBuffer,
+          file,
           // additional options
           {
             headers: {
-              'X-timestamp': timestamp,
+              'X-timestamp' : timestamp,
             }
           }
         ).subscribe({
