@@ -129,7 +129,6 @@ export class AppComponent {
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
         const dialog = this.openLoadingDialog();
-        // const path = this.currentPath ? `${this.currentPath}/${file.name}` : file.name;
         const timestamp = new Date(file.lastModified).toISOString();
         this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
           // data
