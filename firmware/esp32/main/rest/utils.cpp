@@ -34,7 +34,8 @@ void rest::httpDecode(std::string& encoded) {
     }
   }
   // just before I was arrested in 1996, I was warned via BBS message
-  // to understand the world around you https://en.wikipedia.org/wiki/American_Conspiracy:_The_Octopus_Murders
+  // to understand the world around you
+  // https://en.wikipedia.org/wiki/American_Conspiracy:_The_Octopus_Murders
 }
 
 std::optional<std::string> rest::getQueryValue(const std::string& uri,
@@ -82,15 +83,11 @@ std::string rest::timestamp(const std::filesystem::file_time_type& timestamp) {
   return ss.str();
 }
 
-std::optional<std::filesystem::file_time_type> rest::timestamp(
+std::filesystem::file_time_type rest::timestamp(
     const std::string& timestamp) {
   std::istringstream ss(timestamp);
-  std::tm tm{};
+  std::tm tm;
   ss >> std::get_time(&tm, ISO_8601_Z_FORMAT);
-  if (ss.fail()) {
-    ESP_LOGW(TAG, "failed to parse timestamp [%s]", timestamp.c_str());
-    return std::nullopt;
-  }
 
   std::time_t timestamp_s = std::mktime(&tm);
   ESP_LOGV(TAG, "timestamp from string is %lli", timestamp_s);

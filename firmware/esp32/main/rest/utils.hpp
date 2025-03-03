@@ -22,7 +22,7 @@ std::optional<std::string> getQueryValue(
 /// timestamp format
 static constexpr char ISO_8601_Z_FORMAT[] = "%Y-%m-%dT%TZ";
 std::string timestamp(const std::filesystem::file_time_type&);
-std::optional<std::filesystem::file_time_type> timestamp(const std::string&);
+std::filesystem::file_time_type timestamp(const std::string&);
 
 // common HTTP request handlers
 esp_err_t ILLEGAL_REQUEST(httpd_req_t* request);
