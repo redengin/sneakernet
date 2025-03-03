@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 
 import { provideHttpClient } from '@angular/common/http';
 
@@ -7,6 +7,8 @@ import { provideIcons, provideNgIconsConfig } from '@ng-icons/core';
 import { matInfo, matUploadFile } from '@ng-icons/material-icons/baseline';
 import { matCreateNewFolderOutline, matFolderDeleteOutline,
          matFolderOutline, matFileDownloadOutline, matDeleteOutline } from '@ng-icons/material-icons/outline';
+
+import { TimeagoModule } from 'ngx-timeago';
 
 // Change the title here
 export const globals = {
@@ -22,5 +24,6 @@ export const appConfig: ApplicationConfig = {
       matFolderOutline, matFileDownloadOutline, matDeleteOutline,
       matUploadFile
     }),
+    importProvidersFrom(TimeagoModule.forRoot()),
   ]
 };

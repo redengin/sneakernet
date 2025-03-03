@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { retry } from 'rxjs';
 
-import { KeyValuePipe } from '@angular/common';
+import { KeyValuePipe, formatDate } from '@angular/common';
 
 import { NgIcon } from '@ng-icons/core';
 
@@ -15,12 +15,15 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import { MatIconModule } from '@angular/material/icon';
 
+import { TimeagoModule } from 'ngx-timeago';
+import {NgxFilesizeModule} from 'ngx-filesize';
+
 // Types per openapi/catalog.yml
 //==============================================================================
 type Entry = {
   isFolder: boolean;
   // following only for file entries (i.e. isFolder = false)
-  size?: BigInteger;
+  size?: number;
   timestamp?: string;
   title?: string;
   hasIcon?: boolean;
@@ -38,7 +41,9 @@ type Folder = {
   imports: [
     Toolbar,
     NgIcon, KeyValuePipe,
-    MatFormFieldModule, MatInputModule, MatIconModule],
+    MatFormFieldModule, MatInputModule, MatIconModule,
+    TimeagoModule, NgxFilesizeModule,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -129,14 +134,17 @@ export class AppComponent {
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
         const dialog = this.openLoadingDialog();
-        const timestamp = new Date(file.lastModified).toISOString();
+        // const timestamp = new Date(file.lastModified).toISOString();
         this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
           // data
           file,
           // additional options
           {
             headers: {
-              'X-timestamp' : timestamp,
+              'X-timestamp' : // use file timestamp
+                              // new Date(file.lastModified).toISOString(),
+                              // use now for timestamp
+                              new Date().toISOString(),
             }
           }
         ).subscribe({

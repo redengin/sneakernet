@@ -40,8 +40,8 @@
                     <span class="title"> {{entry.value.title || entry.key}} </span>
                 </div></a>
                 <div class="info">
-                    <span>{{entry.value.timestamp}}</span>   <!-- TODO use pretty print -->
-                    <span>{{entry.value.size}} bytes</span>  <!-- TODO use pretty print -->
+                    <span>{{entry.value.timestamp! | timeago:true}}</span>
+                    <span>{{entry.value.size! | filesize:{standard:'jedec'} }}</span>
                     <span>
                         <ng-icon (click)="deleteFile(entry.key)" name="MatDeleteOutline" color="red" size="30px"/>
                     </span>
