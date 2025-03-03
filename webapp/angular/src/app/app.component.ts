@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input'
 import { MatIconModule } from '@angular/material/icon';
 
 import { TimeagoModule } from 'ngx-timeago';
-import {NgxFilesizeModule} from 'ngx-filesize';
+import { NgxFilesizeModule } from 'ngx-filesize';
 
 // Types per openapi/catalog.yml
 //==============================================================================
@@ -141,10 +141,11 @@ export class AppComponent {
           // additional options
           {
             headers: {
-              'X-timestamp' : // use file timestamp
-                              // new Date(file.lastModified).toISOString(),
-                              // use now for timestamp
-                              new Date().toISOString(),
+              'X-timestamp':
+                // use file timestamp
+                // new Date(file.lastModified).toISOString(),
+                // use now for timestamp
+                new Date().toISOString(),
             }
           }
         ).subscribe({
@@ -170,4 +171,3 @@ export class AppComponent {
     dialogRef.close();
   }
 }
-
