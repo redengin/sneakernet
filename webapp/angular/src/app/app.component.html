@@ -64,7 +64,7 @@
     </div>
 
 <!-- provide add file functionality -->
-<input #fileSelect type="file" multiple class="file-input" (change)="addFile($event)" style="display: none;"/>
+<input #fileSelect hidden type="file" (change)="addFile($event)" />
 <ng-icon (click)="fileSelect.click()" class="fab" name="MatUploadFile" color="blue" size="60px"/>
 </main>
 
