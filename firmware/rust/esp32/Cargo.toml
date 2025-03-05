@@ -9,6 +9,7 @@ path = "./src/bin/main.rs"
 
 [dependencies]
 critical-section = "1.2.0"
+# FIXME esp-hal should use a real semvar version label
 esp-hal          = { version = "1.0.0-beta.0", features = ["esp32"] }
 
 [profile.dev]
