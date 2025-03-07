@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { retry } from 'rxjs';
 
 import { KeyValuePipe, formatDate } from '@angular/common';
 
-import { NgIcon } from '@ng-icons/core';
+import { NgIconsModule } from '@ng-icons/core';
 
 import { Toolbar } from './components/toolbar';
 
@@ -38,14 +37,14 @@ type Folder = {
 
 @Component({
   selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css',
   imports: [
     Toolbar,
-    NgIcon, KeyValuePipe,
+    NgIconsModule, KeyValuePipe,
     MatFormFieldModule, MatInputModule, MatIconModule,
     TimeagoModule, NgxFilesizeModule,
   ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
 })
 export class AppComponent {
   constructor(private http: HttpClient, private dialog: MatDialog) { }
@@ -127,6 +126,10 @@ export class AppComponent {
       })
   }
 
+  uploadsDisabled(): void {
+    this.dialog.open(UploadsDisabledDialog);
+  }
+
   addFile(event: Event): void {
     // get the files from the event target
     const fileSelect = event.target as HTMLInputElement;
@@ -171,3 +174,10 @@ export class AppComponent {
     dialogRef.close();
   }
 }
+
+@Component({
+  templateUrl: './uploads_disabled_dialog.html',
+  // save 5KB by not using mat-dialog-* components
+})
+export class UploadsDisabledDialog {
+};

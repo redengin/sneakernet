@@ -1,19 +1,19 @@
 import { globals } from '../app.config';
 import { Component } from '@angular/core';
-import { NgIcon } from '@ng-icons/core';
+import { NgIconsModule } from '@ng-icons/core';
 
-import { inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-toolbar',
-  imports: [NgIcon],
+  imports: [NgIconsModule],
   templateUrl: './toolbar.html',
 })
 export class Toolbar {
+  constructor(private dialog: MatDialog) { }
+
   readonly title = globals.appTitle;
 
-  readonly dialog = inject(MatDialog);
   openDialog(): void {
     this.dialog.open(AboutDialog);
   }
@@ -25,9 +25,4 @@ export class Toolbar {
 })
 export class AboutDialog {
   readonly title = globals.appTitle;
-
-  readonly dialogRef = inject(MatDialogRef<AboutDialog>);
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
 };
