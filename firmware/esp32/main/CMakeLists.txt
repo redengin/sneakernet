@@ -9,10 +9,11 @@ idf_component_register(
         "rest/catalog.cpp"
         "rest/utils.cpp"
 
+    EMBED_TXTFILES
+        "~/keystore/sneakernet_https_priv.pem"  # HTTPS private key
+        "~/keystore/sneakernet_https_pub.pem"   # HTTPS public key
+
     EMBED_FILES
-        # FIXME https not able to handle keys
-        # "~/keystore/sneakernet.pem"         # HTTPS private key
-        # "~/keystore/sneakernet_public.pem"  # HTTPS public key
         # add portal files
         "../../../webapp/angular/dist/browser/favicon.ico"
         "../../../webapp/angular/dist/browser/index.html"
