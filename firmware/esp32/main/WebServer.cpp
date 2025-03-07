@@ -117,11 +117,11 @@ esp_err_t GENERATE_204(httpd_req_t* request) {
 
 /// provides captive portal redirect
 esp_err_t http_redirect(httpd_req_t* request, httpd_err_code_t err) {
-  ESP_LOGI(WebServer::TAG, "Serving 302 redirect request[%s]", request->uri);
+  ESP_LOGI(WebServer::TAG, "Serving 303 redirect for request[%s]", request->uri);
   // Set status
-  httpd_resp_set_status(request, "302 Temporary Redirect");
+  httpd_resp_set_status(request, "303 See Other");
   // Redirect to the "/" root directory
-  httpd_resp_set_hdr(request, "Location", WebServer::APP_URI);
+  httpd_resp_set_hdr(request, "Location", "http://192.168.4.1/app/");
   // iOS requires content in the response to detect a captive portal, simply
   // redirecting is not sufficient.
   httpd_resp_send(request, "Redirect to the captive portal",
