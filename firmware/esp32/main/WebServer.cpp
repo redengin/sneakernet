@@ -103,9 +103,7 @@ WebServer::WebServer(const size_t max_sockets) {
 
 void WebServer::registerUriHandler(const httpd_uri_t& handler) {
   ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-#if 0  // FIXME HTTPS doesn't work
-    ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
-#endif
+  ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
 }
 
 /// signal that this has internet connectivity
