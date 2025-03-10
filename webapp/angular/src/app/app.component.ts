@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpParams } from '@angular/common/http';
 
 import { KeyValuePipe, formatDate } from '@angular/common';
 
@@ -7,15 +7,15 @@ import { NgIconsModule } from '@ng-icons/core';
 
 import { Toolbar } from './components/toolbar';
 
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ProgressDialog } from './components/progress_dialog';
-
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import { MatIconModule } from '@angular/material/icon';
 
 import { TimeagoModule } from 'ngx-timeago';
 import { NgxFilesizeModule } from 'ngx-filesize';
+
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Types per openapi/catalog.yml
 //==============================================================================
@@ -54,10 +54,13 @@ export class AppComponent {
   folderData: Folder = {};
 
   getFolderData(): void {
-    const dialogRef = this.openLoadingDialog();
+    const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
     this.folderData = {};
     this.http.get<Folder>(`api/catalog/${this.currentPath}/`)
-      .subscribe(body => { this.folderData = body; dialogRef.close(); });
+      .subscribe({
+        next: (data) => { this.folderData = data; },
+        complete: () => { dialogRef.close(); }
+      });
   }
 
   chooseParentFolder(): void {
@@ -76,53 +79,49 @@ export class AppComponent {
   createSubfolder(event: any): void {
     const subfolderName = event.target.value;
     event.target.value = null; /* clear the DOM value */
-    const dialogRef = this.openLoadingDialog();
+    const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
     const path = this.currentPath ? `${this.currentPath}/${subfolderName}` : subfolderName;
     this.http.put(`api/catalog/${path}/`, null)
       .subscribe({
-        complete: () => {
-          dialogRef.close();
-          this.currentPath = path;
-          this.getFolderData();
-        },
+        next: () => { this.currentPath = path },
         error: (error) => {
-          dialogRef.close();
           // TODO alert user of failure
           console.error(`Failed to create subfolder ${error}`);
-        }
+        },
+        complete: () => {
+          dialogRef.close();
+          this.getFolderData();
+        },
       });
   }
 
   removeFolder(path: string): void {
-    const dialogRef = this.openLoadingDialog();
+    const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
     this.http.delete(`api/catalog/${path}/`)
       .subscribe({
-        complete: () => {
-          dialogRef.close();
-          this.chooseParentFolder()
-        },
+        next: () => this.chooseParentFolder(),
         error: (error) => {
-          dialogRef.close();
           // TODO raise up error dialog
           console.error(error);
-        }
+        },
+        complete: () => {
+          dialogRef.close();
+        },
       })
   }
 
   deleteFile(filename: string): void {
-    const dialogRef = this.openLoadingDialog();
-    // const path = this.currentPath ? `${this.currentPath}/${filename}` : filename;
+    const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
     this.http.delete(`api/catalog/${this.currentPath}/${filename}`)
       .subscribe({
-        complete: () => {
-          dialogRef.close();
-          this.getFolderData()
-        },
+        next: () => this.getFolderData(),
         error: (error) => {
-          dialogRef.close();
           // TODO raise up error dialog
           console.error(error);
-        }
+        },
+        complete: () => {
+          dialogRef.close();
+        },
       })
   }
 
@@ -133,9 +132,9 @@ export class AppComponent {
     if (fileSelect.files) {
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
-        const dialogRef = this.openLoadingDialog();
+        const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
         // const timestamp = new Date(file.lastModified).toISOString();
-        this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
+        const request = this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
           // data
           file,
           // additional options
@@ -145,25 +144,36 @@ export class AppComponent {
                 // use file timestamp: new Date(file.lastModified).toISOString(),
                 // using current date for upload timestamp
                 new Date().toISOString(),
-            }
-          }
-        ).subscribe({
+            },
+            reportProgress: true,
+            observe: 'events'
+          },
+        );
+        // FIXME provide progress
+        // request.subscribe(
+        //   event => {
+        //     if (event.type == HttpEventType.UploadProgress) {
+        //       if (event.total) {
+        //         const progress = Math.round(100 * event.loaded / event.total);
+        //         console.log(`upload ${file.name} ${progress}%`);
+        //       }
+        //     }
+        //   },
+        // );
+        request.subscribe({
+          error: (error) => {
+            // TODO raise up error dialog
+            console.error(`UHT OHT ${error}`);
+          },
           complete: () => {
             dialogRef.close();
-            this.getFolderData()
           },
-          error: (error) => {
-            dialogRef.close();
-            // TODO raise up error dialog
-            console.error(error);
-          }
         });
       }
+      // refresh the folder data with the new files
+      // FIXME this doesn't cause a refresh
+      this.getFolderData();
     }
-  }
-
-  openLoadingDialog() {
-    return this.dialog.open(ProgressDialog, { disableClose: true });
   }
 
   dialogRef: any;
@@ -177,7 +187,13 @@ export class AppComponent {
 
 @Component({
   templateUrl: './choose_upload_dialog.html',
-  // save 5KB by not using mat-dialog-* components
 })
 export class ChooseUploadDialog {
+};
+
+@Component({
+  template: '<mat-spinner style="margin:10px auto;">',
+  imports: [MatProgressSpinnerModule],
+})
+export class SpinnerDialog {
 };
