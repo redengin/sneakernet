@@ -69,7 +69,7 @@ export class AppComponent {
   }
 
   chooseSubfolder(subfolder: string): void {
-    this.currentPath += `${subfolder}`;
+    this.currentPath += `/${subfolder}`;
     this.getFolderData();
   }
 
@@ -142,8 +142,8 @@ export class AppComponent {
           {
             headers: {
               'X-timestamp':
-                // use file timestamp new Date(file.lastModified).toISOString(),
-                // using now() for timestamp
+                // use file timestamp: new Date(file.lastModified).toISOString(),
+                // using current date for upload timestamp
                 new Date().toISOString(),
             }
           }
