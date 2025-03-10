@@ -54,10 +54,10 @@ export class AppComponent {
   folderData: Folder = {};
 
   getFolderData(): void {
-    const dialog = this.openLoadingDialog();
+    const dialogRef = this.openLoadingDialog();
     this.folderData = {};
     this.http.get<Folder>(`api/catalog/${this.currentPath}/`)
-      .subscribe(body => { this.folderData = body; this.closeLoadingDialog(dialog); });
+      .subscribe(body => { this.folderData = body; dialogRef.close(); });
   }
 
   chooseParentFolder(): void {
@@ -76,17 +76,17 @@ export class AppComponent {
   createSubfolder(event: any): void {
     const subfolderName = event.target.value;
     event.target.value = null; /* clear the DOM value */
-    const dialog = this.openLoadingDialog();
+    const dialogRef = this.openLoadingDialog();
     const path = this.currentPath ? `${this.currentPath}/${subfolderName}` : subfolderName;
     this.http.put(`api/catalog/${path}/`, null)
       .subscribe({
         complete: () => {
-          this.closeLoadingDialog(dialog);
+          dialogRef.close();
           this.currentPath = path;
           this.getFolderData();
         },
         error: (error) => {
-          this.closeLoadingDialog(dialog);
+          dialogRef.close();
           // TODO alert user of failure
           console.error(`Failed to create subfolder ${error}`);
         }
@@ -94,15 +94,15 @@ export class AppComponent {
   }
 
   removeFolder(path: string): void {
-    const dialog = this.openLoadingDialog();
+    const dialogRef = this.openLoadingDialog();
     this.http.delete(`api/catalog/${path}/`)
       .subscribe({
         complete: () => {
-          this.closeLoadingDialog(dialog);
+          dialogRef.close();
           this.chooseParentFolder()
         },
         error: (error) => {
-          this.closeLoadingDialog(dialog);
+          dialogRef.close();
           // TODO raise up error dialog
           console.error(error);
         }
@@ -110,33 +110,30 @@ export class AppComponent {
   }
 
   deleteFile(filename: string): void {
-    const dialog = this.openLoadingDialog();
+    const dialogRef = this.openLoadingDialog();
     // const path = this.currentPath ? `${this.currentPath}/${filename}` : filename;
     this.http.delete(`api/catalog/${this.currentPath}/${filename}`)
       .subscribe({
         complete: () => {
-          this.closeLoadingDialog(dialog);
+          dialogRef.close();
           this.getFolderData()
         },
         error: (error) => {
-          this.closeLoadingDialog(dialog);
+          dialogRef.close();
           // TODO raise up error dialog
           console.error(error);
         }
       })
   }
 
-  uploadsDisabled(): void {
-    this.dialog.open(UploadsDisabledDialog);
-  }
-
   addFile(event: Event): void {
+    this.closeChooseUploadDialog();
     // get the files from the event target
     const fileSelect = event.target as HTMLInputElement;
     if (fileSelect.files) {
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
-        const dialog = this.openLoadingDialog();
+        const dialogRef = this.openLoadingDialog();
         // const timestamp = new Date(file.lastModified).toISOString();
         this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
           // data
@@ -145,19 +142,18 @@ export class AppComponent {
           {
             headers: {
               'X-timestamp':
-                // use file timestamp
-                // new Date(file.lastModified).toISOString(),
-                // use now for timestamp
+                // use file timestamp new Date(file.lastModified).toISOString(),
+                // using now() for timestamp
                 new Date().toISOString(),
             }
           }
         ).subscribe({
           complete: () => {
-            this.closeLoadingDialog(dialog);
+            dialogRef.close();
             this.getFolderData()
           },
           error: (error) => {
-            this.closeLoadingDialog(dialog);
+            dialogRef.close();
             // TODO raise up error dialog
             console.error(error);
           }
@@ -170,14 +166,18 @@ export class AppComponent {
     return this.dialog.open(ProgressDialog, { disableClose: true });
   }
 
-  closeLoadingDialog(dialogRef: any) {
-    dialogRef.close();
+  dialogRef: any;
+  openChooseUploadDialog() {
+    this.dialogRef = this.dialog.open(ChooseUploadDialog);
+  }
+  closeChooseUploadDialog() {
+    this.dialogRef.close();
   }
 }
 
 @Component({
-  templateUrl: './uploads_disabled_dialog.html',
+  templateUrl: './choose_upload_dialog.html',
   // save 5KB by not using mat-dialog-* components
 })
-export class UploadsDisabledDialog {
+export class ChooseUploadDialog {
 };
