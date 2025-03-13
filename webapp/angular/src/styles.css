@@ -28,7 +28,7 @@ div.card {
 
 div.card .title {
     font-size: x-large;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 div.card .info {

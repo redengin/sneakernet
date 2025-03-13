@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { HttpClient, HttpEventType, HttpParams } from '@angular/common/http';
 
 import { KeyValuePipe, formatDate } from '@angular/common';
@@ -14,9 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { TimeagoModule } from 'ngx-timeago';
 import { NgxFilesizeModule } from 'ngx-filesize';
 
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { last, map, tap } from 'rxjs';
 
 // Types per openapi/catalog.yml
 //==============================================================================
@@ -137,10 +136,17 @@ export class AppComponent {
     if (fileSelect.files) {
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
-        const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
+        const dialogRef = this.dialog.open(ProgressDialog,
+          { disableClose: true,
+            data: {
+              'title' : `${file.name}`,
+              'progress_pct': 0,
+            }
+          }
+        );
         // const timestamp = new Date(file.lastModified).toISOString();
         this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
-          // data
+          // body data
           file,
           // additional options
           {
@@ -157,11 +163,16 @@ export class AppComponent {
         .subscribe( event => {
           switch (event.type) {
             case HttpEventType.UploadProgress:
-              console.log(`progress ${event.loaded/(event.total || 1)}`)
+              const progress_pct = event.total ? (100 * (event.loaded / event.total)) : 0;
+              dialogRef.componentInstance.data.progress_pct = progress_pct;
+              console.log(`progress ${progress_pct}%`);
               break;
-            default:
+            case HttpEventType.ResponseHeader:
+            case HttpEventType.Response:
+              // TODO handle error
               dialogRef.close();
               this.getFolderData();
+              break;
           }
         });
       }
@@ -184,8 +195,16 @@ export class ChooseUploadDialog {
 };
 
 @Component({
-  template: '<mat-spinner style="margin:10px auto;">',
+  template: '!!!!!!<mat-spinner style="margin:10px auto;">',
   imports: [MatProgressSpinnerModule],
 })
 export class SpinnerDialog {
+};
+
+@Component({
+  templateUrl: './progress_dialog.html',
+  imports: [MatProgressSpinnerModule],
+})
+export class ProgressDialog {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
 };
