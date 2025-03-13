@@ -16,6 +16,7 @@ import { NgxFilesizeModule } from 'ngx-filesize';
 
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { last, map, tap } from 'rxjs';
 
 // Types per openapi/catalog.yml
 //==============================================================================
@@ -59,6 +60,7 @@ export class AppComponent {
     this.http.get<Folder>(`api/catalog/${this.currentPath}/`)
       .subscribe({
         next: (data) => { this.folderData = data; },
+        error: () => { dialogRef.close(); },
         complete: () => { dialogRef.close(); }
       });
   }
@@ -85,6 +87,7 @@ export class AppComponent {
       .subscribe({
         next: () => { this.currentPath = path },
         error: (error) => {
+          dialogRef.close();
           // TODO alert user of failure
           console.error(`Failed to create subfolder ${error}`);
         },
@@ -101,6 +104,7 @@ export class AppComponent {
       .subscribe({
         next: () => this.chooseParentFolder(),
         error: (error) => {
+          dialogRef.close();
           // TODO raise up error dialog
           console.error(error);
         },
@@ -116,6 +120,7 @@ export class AppComponent {
       .subscribe({
         next: () => this.getFolderData(),
         error: (error) => {
+          dialogRef.close();
           // TODO raise up error dialog
           console.error(error);
         },
@@ -134,7 +139,7 @@ export class AppComponent {
       for (const file of fileList) {
         const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
         // const timestamp = new Date(file.lastModified).toISOString();
-        const request = this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
+        this.http.put(`api/catalog/${this.currentPath}/${file.name}`,
           // data
           file,
           // additional options
@@ -148,31 +153,18 @@ export class AppComponent {
             reportProgress: true,
             observe: 'events'
           },
-        );
-        // FIXME provide progress
-        // request.subscribe(
-        //   event => {
-        //     if (event.type == HttpEventType.UploadProgress) {
-        //       if (event.total) {
-        //         const progress = Math.round(100 * event.loaded / event.total);
-        //         console.log(`upload ${file.name} ${progress}%`);
-        //       }
-        //     }
-        //   },
-        // );
-        request.subscribe({
-          error: (error) => {
-            // TODO raise up error dialog
-            console.error(`UHT OHT ${error}`);
-          },
-          complete: () => {
-            dialogRef.close();
-          },
+        )
+        .subscribe( event => {
+          switch (event.type) {
+            case HttpEventType.UploadProgress:
+              console.log(`progress ${event.loaded/(event.total || 1)}`)
+              break;
+            default:
+              dialogRef.close();
+              this.getFolderData();
+          }
         });
       }
-      // refresh the folder data with the new files
-      // FIXME this doesn't cause a refresh
-      this.getFolderData();
     }
   }
 

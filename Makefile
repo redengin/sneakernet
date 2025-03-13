@@ -11,7 +11,7 @@ RELEASE_DIR ?= release
 $(RELEASE_DIR)/%.bin:
 	@mkdir -p $(RELEASE_DIR)
 	@wget $(RELEASE_URL)/$(@F) \
-		--quiet --show-progress -O $@
+		--show-progress -O $@
 
 .PHONY: sneakernet.esp32
 sneakernet.esp32: $(RELEASE_DIR)/bootloader.bin \

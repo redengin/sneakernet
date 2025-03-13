@@ -29,9 +29,17 @@ app.get("/api/catalog/:path?/", (request, response) => {
     response.send(catalog);
 });
 
+
+// download the body (file content)
+app.use((request, response, next) => {
+    let rawBody = '';
+    request.on('data', (chunk) => { rawBody += chunk; });
+    request.on('end', () => { request.rawBody = rawBody; next(); });
+});
+
 app.put("/api/catalog/:path?/", (request, response) => {
-    // FIXME
-    response.send();
+    console.log(request.rawBody);
+    response.send("" + request.rawBody.length);
 });
 
 app.delete("/api/catalog/:path?/:file", (request, response) => {
