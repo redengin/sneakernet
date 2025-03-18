@@ -1,8 +1,7 @@
 <div class="mat-mdc-dialog-container">
-    <div class="mat-mdc-dialog-title">
-        <span style="overflow-wrap: break-word;"> {{data.title}} </span>
-    </div>
     <div class="mat-mdc-dialog-content">
-        <mat-spinner style="margin:10px auto;" mode="determinate" [value]="data.progress_pct"/>
+        <span style="overflow-wrap: break-word;"> {{data.title}} </span>
+        <mat-spinner style="margin:10px auto;"/>
+        <mat-progress-bar mode="determinate" [value]="data.progress_pct"/>
     </div>
 </div>

@@ -16,6 +16,7 @@ import { NgxFilesizeModule } from 'ngx-filesize';
 
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 // Types per openapi/catalog.yml
 //==============================================================================
@@ -203,7 +204,7 @@ export class SpinnerDialog {
 
 @Component({
   templateUrl: './progress_dialog.html',
-  imports: [MatProgressSpinnerModule],
+  imports: [MatProgressBarModule, MatProgressSpinnerModule],
 })
 export class ProgressDialog {
   constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
