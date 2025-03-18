@@ -60,7 +60,7 @@ export class AppComponent {
     this.http.get<Folder>(`api/catalog/${this.currentPath}/`)
       .subscribe({
         next: (data) => { this.folderData = data; },
-        error: () => { dialogRef.close(); },
+        error: (response) => { dialogRef.close(); alert('Failed to retrieve catalog'); },
         complete: () => { dialogRef.close(); }
       });
   }
@@ -86,11 +86,7 @@ export class AppComponent {
     this.http.put(`api/catalog/${path}/`, null)
       .subscribe({
         next: () => { this.currentPath = path },
-        error: (error) => {
-          dialogRef.close();
-          // TODO alert user of failure
-          console.error(`Failed to create subfolder ${error}`);
-        },
+        error: (response) => { dialogRef.close(); alert('Failed to create folder'); },
         complete: () => {
           dialogRef.close();
           this.getFolderData();
@@ -103,11 +99,7 @@ export class AppComponent {
     this.http.delete(`api/catalog/${path}/`)
       .subscribe({
         next: () => this.chooseParentFolder(),
-        error: (error) => {
-          dialogRef.close();
-          // TODO raise up error dialog
-          console.error(error);
-        },
+        error: (response) => { dialogRef.close(); alert('Failed to remove folder'); },
         complete: () => {
           dialogRef.close();
         },
@@ -119,11 +111,7 @@ export class AppComponent {
     this.http.delete(`api/catalog/${this.currentPath}/${filename}`)
       .subscribe({
         next: () => this.getFolderData(),
-        error: (error) => {
-          dialogRef.close();
-          // TODO raise up error dialog
-          console.error(error);
-        },
+        error: (response) => { dialogRef.close(); alert('Failed to delete file'); },
         complete: () => {
           dialogRef.close();
         },
@@ -138,9 +126,10 @@ export class AppComponent {
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
         const dialogRef = this.dialog.open(ProgressDialog,
-          { disableClose: true,
+          {
+            disableClose: true,
             data: {
-              'title' : `${file.name}`,
+              'title': `${file.name}`,
               'progress_pct': 0,
             }
           }
@@ -161,21 +150,20 @@ export class AppComponent {
             observe: 'events'
           },
         )
-        .subscribe( event => {
-          switch (event.type) {
-            case HttpEventType.UploadProgress:
-              const progress_pct = event.total ? (100 * (event.loaded / event.total)) : 0;
-              dialogRef.componentInstance.data.progress_pct = progress_pct;
-              console.log(`progress ${progress_pct}%`);
-              break;
-            case HttpEventType.ResponseHeader:
-            case HttpEventType.Response:
-              // TODO handle error
-              dialogRef.close();
-              this.getFolderData();
-              break;
-          }
-        });
+          .subscribe(event => {
+            switch (event.type) {
+              case HttpEventType.UploadProgress:
+                const progress_pct = event.total ? (100 * (event.loaded / event.total)) : 0;
+                dialogRef.componentInstance.data.progress_pct = progress_pct;
+                console.log(`progress ${progress_pct}%`);
+                break;
+              case HttpEventType.ResponseHeader:
+              case HttpEventType.Response:
+                dialogRef.close();
+                this.getFolderData();
+                break;
+            }
+          });
       }
     }
   }
@@ -188,7 +176,6 @@ export class AppComponent {
     this.dialogRef.close();
   }
 }
-
 
 import { ClipboardModule } from '@angular/cdk/clipboard';
 @Component({
@@ -210,5 +197,5 @@ export class SpinnerDialog {
   imports: [MatProgressBarModule, MatProgressSpinnerModule],
 })
 export class ProgressDialog {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any) { }
 };
