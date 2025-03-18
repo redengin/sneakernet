@@ -76,25 +76,25 @@ WebServer::WebServer(const size_t max_sockets) {
   }
 
   registerUriHandler(httpd_uri_t{
-      .uri = "/app/",
+      .uri = "/",
       .method = HTTP_GET,
       .handler = PORTAL,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
-      .uri = "/app/styles.css",
+      .uri = "/styles.css",
       .method = HTTP_GET,
       .handler = STYLES_CSS,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
-      .uri = "/app/main.js",
+      .uri = "/main.js",
       .method = HTTP_GET,
       .handler = MAIN_JS,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
-      .uri = "/app/polyfills.js",
+      .uri = "/polyfills.js",
       .method = HTTP_GET,
       .handler = POLYFILLS_JS,
       .user_ctx = nullptr,
@@ -117,7 +117,7 @@ esp_err_t http_redirect(httpd_req_t* request, httpd_err_code_t err) {
   // Set status
   httpd_resp_set_status(request, "303 See Other");
   // Redirect to the "/" root directory
-  httpd_resp_set_hdr(request, "Location", "http://192.168.4.1/app/");
+  httpd_resp_set_hdr(request, "Location", "http://192.168.4.1/");
   // iOS requires content in the response to detect a captive portal, simply
   // redirecting is not sufficient.
   httpd_resp_send(request, "Redirect to the captive portal",
