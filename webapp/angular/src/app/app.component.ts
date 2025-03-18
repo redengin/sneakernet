@@ -189,14 +189,17 @@ export class AppComponent {
   }
 }
 
+
+import { ClipboardModule } from '@angular/cdk/clipboard';
 @Component({
   templateUrl: './choose_upload_dialog.html',
+  imports: [ClipboardModule]
 })
 export class ChooseUploadDialog {
 };
 
 @Component({
-  template: '!!!!!!<mat-spinner style="margin:10px auto;">',
+  template: '<mat-spinner style="margin:10px auto;">',
   imports: [MatProgressSpinnerModule],
 })
 export class SpinnerDialog {

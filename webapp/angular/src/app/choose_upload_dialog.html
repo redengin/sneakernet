@@ -6,7 +6,10 @@
         <h3> To upload files </h3>
         <ul>
             <li>Choose "Use this network as is" </li>
-            <li>Open a new browser</li>
+            <li>Open a new browser to<br/>
+                <input #url type="text" readonly value="http://192.168.4.1/"/>
+                <button [cdkCopyToClipboard]="url.value">Copy</button>
+            </li>
         </ul>
     </div>
 </div>
