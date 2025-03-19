@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name    = "esp32"
+name = "esp32"
 version = "0.1.0"
 
 [[bin]]
@@ -8,24 +8,21 @@ name = "esp32"
 path = "./src/bin/main.rs"
 
 [dependencies]
-esp-hal = { git="https://github.com/esp-rs/esp-hal.git", features=["log"] }
-esp-backtrace = { git="https://github.com/esp-rs/esp-hal.git", features=["exception-handler", "panic-handler", "println"] }
-esp-println = { git="https://github.com/esp-rs/esp-hal.git", features=["log"] }
-esp-storage = { git="https://github.com/esp-rs/esp-hal.git", optional=true }
-esp-wifi = { git="https://github.com/esp-rs/esp-hal.git", features=["log"], optional=true }
-esp-ieee802154 = { git="https://github.com/esp-rs/esp-hal.git", optional=true }
+# FIXME esp dependencies should use a real semvar version label
+esp-hal = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=["log"] }
+esp-backtrace = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=[
+    "exception-handler",
+    "panic-handler",
+    "println",
+]}
+esp-println = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=["log"] }
+esp-wifi = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=["wifi"] }
+esp-storage = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", optional=true }
+esp-ieee802154 = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", optional=true }
+esp-hal-embassy = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", optional=true }
 
-esp-hal-embassy = { git="https://github.com/esp-rs/esp-hal.git", optional=true }
-
+static_cell         = { version = "2.1.0", features = ["nightly"] }
 # critical-section = "1.2.0"
-# FIXME esp-hal should use a real semvar version label
-# esp-hal          = { version = "1.0.0-beta.0", features = ["esp32"] }
-# esp-hal = { git="https://github.com/esp-rs/esp-hal.git", features = ["esp32"] }
-
-# panic handling
-# esp-backtrace    = { version = "0.1", features = ["esp32", "exception-handler", "panic-handler", "println"] }
-# esp-backtrace    = { version = "0.15", features = ["esp32", "panic-handler", "println"] }
-# esp-println      = { version="0", features = ["log"] }
 
 # embassy support
 embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
@@ -33,14 +30,65 @@ embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
 
 [features]
 default = ["esp32"]
-esp32   = ["esp-hal/esp32",   "esp-backtrace/esp32",   "esp-hal-embassy?/esp32",   "esp-println/esp32",   "esp-storage?/esp32",   "esp-wifi?/esp32"]
-esp32c2 = ["esp-hal/esp32c2", "esp-backtrace/esp32c2", "esp-hal-embassy?/esp32c2", "esp-println/esp32c2", "esp-storage?/esp32c2", "esp-wifi?/esp32c2", ]
-esp32c3 = ["esp-hal/esp32c3", "esp-backtrace/esp32c3", "esp-hal-embassy?/esp32c3", "esp-println/esp32c3", "esp-storage?/esp32c3", "esp-wifi?/esp32c3"]
-esp32c6 = ["esp-hal/esp32c6", "esp-backtrace/esp32c6", "esp-hal-embassy?/esp32c6", "esp-println/esp32c6", "esp-storage?/esp32c6", "esp-wifi?/esp32c6", "esp-ieee802154?/esp32c6"]
-esp32h2 = ["esp-hal/esp32h2", "esp-backtrace/esp32h2", "esp-hal-embassy?/esp32h2", "esp-println/esp32h2", "esp-storage?/esp32h2", "esp-wifi?/esp32h2", "esp-ieee802154?/esp32h2"]
-esp32s2 = ["esp-hal/esp32s2", "esp-backtrace/esp32s2", "esp-hal-embassy?/esp32s2", "esp-println/esp32s2", "esp-storage?/esp32s2", "esp-wifi?/esp32s2"]
-esp32s3 = ["esp-hal/esp32s3", "esp-backtrace/esp32s3", "esp-hal-embassy?/esp32s3", "esp-println/esp32s3", "esp-storage?/esp32s3", "esp-wifi?/esp32s3"]
-
+esp32 = ["esp-hal/esp32", "esp-backtrace/esp32", "esp-println/esp32", "esp-hal-embassy/esp32", "esp-wifi/esp32" ]
+# esp32 = [
+#     "esp-hal/esp32",
+#     "esp-backtrace/esp32",
+#     "esp-hal-embassy/esp32",
+#     "esp-println/esp32",
+#     "esp-storage?/esp32",
+#     "esp-wifi/esp32",
+# ]
+# esp32c2 = [
+#     "esp-hal/esp32c2",
+#     "esp-backtrace/esp32c2",
+#     "esp-hal-embassy/esp32c2",
+#     "esp-println/esp32c2",
+#     "esp-storage?/esp32c2",
+#     "esp-wifi/esp32c2",
+# ]
+# esp32c3 = [
+#     "esp-hal/esp32c3",
+#     "esp-backtrace/esp32c3",
+#     "esp-hal-embassy/esp32c3",
+#     "esp-println/esp32c3",
+#     "esp-storage?/esp32c3",
+#     "esp-wifi/esp32c3",
+# ]
+# esp32c6 = [
+#     "esp-hal/esp32c6",
+#     "esp-backtrace/esp32c6",
+#     "esp-hal-embassy/esp32c6",
+#     "esp-println/esp32c6",
+#     "esp-storage?/esp32c6",
+#     "esp-wifi/esp32c6",
+#     "esp-ieee802154?/esp32c6",
+# ]
+# esp32h2 = [
+#     "esp-hal/esp32h2",
+#     "esp-backtrace/esp32h2",
+#     "esp-hal-embassy/esp32h2",
+#     "esp-println/esp32h2",
+#     "esp-storage?/esp32h2",
+#     "esp-wifi/esp32h2",
+#     "esp-ieee802154?/esp32h2",
+# ]
+# esp32s2 = [
+#     "esp-hal/esp32s2",
+#     "esp-backtrace/esp32s2",
+#     "esp-hal-embassy/esp32s2",
+#     "esp-println/esp32s2",
+#     "esp-storage?/esp32s2",
+#     "esp-wifi/esp32s2",
+# ]
+# esp32s3 = [
+#     "esp-hal/esp32s3",
+#     "esp-backtrace/esp32s3",
+#     "esp-hal-embassy/esp32s3",
+#     "esp-println/esp32s3",
+#     "esp-storage?/esp32s3",
+#     "esp-wifi/esp32s3",
+# ]
 
 [profile.dev]
 # Rust debug is too slow.
@@ -48,10 +96,10 @@ esp32s3 = ["esp-hal/esp32s3", "esp-backtrace/esp32s3", "esp-hal-embassy?/esp32s3
 opt-level = "s"
 
 [profile.release]
-codegen-units    = 1     # LLVM can perform better optimizations using a single thread
-debug            = 2
+codegen-units = 1        # LLVM can perform better optimizations using a single thread
+debug = 2
 debug-assertions = false
-incremental      = false
-lto              = 'fat'
-opt-level        = 's'
-overflow-checks  = false
+incremental = false
+lto = 'fat'
+opt-level = 's'
+overflow-checks = false
