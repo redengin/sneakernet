@@ -38,9 +38,7 @@ app.use((request, response, next) => {
 });
 
 app.put("/api/catalog/:path?/", (request, response) => {
-    console.log(request.rawBody);
-    // response.status(500).send();
-    response.send("" + request.rawBody.length);
+    response.send("");
 });
 
 app.delete("/api/catalog/:path?/:file", (request, response) => {
