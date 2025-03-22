@@ -4,7 +4,7 @@ DOCKER = `which docker`
 #--------------------------------------------------------------------------------
 # Use to initialize new ESP32 SneakerNet node from released binaries
 #--------------------------------------------------------------------------------
-# RELEASE_VERSION ?= 0.1.0
+RELEASE_VERSION ?= 0.1.0
 RELEASE_URL ?= https://github.com/redengin/sneakernet/releases/download/${RELEASE_VERSION}
 
 RELEASE_DIR ?= release/$(RELEASE_VERSION)
