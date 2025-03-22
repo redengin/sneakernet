@@ -79,6 +79,7 @@ export class AppComponent {
   }
 
   createSubfolder(event: any): void {
+    event.target.blur();
     const subfolderName = event.target.value;
     event.target.value = null; /* clear the DOM value */
     const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
@@ -89,6 +90,7 @@ export class AppComponent {
         error: (response) => { dialogRef.close(); alert('Failed to create folder'); },
         complete: () => {
           dialogRef.close();
+          this.currentPath = path;
           this.getFolderData();
         },
       });
