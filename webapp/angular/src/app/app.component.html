@@ -27,7 +27,7 @@
         @if(entry.value.isFolder) {
         <div class="card" (click)="chooseSubfolder(entry.key)">
             <ng-icon name="MatFolderOutline" size="60px"/>
-            <span class="title">{{entry.key}}</span>
+            <span class="title">{{httpDecode(entry.key)}}</span>
         </div>
         }
     }
@@ -37,7 +37,7 @@
             <div class="card">
                 <a download href="api/catalog/{{currentPath}}/{{entry.key}}"><div>
                     <ng-icon name="MatFileDownloadOutline" size="60px"/>
-                    <span class="title"> {{entry.value.title || entry.key}} </span>
+                    <span class="title"> {{entry.value.title || httpDecode(entry.key)}} </span>
                 </div></a>
                 <div class="info">
                     <span>{{entry.value.timestamp! | timeago:true}}</span>

@@ -15,9 +15,10 @@ SdCard::SdCard() {
 
   // const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
   const sdmmc_host_t host = {
-      /* workaround for incomplete SDPSI_HOST_DEFAULT() */
+      /* workaround for incomplete SDSPI_HOST_DEFAULT() */
       .flags = SDMMC_HOST_FLAG_SPI | SDMMC_HOST_FLAG_DEINIT_ARG,
       .slot = HSPI_HOST,
+      // .max_freq_khz = SDMMC_FREQ_HIGHSPEED,  FIXME
       .max_freq_khz = SDMMC_FREQ_DEFAULT,
       .io_voltage = 3.3f,
       .init = &sdspi_host_init,

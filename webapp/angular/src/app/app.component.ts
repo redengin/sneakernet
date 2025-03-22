@@ -106,6 +106,10 @@ export class AppComponent {
       })
   }
 
+  httpDecode(s: string): string {
+    return decodeURIComponent(s);
+  }
+
   deleteFile(filename: string): void {
     const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
     this.http.delete(`api/catalog/${this.currentPath}/${filename}`)

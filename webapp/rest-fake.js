@@ -8,8 +8,8 @@ catalog = {
     "locked" : false,
     "entries" : {
         "short" : { isFolder: true },
-        "long directory" : { isFolder: true },
-        "file 1": { isFolder: false,
+        "long%20directory" : { isFolder: true },
+        "file%201": { isFolder: false,
             size: 1,
             timestamp : "2025-02-12T19:26:24Z",
             hasIcon: false,
