@@ -2,6 +2,9 @@
     <div class="mat-mdc-dialog-content">
         <span style="overflow-wrap: break-word;"> {{data.title}} </span>
         <mat-spinner style="margin:10px auto;"/>
+        <div style="display:flex;">
+            <div style="margin:-70px auto;font-size:x-large;">{{data.progress_pct | number:'1.0-0'}}%</div>
+        </div>
         <mat-progress-bar mode="determinate" [value]="data.progress_pct"/>
     </div>
 </div>

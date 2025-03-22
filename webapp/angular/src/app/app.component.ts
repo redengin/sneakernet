@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient, HttpEventType, HttpParams } from '@angular/common/http';
 
-import { KeyValuePipe, formatDate } from '@angular/common';
+import { KeyValuePipe, DecimalPipe, formatDate } from '@angular/common';
 
 import { NgIconsModule } from '@ng-icons/core';
 
@@ -198,7 +198,7 @@ export class SpinnerDialog {
 
 @Component({
   templateUrl: './progress_dialog.html',
-  imports: [MatProgressBarModule, MatProgressSpinnerModule],
+  imports: [MatProgressBarModule, MatProgressSpinnerModule, DecimalPipe],
 })
 export class ProgressDialog {
   constructor(@Inject(MAT_DIALOG_DATA) public data: any) { }
