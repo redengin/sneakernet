@@ -3,9 +3,6 @@
 // panic handler
 use esp_backtrace as _;
 
-use embassy_executor::Spawner;
-
-
 // When you are okay with using a nightly compiler it's better to use https://docs.rs/static_cell/2.1.0/static_cell/macro.make_static.html
 macro_rules! mk_static {
     ($t:ty,$val:expr) => {{
@@ -17,7 +14,7 @@ macro_rules! mk_static {
 }
 
 #[esp_hal_embassy::main]
-async fn main(_spawner: Spawner) {
+async fn main(spawner: embassy_executor::Spawner) {
     // initialize logger
     esp_println::logger::init_logger_from_env();
 
@@ -47,7 +44,6 @@ async fn main(_spawner: Spawner) {
     let (wifi_interface, mut wifi_controller) =
         esp_wifi::wifi::new_with_mode(&wifi_init, peripherals.WIFI, esp_wifi::wifi::WifiApDevice).unwrap();
 
-
-
+    sneakernet::start(spawner, wifi_interface);
 
 }

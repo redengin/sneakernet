@@ -8,6 +8,7 @@ name = "esp32"
 path = "./src/bin/main.rs"
 
 [dependencies]
+sneakernet = { path=".." }
 # FIXME esp dependencies should use a real semvar version label
 esp-hal = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=["log"] }
 esp-backtrace = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=[
