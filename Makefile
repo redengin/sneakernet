@@ -24,7 +24,8 @@ sneakernet.esp32: $(RELEASE_DIR)/bootloader.bin \
 		--workdir /tmp/release \
 			espressif/idf \
 		esptool.py --before=default_reset --after=hard_reset \
-			write_flash --flash_freq 80m \
+			--baud 460800 \
+			write_flash \
 				0x1000 bootloader.bin \
 				0x8000 partition-table.bin \
 				0xd000 ota_data_initial.bin \
