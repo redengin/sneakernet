@@ -19,7 +19,9 @@ macro_rules! make_static {
 /// create an SSID
 pub fn ssid(mac:[u8;6]) -> heapless::String<32>
 {
-    let mut ssid:heapless::String<32> = heapless::String::try_from("SneakerNet ").unwrap();
+    let mut ssid:heapless::String<32> = heapless::String::try_from("SneakerNet").unwrap();
+    // add the MAC address
+    ssid.push(' ').unwrap();
     for byte in mac {
         ssid.push(hex_char(byte/16)).unwrap();
         ssid.push(hex_char(byte%16)).unwrap();
