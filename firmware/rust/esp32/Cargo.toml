@@ -8,7 +8,6 @@ name = "esp32"
 path = "./src/bin/main.rs"
 
 [dependencies]
-sneakernet = { path=".." }
 # FIXME esp dependencies should use a real semvar version label
 esp-hal = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=["log"] }
 esp-backtrace = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=[
@@ -22,12 +21,8 @@ esp-storage = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", opti
 esp-ieee802154 = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", optional=true }
 esp-hal-embassy = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", optional=true }
 
-static_cell         = { version = "2.1.0", features = ["nightly"] }
-# critical-section = "1.2.0"
-
-# embassy support
 embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
-# embassy-time     = "0.4"
+sneakernet = { path=".." }
 
 [features]
 default = ["esp32"]

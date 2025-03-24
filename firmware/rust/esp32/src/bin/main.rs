@@ -3,15 +3,8 @@
 // panic handler
 use esp_backtrace as _;
 
-// When you are okay with using a nightly compiler it's better to use https://docs.rs/static_cell/2.1.0/static_cell/macro.make_static.html
-macro_rules! mk_static {
-    ($t:ty,$val:expr) => {{
-        static STATIC_CELL: static_cell::StaticCell<$t> = static_cell::StaticCell::new();
-        #[deny(unused_attributes)]
-        let x = STATIC_CELL.uninit().write(($val));
-        x
-    }};
-}
+use sneakernet::{static_cell, make_static};
+
 
 #[esp_hal_embassy::main]
 async fn main(spawner: embassy_executor::Spawner) {
@@ -37,13 +30,14 @@ async fn main(spawner: embassy_executor::Spawner) {
     // initialize wifi hardware
     let timg0 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG0);
     let rng = esp_hal::rng::Rng::new(peripherals.RNG);
-    let wifi_init = &*mk_static!(
+    let wifi_init = &*make_static!(
         esp_wifi::EspWifiController<'static>,
         esp_wifi::init(timg0.timer0, rng.clone(), peripherals.RADIO_CLK).unwrap()
     );
-    let (wifi_interface, mut wifi_controller) =
+    let (_wifi_interface, mut _wifi_controller) =
         esp_wifi::wifi::new_with_mode(&wifi_init, peripherals.WIFI, esp_wifi::wifi::WifiApDevice).unwrap();
 
-    sneakernet::start(spawner, wifi_interface);
+    // sneakernet::start(spawner, wifi_interface);
+    sneakernet::start(spawner);
 
 }
