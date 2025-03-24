@@ -68,10 +68,8 @@ async fn main(spawner: embassy_executor::Spawner) {
     );
     spawner.spawn(net_task(runner)).unwrap();
 
-
-    // sneakernet::start(spawner, wifi_device);
+    // start sneakernet
     sneakernet::start(spawner, net_stack);
-
 
     // publish the wifi AP
     wifi_controller.start().unwrap();
