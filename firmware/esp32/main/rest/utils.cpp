@@ -152,7 +152,7 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
     // complete upon empty chunk
     if (received == 0) {
       ESP_LOGD(TAG, "received %d bytes", total_sz);
-      return true;
+      return total_sz >= request->content_len;
     }
 
     fos.write(buffer.get(), received);

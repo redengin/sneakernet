@@ -173,6 +173,7 @@ void dns_service_task(void *) {
     size_t response_sz = sz;
     const auto qd_count = htons(header->qd_count);
     for (an_count = 0; an_count < qd_count; ++an_count) {
+      ESP_LOGD(WifiAccessPoint::TAG, "dns request for '%s'", &buffer[requestCursor]);
       if ((responseCursor + sizeof(dns::compressed_answer)) > sizeof(buffer)) {
         ESP_LOGW(WifiAccessPoint::TAG,
                  "unable to respond to all queries (buffer too small)");

@@ -8,8 +8,8 @@ catalog = {
     "locked" : false,
     "entries" : {
         "short" : { isFolder: true },
-        "long directory" : { isFolder: true },
-        "file 1": { isFolder: false,
+        "long%20directory" : { isFolder: true },
+        "file%201": { isFolder: false,
             size: 1,
             timestamp : "2025-02-12T19:26:24Z",
             hasIcon: false,
@@ -29,9 +29,16 @@ app.get("/api/catalog/:path?/", (request, response) => {
     response.send(catalog);
 });
 
+
+// download the body (file content)
+app.use((request, response, next) => {
+    let rawBody = '';
+    request.on('data', (chunk) => { rawBody += chunk; });
+    request.on('end', () => { request.rawBody = rawBody; next(); });
+});
+
 app.put("/api/catalog/:path?/", (request, response) => {
-    // FIXME
-    response.send();
+    response.send("");
 });
 
 app.delete("/api/catalog/:path?/:file", (request, response) => {

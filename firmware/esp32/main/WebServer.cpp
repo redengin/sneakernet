@@ -32,20 +32,18 @@ WebServer::WebServer(const size_t max_sockets) {
     // allow wildcard uris
     httpsConfig.httpd.uri_match_fn = httpd_uri_match_wildcard;
     // provide the private key
-#if 0  // FIXME https doesn't understand keys
-        extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_pem_start");
-        extern const unsigned char prvtkey_pem_end[]   asm("_binary_sneakernet_pem_end");
-        httpsConfig.prvtkey_pem = prvtkey_pem_start;
-        httpsConfig.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
-        // provide the public key
-        extern const unsigned char servercert_start[] asm("_binary_sneakernet_public_pem_start");
-        extern const unsigned char servercert_end[]   asm("_binary_sneakernet_public_pem_end");
-        httpsConfig.servercert = servercert_start;
-        httpsConfig.servercert_len = servercert_end - servercert_start;
-        ESP_ERROR_CHECK(httpd_ssl_start(&httpsHandle, &httpsConfig));
-        // upon 404, redirect to index
-        ESP_ERROR_CHECK(httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, redirect));
-#endif
+    extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_https_priv_pem_start");
+    extern const unsigned char prvtkey_pem_end[]   asm("_binary_sneakernet_https_priv_pem_end");
+    httpsConfig.prvtkey_pem = prvtkey_pem_start;
+    httpsConfig.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+    // provide the public key
+    extern const unsigned char servercert_start[] asm("_binary_sneakernet_https_pub_pem_start");
+    extern const unsigned char servercert_end[]   asm("_binary_sneakernet_https_pub_pem_end");
+    httpsConfig.servercert = servercert_start;
+    httpsConfig.servercert_len = servercert_end - servercert_start;
+    ESP_ERROR_CHECK(httpd_ssl_start(&httpsHandle, &httpsConfig));
+    // upon 404, redirect to index
+    ESP_ERROR_CHECK(httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, http_redirect));
   }
 
   // create HTTP server
@@ -78,25 +76,25 @@ WebServer::WebServer(const size_t max_sockets) {
   }
 
   registerUriHandler(httpd_uri_t{
-      .uri = "/app/",
+      .uri = "/",
       .method = HTTP_GET,
       .handler = PORTAL,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
-      .uri = "/app/styles.css",
+      .uri = "/styles.css",
       .method = HTTP_GET,
       .handler = STYLES_CSS,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
-      .uri = "/app/main.js",
+      .uri = "/main.js",
       .method = HTTP_GET,
       .handler = MAIN_JS,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
-      .uri = "/app/polyfills.js",
+      .uri = "/polyfills.js",
       .method = HTTP_GET,
       .handler = POLYFILLS_JS,
       .user_ctx = nullptr,
@@ -105,9 +103,7 @@ WebServer::WebServer(const size_t max_sockets) {
 
 void WebServer::registerUriHandler(const httpd_uri_t& handler) {
   ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-#if 0  // FIXME HTTPS doesn't work
-    ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
-#endif
+  ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
 }
 
 /// signal that this has internet connectivity
@@ -117,11 +113,11 @@ esp_err_t GENERATE_204(httpd_req_t* request) {
 
 /// provides captive portal redirect
 esp_err_t http_redirect(httpd_req_t* request, httpd_err_code_t err) {
-  ESP_LOGI(WebServer::TAG, "Serving 302 redirect request[%s]", request->uri);
+  ESP_LOGI(WebServer::TAG, "Serving 303 redirect for request[%s]", request->uri);
   // Set status
-  httpd_resp_set_status(request, "302 Temporary Redirect");
+  httpd_resp_set_status(request, "303 See Other");
   // Redirect to the "/" root directory
-  httpd_resp_set_hdr(request, "Location", WebServer::APP_URI);
+  httpd_resp_set_hdr(request, "Location", "http://192.168.4.1/");
   // iOS requires content in the response to detect a captive portal, simply
   // redirecting is not sufficient.
   httpd_resp_send(request, "Redirect to the captive portal",
@@ -133,7 +129,10 @@ extern "C" const char portalHtml_start[] asm("_binary_index_html_start");
 extern "C" const char portalHtml_end[] asm("_binary_index_html_end");
 esp_err_t PORTAL(httpd_req_t* request) {
   auto response = request;
-  ESP_ERROR_CHECK(httpd_resp_set_type(response, "text/html"));
+  // limit caching to 15 minutes (15 * 60) = 900
+  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
+  // send the data
+  httpd_resp_set_type(response, "text/html");
   const size_t sz = portalHtml_end - portalHtml_start;
   return httpd_resp_send(response, portalHtml_start, sz);
 }
@@ -142,7 +141,10 @@ extern "C" const char stylesCss_start[] asm("_binary_styles_css_start");
 extern "C" const char stylesCss_end[] asm("_binary_styles_css_end");
 esp_err_t STYLES_CSS(httpd_req_t* request) {
   auto response = request;
-  ESP_ERROR_CHECK(httpd_resp_set_type(response, "text/css"));
+  // limit caching to 15 minutes (15 * 60) = 900
+  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
+  // send the data
+  httpd_resp_set_type(response, "text/css");
   const size_t sz = stylesCss_end - stylesCss_start;
   return httpd_resp_send(response, stylesCss_start, sz);
 }
@@ -151,7 +153,10 @@ extern "C" const char mainJs_start[] asm("_binary_main_js_start");
 extern "C" const char mainJs_end[] asm("_binary_main_js_end");
 esp_err_t MAIN_JS(httpd_req_t* request) {
   auto response = request;
-  ESP_ERROR_CHECK(httpd_resp_set_type(response, "text/javascript"));
+  // limit caching to 15 minutes (15 * 60) = 900
+  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
+  // send the data
+  httpd_resp_set_type(response, "text/javascript");
   const size_t sz = mainJs_end - mainJs_start;
   return httpd_resp_send(response, mainJs_start, sz);
 }
@@ -160,7 +165,10 @@ extern "C" const char polyfillsJs_start[] asm("_binary_polyfills_js_start");
 extern "C" const char polyfillsJs_end[] asm("_binary_polyfills_js_end");
 esp_err_t POLYFILLS_JS(httpd_req_t* request) {
   auto response = request;
-  ESP_ERROR_CHECK(httpd_resp_set_type(response, "text/javascript"));
+  // limit caching to 15 minutes (15 * 60) = 900
+  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
+  // send the data
+  httpd_resp_set_type(response, "text/javascript");
   const size_t sz = polyfillsJs_end - polyfillsJs_start;
   return httpd_resp_send(response, polyfillsJs_start, sz);
 }

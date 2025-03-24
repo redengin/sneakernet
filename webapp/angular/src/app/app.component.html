@@ -2,14 +2,13 @@
 
 <main>
     <div id="currentPath">
-        <span>{{currentPath}}/</span>
+        <span>{{httpDecode(currentPath)}}/</span>
         <mat-form-field>
             <mat-label>
                 <ng-icon name="MatCreateNewFolderOutline" size="50px"/>
             </mat-label>
-            <input (change)="createSubfolder($event)" matInput/>
+            <input matInput (change)="createSubfolder($event)" placeholder="new subfolder"/>
         </mat-form-field>
-        <!-- TODO <ng-icon (click)="createNewFolder" name="MatCreateNewFolderOutline" size="30px"/> -->
     </div>
 
     <div class="centered">
@@ -27,7 +26,7 @@
         @if(entry.value.isFolder) {
         <div class="card" (click)="chooseSubfolder(entry.key)">
             <ng-icon name="MatFolderOutline" size="60px"/>
-            <span class="title">{{entry.key}}</span>
+            <span class="title">{{httpDecode(entry.key)}}</span>
         </div>
         }
     }
@@ -37,7 +36,7 @@
             <div class="card">
                 <a download href="api/catalog/{{currentPath}}/{{entry.key}}"><div>
                     <ng-icon name="MatFileDownloadOutline" size="60px"/>
-                    <span class="title"> {{entry.value.title || entry.key}} </span>
+                    <span class="title"> {{entry.value.title || httpDecode(entry.key)}} </span>
                 </div></a>
                 <div class="info">
                     <span>{{entry.value.timestamp! | timeago:true}}</span>
@@ -64,12 +63,9 @@
     </div>
 
 <!-- provide add file functionality -->
-<!-- FIXME android signin page disables file input -->
-<input #fileSelect hidden type="file" (change)="addFile($event)"/>
-@if(!fileSelect.disabled) {
+<input #fileSelect type="file" (change)="addFile($event)" hidden/>
 <ng-icon class="fab"
-    (click)="fileSelect.click()"
+    (click)="openChooseUploadDialog(); fileSelect.click()"
     name="MatUploadFile" color="blue" size="60px"/>
-}
 </main>
 

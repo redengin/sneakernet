@@ -1,0 +1,15 @@
+<div class="mat-mdc-dialog-container">
+    <div class="mat-mdc-dialog-title">Choose files for upload...</div>
+    <div class="mat-mdc-dialog-content">
+        <div> If you don't see a file chooser,  </div>
+        <div> your <b>browser has disabled</b> uploads. </div>
+        <h3> To upload files </h3>
+        <ul>
+            <li>Choose "Use this network as is" </li>
+            <li>Open a new browser to<br/>
+                <input #url type="text" readonly value="http://192.168.4.1/"/>
+                <button [cdkCopyToClipboard]="url.value">Copy</button>
+            </li>
+        </ul>
+    </div>
+</div>
