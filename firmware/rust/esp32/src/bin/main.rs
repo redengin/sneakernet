@@ -60,21 +60,27 @@ async fn main(spawner: embassy_executor::Spawner) {
     });
     let seed = (rng.random() as u64) << 32 | rng.random() as u64;
     const SOCKETS_MAX:usize = 20; // TODO tune to optimize client support
-    let (_stack, _runner) = embassy_net::new(
+    let (net_stack, runner) = embassy_net::new(
         wifi_device,
         net_config,
         make_static!(StackResources<{SOCKETS_MAX}>, StackResources::<{SOCKETS_MAX}>::new()),
         seed,
     );
+    spawner.spawn(net_task(runner)).unwrap();
 
 
     // sneakernet::start(spawner, wifi_device);
-    sneakernet::start(spawner);
+    sneakernet::start(spawner, net_stack);
 
 
-    // start the wifi AP
+    // publish the wifi AP
     wifi_controller.start().unwrap();
 
     loop{};
 
+}
+
+#[embassy_executor::task]
+async fn net_task(mut runner: embassy_net::Runner<'static, esp_wifi::wifi::WifiDevice<'static, esp_wifi::wifi::WifiApDevice>>) {
+    runner.run().await
 }

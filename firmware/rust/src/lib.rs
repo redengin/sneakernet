@@ -37,15 +37,8 @@ fn hex_char(val:u8) -> char
 /// IP Address of SneakerNet node
 pub const IP_ADDRESS:embassy_net::Ipv4Address = embassy_net::Ipv4Address::new(192,168,4,1);
 
-// pub fn start(spawner:embassy_executor::Spawner, wifi_interface:embassy_net::driver)
-pub fn start(_spawner:embassy_executor::Spawner)
+pub fn start(_spawner:embassy_executor::Spawner, _net_stack:embassy_net::Stack<'_>)
 {
-
 }
 
 
-
-// #[embassy_executor::task]
-// async fn net_task(stack: &'static embassy_net::Stack<WifiDevice<'static, WifiApDevice>>) {
-//     stack.run().await
-// }
