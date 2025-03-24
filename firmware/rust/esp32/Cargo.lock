@@ -648,6 +648,7 @@ name = "esp32"
 version = "0.1.0"
 dependencies = [
  "embassy-executor",
+ "esp-alloc",
  "esp-backtrace",
  "esp-hal",
  "esp-hal-embassy",
@@ -1119,6 +1120,7 @@ version = "0.1.0"
 dependencies = [
  "embassy-executor",
  "embassy-net",
+ "heapless",
  "static_cell",
 ]
 
