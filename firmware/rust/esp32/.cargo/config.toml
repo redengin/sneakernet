@@ -2,13 +2,13 @@
 runner = "espflash flash --monitor --chip esp32 --baud 460800"
 
 [env]
+ESP_LOG = "info" # FIXME doesn't work
 
 [build]
+target = "xtensa-esp32-none-elf"
 rustflags = [
   "-C", "link-arg=-nostartfiles",
 ]
-
-target = "xtensa-esp32-none-elf"
 
 [unstable]
 build-std = ["core", "alloc"]

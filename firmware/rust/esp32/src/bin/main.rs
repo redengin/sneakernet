@@ -1,17 +1,17 @@
 #![no_std]
 #![no_main]
-// panic handler
 use esp_backtrace as _;
 use esp_alloc as _;
 
+use sneakernet::log;
 use sneakernet::{static_cell, make_static, embassy_net};
 use sneakernet::embassy_net::StackResources;
-
 
 #[esp_hal_embassy::main]
 async fn main(spawner: embassy_executor::Spawner) {
     // initialize logger
-    esp_println::logger::init_logger_from_env();
+    // FIXME esp_println::logger::init_logger_from_env();
+    esp_println::logger::init_logger(log::LevelFilter::Info);
 
     // initialize the chip (max cpuclock required for wifi)
     let peripherals = esp_hal::init(
@@ -20,7 +20,6 @@ async fn main(spawner: embassy_executor::Spawner) {
 
     // initialize the heap
     esp_alloc::heap_allocator!(72 * 1024);
-
 
     // initialize embassy scheduler
 #[cfg(feature = "esp32")] {
@@ -43,14 +42,16 @@ async fn main(spawner: embassy_executor::Spawner) {
     let (wifi_device, mut wifi_controller) =
         esp_wifi::wifi::new_with_mode(&wifi_init, peripherals.WIFI, esp_wifi::wifi::WifiApDevice).unwrap();
 
-    // configure the AccessPoint
+    // configure the Access Point
+    let ssid = sneakernet::ssid(wifi_device.mac_address());
     let wifi_config = esp_wifi::wifi::Configuration::AccessPoint(
         esp_wifi::wifi::AccessPointConfiguration{
-            ssid: sneakernet::ssid(wifi_device.mac_address()),
+            ssid: ssid.clone(),
             ..Default::default()
         }
     );
     wifi_controller.set_configuration(&wifi_config).unwrap();
+    log::info!("SSID: '{}'", ssid);
 
     // start the network stack
     let net_config = embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
@@ -66,13 +67,17 @@ async fn main(spawner: embassy_executor::Spawner) {
         make_static!(StackResources<{SOCKETS_MAX}>, StackResources::<{SOCKETS_MAX}>::new()),
         seed,
     );
-    spawner.spawn(net_task(runner)).unwrap();
+    spawner.spawn(net_task(runner)).ok();
+    net_stack.config_v4()
+             .inspect(|config| log::info!("{config:?}"));
 
     // start sneakernet
     sneakernet::start(spawner, net_stack);
+    log::info!("SneakerNet started");
 
     // publish the wifi AP
     wifi_controller.start().unwrap();
+    log::info!("Publishing WIFI SSID");
 
     loop{};
 

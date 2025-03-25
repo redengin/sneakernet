@@ -1,6 +1,7 @@
 #![no_std]
 
 // export common cargo
+pub use log;
 pub use static_cell;
 pub use embassy_net;
 
@@ -15,6 +16,7 @@ macro_rules! make_static {
         x
     }};
 }
+
 
 /// create an SSID
 pub fn ssid(mac:[u8;6]) -> heapless::String<32>
@@ -34,11 +36,47 @@ fn hex_char(val:u8) -> char
     return (('A' as u8) + val - 10) as char;
 }
 
-/// IP Address of SneakerNet node
+
+/// IP Address for SneakerNet node
 pub const IP_ADDRESS:embassy_net::Ipv4Address = embassy_net::Ipv4Address::new(192,168,4,1);
 
-pub fn start(_spawner:embassy_executor::Spawner, _net_stack:embassy_net::Stack<'_>)
+pub fn start(spawner:embassy_executor::Spawner, net_stack:embassy_net::Stack<'static>)
 {
+    // start dhcp service
+    spawner.spawn(dhcp_service(net_stack)).ok();
+    log::info!("DHCP service started");
+
 }
 
+#[embassy_executor::task]
+async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
+{
+    use edge_nal_embassy::{UdpBuffers, Udp};
+    let buffers = UdpBuffers::<3, 1024, 1024, 10>::new();
+    let unbound_socket = Udp::new(net_stack, &buffers);
 
+    use core::net::{SocketAddr, SocketAddrV4, Ipv4Addr};
+    use edge_nal::UdpBind;
+    let mut bound_socket = unbound_socket
+        .bind(SocketAddr::V4(SocketAddrV4::new(
+            Ipv4Addr::UNSPECIFIED,
+            edge_dhcp::io::DEFAULT_SERVER_PORT,
+        )))
+        .await
+        .unwrap();
+
+    use edge_dhcp::server::{Server, ServerOptions};
+    let mut buf = [0u8; 1500];
+    loop {
+        _ = edge_dhcp::io::server::run(
+            &mut Server::<_, 64>::new_with_et(IP_ADDRESS),
+            &ServerOptions::new(IP_ADDRESS, None),
+            &mut bound_socket,
+            &mut buf,
+        )
+        .await
+        .inspect(|r| log::info!("{r:?}"))
+        .inspect_err(|e| log::warn!("DHCP server error: {e:?}"));
+        // Timer::after(Duration::from_millis(500)).await;
+    }
+}
