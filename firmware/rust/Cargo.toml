@@ -7,17 +7,17 @@ publish = false
 
 [dependencies]
 log = "0.4"
-
-# static_cell      = { version = "2.1.0", features = ["nightly"] }
+# FIXME static_cell      = { version = "2.1.0", features = ["nightly"] }
 static_cell = "2.1"
 # heapless         = { version = "0.8.0", default-features = false, features = [ "portable-atomic", ] }
 heapless = "0.8"
 
+# embassy support
 embassy-executor = "0.7"
 embassy-time = "0.4"
 embassy-net      = { version = "0.6", features = ["udp", "tcp"] }
-edge-dhcp = "0.5"
-edge-nal = "0.5"
-edge-nal-embassy = "0.5"
 
-# embassy-time    = "0.4.0"
+# dhcp sever support
+edge-nal-embassy = "0.5"
+edge-nal = "0.5"
+edge-dhcp = "0.5"
