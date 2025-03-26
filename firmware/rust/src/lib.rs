@@ -44,14 +44,13 @@ pub const IP_ADDRESS:embassy_net::Ipv4Address = embassy_net::Ipv4Address::new(19
 pub fn start(spawner:embassy_executor::Spawner, net_stack:embassy_net::Stack<'static>)
 {
     // start dhcp service
-    spawner.spawn(dhcp_service(net_stack)).ok();
-    log::info!("DHCP service started");
-
+    spawner.spawn(dhcp_service(net_stack)).unwrap();
 }
 
 #[embassy_executor::task]
 async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
 {
+    log::debug!("DHCP service starting");
     use edge_nal_embassy::{UdpBuffers, Udp};
     let buffers = UdpBuffers::<3, 1024, 1024, 10>::new();
     let unbound_socket = Udp::new(net_stack, &buffers);
@@ -68,6 +67,7 @@ async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
 
     use edge_dhcp::server::{Server, ServerOptions};
     let mut buf = [0u8; 1500];
+    log::debug!("DHCP service started");
     loop {
         _ = edge_dhcp::io::server::run(
             &mut Server::<_, 64>::new_with_et(IP_ADDRESS),
@@ -79,5 +79,7 @@ async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
         .inspect(|r| log::info!("{r:?}"))
         .inspect_err(|e| log::warn!("DHCP server error: {e:?}"));
         // Timer::after(Duration::from_millis(500)).await;
+        log::info!("dhcp request handled");
+        log::debug!("dhcp request handled");
     }
 }

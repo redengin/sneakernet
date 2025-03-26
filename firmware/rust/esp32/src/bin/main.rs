@@ -73,7 +73,7 @@ async fn main(spawner: embassy_executor::Spawner) {
 
     // start the wifi_controller
     wifi_controller.start().unwrap();
-    log::info!("Publishing WIFI SSID [{ssid}]");
+    log::info!("Publishing wifi ssid [{ssid}]");
 
     // wait for network stack
     loop {
