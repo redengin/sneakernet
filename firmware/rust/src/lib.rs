@@ -69,6 +69,7 @@ async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
     let mut buf = [0u8; 1500];
     log::debug!("DHCP service started");
     loop {
+        log::debug!("waiting for dhcp request...");
         _ = edge_dhcp::io::server::run(
             &mut Server::<_, 64>::new_with_et(IP_ADDRESS),
             &ServerOptions::new(IP_ADDRESS, None),
@@ -76,10 +77,8 @@ async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
             &mut buf,
         )
         .await
-        .inspect(|r| log::info!("{r:?}"))
         .inspect_err(|e| log::warn!("DHCP server error: {e:?}"));
         // Timer::after(Duration::from_millis(500)).await;
-        log::info!("dhcp request handled");
         log::debug!("dhcp request handled");
     }
 }
