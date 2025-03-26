@@ -3,6 +3,7 @@
 // export common cargo
 pub use log;
 pub use static_cell;
+pub use embassy_time;
 pub use embassy_net;
 
 /// create a run-once body of code (second run will cause panic)
@@ -59,8 +60,8 @@ async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
     use edge_nal::UdpBind;
     let mut bound_socket = unbound_socket
         .bind(SocketAddr::V4(SocketAddrV4::new(
-            Ipv4Addr::UNSPECIFIED,
-            edge_dhcp::io::DEFAULT_SERVER_PORT,
+                Ipv4Addr::UNSPECIFIED,
+                edge_dhcp::io::DEFAULT_SERVER_PORT,
         )))
         .await
         .unwrap();

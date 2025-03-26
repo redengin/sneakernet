@@ -14,6 +14,7 @@ static_cell = "2.1"
 heapless = "0.8"
 
 embassy-executor = "0.7"
+embassy-time = "0.4"
 embassy-net      = { version = "0.6", features = ["udp", "tcp"] }
 edge-dhcp = "0.5"
 edge-nal = "0.5"

@@ -446,6 +446,7 @@ dependencies = [
  "edge-nal-embassy",
  "embassy-executor",
  "embassy-net",
+ "embassy-time",
  "heapless",
  "log",
  "static_cell",

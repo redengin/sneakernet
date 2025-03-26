@@ -4,7 +4,7 @@ name = "esp32"
 version = "0.1.0"
 
 [[bin]]
-name = "esp32"
+name = "sneakernet"
 path = "./src/bin/main.rs"
 
 [dependencies]

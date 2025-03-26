@@ -6,20 +6,19 @@ use esp_alloc as _;
 use sneakernet::log;
 use sneakernet::{static_cell, make_static, embassy_net};
 use sneakernet::embassy_net::StackResources;
+use sneakernet::embassy_time;
+
 
 #[esp_hal_embassy::main]
 async fn main(spawner: embassy_executor::Spawner) {
     // initialize logger
-    // FIXME esp_println::logger::init_logger_from_env();
-    esp_println::logger::init_logger(log::LevelFilter::Info);
+    esp_println::logger::init_logger_from_env();
 
     // initialize the chip (max cpuclock required for wifi)
     let peripherals = esp_hal::init(
-        esp_hal::Config::default().with_cpu_clock(esp_hal::clock::CpuClock::max())
+        esp_hal::Config::default()
+            .with_cpu_clock(esp_hal::clock::CpuClock::max())
     );
-
-    // initialize the heap
-    esp_alloc::heap_allocator!(72 * 1024);
 
     // initialize embassy scheduler
 #[cfg(feature = "esp32")] {
@@ -33,6 +32,7 @@ async fn main(spawner: embassy_executor::Spawner) {
 }
 
     // initialize wifi hardware
+    esp_alloc::heap_allocator!(72 * 1024);
     let timg0 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG0);
     let mut rng = esp_hal::rng::Rng::new(peripherals.RNG);
     let wifi_init = &*make_static!(
@@ -41,8 +41,7 @@ async fn main(spawner: embassy_executor::Spawner) {
     );
     let (wifi_device, mut wifi_controller) =
         esp_wifi::wifi::new_with_mode(&wifi_init, peripherals.WIFI, esp_wifi::wifi::WifiApDevice).unwrap();
-
-    // configure the Access Point
+    // configure SSID
     let ssid = sneakernet::ssid(wifi_device.mac_address());
     let wifi_config = esp_wifi::wifi::Configuration::AccessPoint(
         esp_wifi::wifi::AccessPointConfiguration{
@@ -51,7 +50,6 @@ async fn main(spawner: embassy_executor::Spawner) {
         }
     );
     wifi_controller.set_configuration(&wifi_config).unwrap();
-    log::info!("SSID: '{}'", ssid);
 
     // start the network stack
     let net_config = embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
@@ -67,17 +65,25 @@ async fn main(spawner: embassy_executor::Spawner) {
         make_static!(StackResources<{SOCKETS_MAX}>, StackResources::<{SOCKETS_MAX}>::new()),
         seed,
     );
-    spawner.spawn(net_task(runner)).ok();
-    net_stack.config_v4()
-             .inspect(|config| log::info!("{config:?}"));
+    spawner.spawn(net_task(runner)).unwrap();
 
     // start sneakernet
     sneakernet::start(spawner, net_stack);
     log::info!("SneakerNet started");
 
-    // publish the wifi AP
+    // start the wifi_controller
     wifi_controller.start().unwrap();
-    log::info!("Publishing WIFI SSID");
+    log::info!("Publishing WIFI SSID [{ssid}]");
+
+    // wait for network stack
+    loop {
+        if net_stack.is_link_up() {
+            log::debug!("network stack up");
+            break;
+        }
+        log::debug!("waiting for network stack up");
+        embassy_time::Timer::after(embassy_time::Duration::from_millis(500)).await;
+    }
 
     loop{};
 

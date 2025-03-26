@@ -2,7 +2,7 @@
 runner = "espflash flash --monitor --chip esp32 --baud 460800"
 
 [env]
-ESP_LOG = "info" # FIXME doesn't work
+ESP_LOG = "sneakernet=debug"
 
 [build]
 target = "xtensa-esp32-none-elf"
