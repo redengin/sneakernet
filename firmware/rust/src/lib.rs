@@ -19,7 +19,7 @@ macro_rules! make_static {
 }
 
 
-/// create an SSID
+/// create unique SSID using MAC address
 pub fn ssid(mac:[u8;6]) -> heapless::String<32>
 {
     let mut ssid:heapless::String<32> = heapless::String::try_from("SneakerNet").unwrap();
@@ -45,6 +45,7 @@ pub fn start(spawner:embassy_executor::Spawner, net_stack:embassy_net::Stack<'st
 {
     // start dhcp service
     spawner.spawn(dhcp_service(net_stack)).unwrap();
+    log::info!("DHCP service started");
 }
 
 #[embassy_executor::task]
@@ -63,22 +64,17 @@ async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
                 edge_dhcp::io::DEFAULT_SERVER_PORT,
         )))
         .await
+        .inspect_err(|e| log::error!("DHCP socket error: {e:?}"))
         .unwrap();
 
     use edge_dhcp::server::{Server, ServerOptions};
     let mut buf = [0u8; 1500];
-    log::debug!("DHCP service started");
-    loop {
-        log::debug!("waiting for dhcp request...");
-        _ = edge_dhcp::io::server::run(
-            &mut Server::<_, 64>::new_with_et(IP_ADDRESS),
-            &ServerOptions::new(IP_ADDRESS, None),
-            &mut bound_socket,
-            &mut buf,
-        )
-        .await
-        .inspect_err(|e| log::warn!("DHCP server error: {e:?}"));
-        // Timer::after(Duration::from_millis(500)).await;
-        log::debug!("dhcp request handled");
-    }
+
+    // enter the dhcp server loop
+    edge_dhcp::io::server::run(
+        &mut Server::<_, 64>::new_with_et(IP_ADDRESS),
+        &ServerOptions::new(IP_ADDRESS, None),
+        &mut bound_socket,
+        &mut buf,
+    ).await.unwrap();
 }
