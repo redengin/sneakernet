@@ -1,5 +1,4 @@
 #![no_std]
-
 // export common cargo
 pub use log;
 pub use static_cell;
@@ -18,29 +17,13 @@ macro_rules! make_static {
     }};
 }
 
-
-/// create unique SSID using MAC address
-pub fn ssid(mac:[u8;6]) -> heapless::String<32>
-{
-    let mut ssid:heapless::String<32> = heapless::String::try_from("SneakerNet").unwrap();
-    // add the MAC address
-    ssid.push(' ').unwrap();
-    for byte in mac {
-        ssid.push(hex_char(byte/16)).unwrap();
-        ssid.push(hex_char(byte%16)).unwrap();
-    }
-    return ssid;
-}
-fn hex_char(val:u8) -> char
-{
-    if val < 10 { return (('0' as u8) + val) as char};
-    return (('A' as u8) + val - 10) as char;
-}
-
+/// used to create WiFi SSIDs
+pub mod ssid;
 
 /// IP Address for SneakerNet node
 pub const IP_ADDRESS:embassy_net::Ipv4Address = embassy_net::Ipv4Address::new(192,168,4,1);
 
+/// create the sneakernet services
 pub fn start(spawner:embassy_executor::Spawner, net_stack:embassy_net::Stack<'static>)
 {
     // start dhcp service
@@ -48,33 +31,11 @@ pub fn start(spawner:embassy_executor::Spawner, net_stack:embassy_net::Stack<'st
     log::info!("DHCP service started");
 }
 
+/// dhcp server
+mod dhcp_server;
 #[embassy_executor::task]
 async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
 {
-    log::debug!("DHCP service starting");
-    use edge_nal_embassy::{UdpBuffers, Udp};
-    let buffers = UdpBuffers::<3, 1024, 1024, 10>::new();
-    let unbound_socket = Udp::new(net_stack, &buffers);
-
-    use core::net::{SocketAddr, SocketAddrV4, Ipv4Addr};
-    use edge_nal::UdpBind;
-    let mut bound_socket = unbound_socket
-        .bind(SocketAddr::V4(SocketAddrV4::new(
-                Ipv4Addr::UNSPECIFIED,
-                edge_dhcp::io::DEFAULT_SERVER_PORT,
-        )))
-        .await
-        .inspect_err(|e| log::error!("DHCP socket error: {e:?}"))
-        .unwrap();
-
-    use edge_dhcp::server::{Server, ServerOptions};
-    let mut buf = [0u8; 1500];
-
-    // enter the dhcp server loop
-    edge_dhcp::io::server::run(
-        &mut Server::<_, 64>::new_with_et(IP_ADDRESS),
-        &ServerOptions::new(IP_ADDRESS, None),
-        &mut bound_socket,
-        &mut buf,
-    ).await.unwrap();
+    dhcp_server::run(net_stack).await;
+    log::error!("DHCP server died");
 }

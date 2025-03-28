@@ -40,7 +40,7 @@ async fn main(spawner: embassy_executor::Spawner) {
     let (wifi_device, mut wifi_controller) =
         esp_wifi::wifi::new_with_mode(&wifi_init, peripherals.WIFI, esp_wifi::wifi::WifiApDevice).unwrap();
     // configure SSID
-    let ssid = sneakernet::ssid(wifi_device.mac_address());
+    let ssid = sneakernet::ssid::from(wifi_device.mac_address());
     let wifi_config = esp_wifi::wifi::Configuration::AccessPoint(
         esp_wifi::wifi::AccessPointConfiguration{
             ssid: ssid.clone(),

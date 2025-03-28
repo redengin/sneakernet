@@ -1,8 +1,5 @@
-
-
-
-#[embassy_executor::task]
-async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
+/// DHCP Server
+pub async fn run(net_stack: embassy_net::Stack<'static>)
 {
     log::debug!("DHCP service starting");
     use edge_nal_embassy::{UdpBuffers, Udp};
@@ -21,15 +18,13 @@ async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
 
     use edge_dhcp::server::{Server, ServerOptions};
     let mut buf = [0u8; 1500];
-    loop {
-        _ = edge_dhcp::io::server::run(
-            &mut Server::<_, 64>::new_with_et(IP_ADDRESS),
-            &ServerOptions::new(IP_ADDRESS, None),
-            &mut bound_socket,
-            &mut buf,
-        )
-        .await
-        .inspect_err(|e| log::error!("DHCP server error: {e:?}"))
-        .unwrap();
-    }
+    edge_dhcp::io::server::run(
+    &mut Server::<_, 64>::new_with_et(crate::IP_ADDRESS),
+        &ServerOptions::new(crate::IP_ADDRESS, None),
+        &mut bound_socket,
+        &mut buf,
+    )
+    .await
+    .inspect_err(|e| log::error!("DHCP server error: {e:?}"))
+    .unwrap();
 }
