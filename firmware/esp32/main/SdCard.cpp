@@ -13,13 +13,11 @@ SdCard::SdCard() {
   // tune down log chatter
   esp_log_level_set("sdspi_transaction", ESP_LOG_WARN);
 
-  // const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
   const sdmmc_host_t host = {
-      /* workaround for incomplete SDSPI_HOST_DEFAULT() */
-      .flags = SDMMC_HOST_FLAG_SPI | SDMMC_HOST_FLAG_DEINIT_ARG,
+      .flags = SDMMC_HOST_FLAG_SPI | SDMMC_HOST_FLAG_1BIT,
       .slot = HSPI_HOST,
-      // .max_freq_khz = SDMMC_FREQ_HIGHSPEED,  FIXME
       .max_freq_khz = SDMMC_FREQ_DEFAULT,
+    //   .max_freq_khz = SDMMC_FREQ_HIGHSPEED,      // idf unable to set clock rate
       .io_voltage = 3.3f,
       .init = &sdspi_host_init,
       .set_bus_width = nullptr,
@@ -67,14 +65,73 @@ SdCard::SdCard() {
   };
   const esp_vfs_fat_sdmmc_mount_config_t mount_config = {
       .format_if_mount_failed = true,
-      .max_files = 10,                               // FIXME
-      .allocation_unit_size = CONFIG_WL_SECTOR_SIZE, /* reformat parameter */
-      .disk_status_check_enable = false,
-      .use_one_fat = true /* reformat parameter */
+      .max_files = 10,                                  // FIXME
+      .allocation_unit_size = CONFIG_WL_SECTOR_SIZE,    /* reformat parameter */
+      .disk_status_check_enable = false,                /* ignore physical sd card detection */
+      .use_one_fat = true                               /* reformat parameter */
   };
   sdmmc_card_t* card;
-  auto result =
-      esp_vfs_fat_sdspi_mount(path, &host, &slot_config, &mount_config, &card);
-  ESP_LOGI(TAG, "mount sdcard result [%x %s]", result, esp_err_to_name(result));
-  if (ESP_OK == result) sdmmc_card_print_info(stdout, card);
+  ESP_ERROR_CHECK(esp_vfs_fat_sdspi_mount(path, &host, &slot_config, &mount_config, &card));
+
+  // show sdcard info
+  sdmmc_card_print_info(stdout, card);
+
+#ifdef SNEAKERNET_CHARACTERIZE_SDCARD
+  characterize();
+#endif
 }
+
+#ifdef SNEAKERNET_CHARACTERIZE_SDCARD
+#include <filesystem>
+#include <fstream>
+static void characterize_write(const std::filesystem::path &filepath);
+static void characterize_read(const std::filesystem::path &filepath);
+static void report_rate(const size_t sz, const size_t seconds);
+
+void SdCard::characterize() {
+    const std::filesystem::path filepath = root() / ".ratetest";
+    characterize_write(filepath);
+    characterize_read(filepath);
+    std::filesystem::remove(filepath);
+}
+
+void report_rate(const size_t sz, const size_t seconds)
+{
+    const double mbps = (static_cast<double>(sz) / (1024 * 1024)) / seconds;
+    ESP_LOGI(SdCard::TAG, "rate %f mbps", mbps);
+}
+
+constexpr size_t CHUNK_SIZE = 4096 * 2;
+constexpr size_t CHUNKS = 1000;
+static char buffer[CHUNK_SIZE];
+
+void characterize_write(const std::filesystem::path &filepath)
+{
+    ESP_LOGI(SdCard::TAG, "characterizing write rate");
+
+    std::ofstream file(filepath, std::ios::binary);
+    auto start_time = std::chrono::high_resolution_clock::now();
+    for(size_t chunks=0; chunks<CHUNKS; ++chunks)
+        file.write(buffer, CHUNK_SIZE);
+    auto end_time = std::chrono::high_resolution_clock::now();
+
+    const size_t total_bytes = CHUNK_SIZE * CHUNKS;
+    const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+    report_rate(total_bytes, elapsed_seconds.count());
+}
+
+void characterize_read(const std::filesystem::path &filepath)
+{
+    ESP_LOGI(SdCard::TAG, "characterizing read rate");
+
+    std::ifstream file(filepath, std::ios::binary);
+    auto start_time = std::chrono::high_resolution_clock::now();
+    for(size_t chunks=0; chunks<CHUNKS; ++chunks)
+        file.read(buffer, CHUNK_SIZE);
+    auto end_time = std::chrono::high_resolution_clock::now();
+
+    const size_t total_bytes = CHUNK_SIZE * CHUNKS;
+    const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+    report_rate(total_bytes, elapsed_seconds.count());
+}
+#endif
