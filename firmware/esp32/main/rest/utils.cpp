@@ -138,26 +138,49 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
 
   size_t total_sz = 0;
 
+  auto start_time = std::chrono::high_resolution_clock::now();
+
   // receive the data
   while (fos.good()) {
-    const auto received =
-        httpd_req_recv(request, buffer.get(), rest::CHUNK_SIZE);
-
-    if (received < 0) {
-      ESP_LOGD(TAG, "socket closed during upload");
-      httpd_resp_set_status(request, HTTPD_408);
-      return false;
+    // buffer a full chunk to optimize sdcard write
+    bool found_empty_chunk = false;
+    size_t chunk_sz = 0;
+    while(chunk_sz < rest::CHUNK_SIZE)
+    {
+      const auto received = httpd_req_recv(request, &(buffer.get()[chunk_sz]), (rest::CHUNK_SIZE - chunk_sz));
+      if (received < 0)
+      {
+        ESP_LOGD(TAG, "socket closed during upload");
+        httpd_resp_set_status(request, HTTPD_408);
+        return false;
+      }
+      else if (received == 0)
+      {
+        ESP_LOGD(TAG, "found empty chunk");
+        found_empty_chunk = true;
+        break;
+      }
+      chunk_sz += received;
     }
 
-    // complete upon empty chunk
-    if (received == 0) {
-      ESP_LOGD(TAG, "received %d bytes", total_sz);
+    // write the data
+    if (chunk_sz > 0)
+    {
+      fos.write(buffer.get(), chunk_sz);
+      total_sz += chunk_sz;
+    }
+
+    if (found_empty_chunk)  // empty chunk identifies end of transfer
+    {
+      auto end_time = std::chrono::high_resolution_clock::now();
+      const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+      const double mbps = (static_cast<double>(total_sz) / (1024 * 1024)) / elapsed_seconds.count();
+      ESP_LOGD(TAG, "receive rate %f mbps", mbps);
+
+      // make sure we got all the expected data
       return total_sz >= request->content_len;
     }
-
-    fos.write(buffer.get(), received);
-    total_sz += received;
-  };
+  }
 
   // fos went bad
   ESP_LOGE(TAG, "output stream failed [%s]", strerror(errno));
