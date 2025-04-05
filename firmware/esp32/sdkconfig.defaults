@@ -1,8 +1,13 @@
 # configuration per v5.3.1
 
-# tuned to max performance
+# FIXME
+CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG=y
+
+# optimize transfer rates
 CONFIG_ESP32_DEFAULT_CPU_FREQ_240=y
 CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ=240
+CONFIG_LWIP_TCPIP_TASK_PRIO=1
+CONFIG_LWIP_TCPIP_CORE_LOCKING=y
 
 # on-target partitions
 CONFIG_PARTITION_TABLE_CUSTOM=y
@@ -30,7 +35,7 @@ BOOTLOADER_APP_ROLLBACK_ENABLE=y
 CONFIG_LWIP_MAX_SOCKETS=16
 
 # Webserver
-# increase allowable header size (required for mobile compatability)
+# increase allowable header size (required for mobile compatibility)
 CONFIG_HTTPD_MAX_REQ_HDR_LEN=1024
 
 # Configure FATFS for SDCard
