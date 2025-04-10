@@ -10,14 +10,14 @@ idf_component_register(
         "rest/utils.cpp"
 
     EMBED_TXTFILES
-        "~/keystore/sneakernet_https_priv.pem"  # HTTPS private key
-        "~/keystore/sneakernet_https_pub.pem"   # HTTPS public key
+        "/project/keystore/sneakernet_https_priv.pem"  # HTTPS private key
+        "/project/keystore/sneakernet_https_pub.pem"   # HTTPS public key
 
     EMBED_FILES
         # add portal files
-        "../../../webapp/angular/dist/browser/favicon.ico"
-        "../../../webapp/angular/dist/browser/index.html"
-        "../../../webapp/angular/dist/browser/styles.css"
-        "../../../webapp/angular/dist/browser/main.js"
-        "../../../webapp/angular/dist/browser/polyfills.js"
+        "/project/webapp/angular/dist/browser/favicon.ico"
+        "/project/webapp/angular/dist/browser/index.html"
+        "/project/webapp/angular/dist/browser/styles.css"
+        "/project/webapp/angular/dist/browser/main.js"
+        "/project/webapp/angular/dist/browser/polyfills.js"
 )

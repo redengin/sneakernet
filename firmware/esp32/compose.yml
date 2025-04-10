@@ -1,0 +1,12 @@
+services:
+  idf:
+    tty: true
+    image: espressif/idf:latest
+    user: ${DOCKER_USER:?set environment variable}
+    volumes:
+      - ~/keystore/:/project/keystore
+      - ../../webapp:/project/webapp
+      - .:/project
+    environment:
+      HOME : /project
+    working_dir: /project

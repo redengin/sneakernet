@@ -1,4 +1,5 @@
-build/
-sdkconfig
-sdkconfig.old
-dependencies.lock
+/build/
+/sdkconfig
+/sdkconfig.old
+/dependencies.lock
+/.cache
