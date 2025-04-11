@@ -8,13 +8,14 @@
 
 #include <esp_wifi.h>
 #include <freertos/task.h>
+#include <hal/efuse_hal.h>
 #include <nvs_flash.h>
 static void dns_service_task(void *pvParameters);
 #include <lwip/sockets.h>
 
-#include <cstring>
+// #include <cstring>
 
-WifiAccessPoint::WifiAccessPoint(const std::string ssid) : ssid(ssid) {
+WifiAccessPoint::WifiAccessPoint() {
   // tune down log chatter
   esp_log_level_set("wifi_init", ESP_LOG_WARN);
 
@@ -26,13 +27,30 @@ WifiAccessPoint::WifiAccessPoint(const std::string ssid) : ssid(ssid) {
   esp_netif_create_default_wifi_ap();
 
   // initialize wifi
-  const wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-  ESP_ERROR_CHECK(nvs_flash_init());
-  ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+  {
+    const wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+  }
 
-  // set the ssid
-  setSsid(ssid);
+  // configure wifi
+  {
+    wifi_config_t wifi_config;
+    ESP_ERROR_CHECK(esp_wifi_get_config(WIFI_IF_AP, &wifi_config));
+    // set SSID
+    uint8_t mac[6];
+    efuse_hal_get_mac(mac);
+    wifi_config.ap.ssid_len =
+        snprintf(reinterpret_cast<char *>(&wifi_config.ap.ssid),
+                 sizeof(wifi_config.ap.ssid), "SneakerNet %X%X%X%X%X%X", mac[5],
+                 mac[4], mac[3], mac[2], mac[1], mac[0]);
+    // randomize channel by mac
+    srand(*reinterpret_cast<uint32_t*>(mac + 2));
+    wifi_config.ap.channel = (rand() % (CONFIG_SNEAKERNET_WIFI_CHANNEL_MAX + 1));
+
+    ESP_ERROR_CHECK(esp_wifi_set_config(static_cast<wifi_interface_t>(ESP_IF_WIFI_AP), &wifi_config));
+  }
 
   // handle DNS requests, redirecting to captive portal
   assert(pdPASS == xTaskCreate(
@@ -44,18 +62,6 @@ WifiAccessPoint::WifiAccessPoint(const std::string ssid) : ssid(ssid) {
                        ));
   ESP_ERROR_CHECK(esp_wifi_start());
   ESP_LOGI(TAG, "started");
-}
-
-void WifiAccessPoint::setSsid(const std::string ssid) {
-  wifi_config_t wifi_config;
-  esp_wifi_get_config(WIFI_IF_AP, &wifi_config);
-  std::memcpy(&wifi_config.ap.ssid, ssid.c_str(), ssid.size());
-  wifi_config.ap.ssid_len = ssid.size();
-
-  ESP_ERROR_CHECK(esp_wifi_set_config(
-      static_cast<wifi_interface_t>(ESP_IF_WIFI_AP), &wifi_config));
-
-  ESP_LOGI(TAG, "publishing SSID: %s", ssid.c_str());
 }
 
 namespace dns {
@@ -173,7 +179,8 @@ void dns_service_task(void *) {
     size_t response_sz = sz;
     const auto qd_count = htons(header->qd_count);
     for (an_count = 0; an_count < qd_count; ++an_count) {
-      ESP_LOGD(WifiAccessPoint::TAG, "dns request for '%s'", &buffer[requestCursor]);
+      ESP_LOGD(WifiAccessPoint::TAG, "dns request for '%s'",
+               &buffer[requestCursor]);
       if ((responseCursor + sizeof(dns::compressed_answer)) > sizeof(buffer)) {
         ESP_LOGW(WifiAccessPoint::TAG,
                  "unable to respond to all queries (buffer too small)");
