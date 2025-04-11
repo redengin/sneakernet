@@ -112,18 +112,40 @@ bool rest::sendOctetStream(httpd_req_t* const request, std::ifstream& fis) {
   // set the response mime type
   httpd_resp_set_type(request, "application/octet-stream");
 
+#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+const auto start_time = std::chrono::high_resolution_clock::now();
+size_t total_sz = 0;
+#endif
   // send the data
   do {
+#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+  const auto start_read = std::chrono::high_resolution_clock::now();
+#endif
     const auto sz = fis.readsome(buffer.get(), rest::CHUNK_SIZE);
+#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+  const auto end_read = std::chrono::high_resolution_clock::now();
+  const std::chrono::duration<double> elapsed_seconds = end_read - start_read;
+  const double mbps = (static_cast<double>(rest::CHUNK_SIZE) / (1024 * 1024)) / elapsed_seconds.count();
+  ESP_LOGD(TAG, "read rate %f mbps", mbps);
+#endif
     if (ESP_OK != httpd_resp_send_chunk(request, buffer.get(), sz)) {
       // file transfer interrupted
       httpd_resp_set_status(request, HTTPD_408);
       return false;
     }
-
+#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+    total_sz += sz;
+#endif
     // send is complete once we've sent a 0 length chunk
-    if (sz == 0) return true;
-
+    if (sz == 0) {
+#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+const auto end_time = std::chrono::high_resolution_clock::now();
+const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+const double mbps = (static_cast<double>(total_sz) / (1024 * 1024)) / elapsed_seconds.count();
+ESP_LOGD(TAG, "send rate %f mbps", mbps);
+#endif
+      return true;
+    }
   } while (true);
 }
 
@@ -138,8 +160,9 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
 
   size_t total_sz = 0;
 
-  auto start_time = std::chrono::high_resolution_clock::now();
-
+#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+const auto start_time = std::chrono::high_resolution_clock::now();
+#endif
   // receive the data
   while (fos.good()) {
     // buffer a full chunk to optimize sdcard write
@@ -166,22 +189,31 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
     // write the data
     if (chunk_sz > 0)
     {
+#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+  const auto start_write = std::chrono::high_resolution_clock::now();
+#endif
       fos.write(buffer.get(), chunk_sz);
+#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+  const auto end_write = std::chrono::high_resolution_clock::now();
+  const std::chrono::duration<double> elapsed_seconds = end_write - start_write;
+  const double mbps = (static_cast<double>(chunk_sz) / (1024 * 1024)) / elapsed_seconds.count();
+  ESP_LOGD(TAG, "write rate %f mbps", mbps);
+#endif
       total_sz += chunk_sz;
     }
 
     if (found_empty_chunk)  // empty chunk identifies end of transfer
-    {
-      auto end_time = std::chrono::high_resolution_clock::now();
-      const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
-      const double mbps = (static_cast<double>(total_sz) / (1024 * 1024)) / elapsed_seconds.count();
-      ESP_LOGD(TAG, "receive rate %f mbps", mbps);
-
+  {
+#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+const auto end_time = std::chrono::high_resolution_clock::now();
+const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+const double mbps = (static_cast<double>(total_sz) / (1024 * 1024)) / elapsed_seconds.count();
+ESP_LOGD(TAG, "receive rate %f mbps", mbps);
+#endif
       // make sure we got all the expected data
       return total_sz >= request->content_len;
     }
   }
-
   // fos went bad
   ESP_LOGE(TAG, "output stream failed [%s]", strerror(errno));
   httpd_resp_set_status(request, HTTPD_500);
