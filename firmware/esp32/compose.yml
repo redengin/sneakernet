@@ -1,11 +1,19 @@
 services:
   idf:
-    tty: true
     image: espressif/idf:latest
+    # build:
+    #   context: .
+    #   dockerfile_inline: |
+    #     FROM espressif/idf:latest
+    #     # apply filesytem patch
+    #     COPY esp-idf.patch /
+    #     RUN cd /opt/esp/idf \
+    #      && patch -p1 < /esp-idf.patch
+    tty: true
     user: ${DOCKER_USER:?set environment variable}
     volumes:
-      - ~/keystore/:/project/keystore
-      - ../../webapp:/project/webapp
+      - ~/keystore/:/project/keystore:ro
+      - ../../webapp:/project/webapp:ro
       - .:/project
     environment:
       HOME : /project
