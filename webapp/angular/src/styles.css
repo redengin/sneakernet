@@ -21,11 +21,11 @@ div.centered {
 
 div.card {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    margin-bottom: 10px;
     transition: 0.3s;
     border-radius: 5px;
     padding: 5px;
     font-size: 5vw;
-    margin-bottom: 10px;
 }
 
 div.card .icon {
@@ -37,12 +37,6 @@ div.card a {
     /* remove the underline of anchors */
     text-decoration: none !important;
 }
-
-/* div.card .title {
-    vertical-align: top;
-    font-size: 6vw;
-    overflow-wrap: break-word;
-} */
 
 div.card .info {
     font-size: small;
