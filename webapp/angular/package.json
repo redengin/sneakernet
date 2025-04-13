@@ -20,14 +20,15 @@
     "@angular/platform-browser": "^19.1.0",
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
-    "@ng-icons/core": "^30.2.0",
-    "@ng-icons/material-icons": "^30.2.0",
-    "ngx-timeago": "^3.0.0",
-    "filesize": "^9.0.11",
-    "ngx-filesize": "^3.0.5",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
+
+    "@ng-icons/core": "latest",
+    "@ng-icons/material-icons": "latest",
+    "ngx-timeago": "latest",
+    "filesize": "latest",
+    "ngx-filesize": "latest",
+    "rxjs": "latest",
+    "tslib": "latest",
+    "zone.js": "latest"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.1.5",
