@@ -26,8 +26,13 @@ div.card {
     padding: 5px;
 }
 
+div.card a {
+    text-decoration: none !important;
+}
+
 div.card .title {
-    font-size: x-large;
+    vertical-align: top;
+    font-size: 6vw;
     overflow-wrap: break-word;
 }
 
