@@ -112,17 +112,17 @@ bool rest::sendOctetStream(httpd_req_t* const request, std::ifstream& fis) {
   // set the response mime type
   httpd_resp_set_type(request, "application/octet-stream");
 
-#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+#ifdef CONFIG_SNEAKERNET_PROFILE_WIFI
 const auto start_time = std::chrono::high_resolution_clock::now();
 size_t total_sz = 0;
 #endif
   // send the data
   do {
-#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+#ifdef CONFIG_SNEAKERNET_PROFILE_SDCARD
   const auto start_read = std::chrono::high_resolution_clock::now();
 #endif
     const auto sz = fis.readsome(buffer.get(), rest::CHUNK_SIZE);
-#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+#ifdef CONFIG_SNEAKERNET_PROFILE_SDCARD
   const auto end_read = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_seconds = end_read - start_read;
   const double mbps = (static_cast<double>(rest::CHUNK_SIZE) / (1024 * 1024)) / elapsed_seconds.count();
@@ -133,12 +133,12 @@ size_t total_sz = 0;
       httpd_resp_set_status(request, HTTPD_408);
       return false;
     }
-#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+#ifdef CONFIG_SNEAKERNET_PROFILE_WIFI
     total_sz += sz;
 #endif
     // send is complete once we've sent a 0 length chunk
     if (sz == 0) {
-#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+#ifdef CONFIG_SNEAKERNET_PROFILE_WIFI
 const auto end_time = std::chrono::high_resolution_clock::now();
 const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
 const double mbps = (static_cast<double>(total_sz) / (1024 * 1024)) / elapsed_seconds.count();
@@ -160,7 +160,7 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
 
   size_t total_sz = 0;
 
-#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+#ifdef CONFIG_SNEAKERNET_PROFILE_WIFI
 const auto start_time = std::chrono::high_resolution_clock::now();
 #endif
   // receive the data
@@ -189,11 +189,11 @@ const auto start_time = std::chrono::high_resolution_clock::now();
     // write the data
     if (chunk_sz > 0)
     {
-#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+#ifdef CONFIG_SNEAKERNET_PROFILE_SDCARD
   const auto start_write = std::chrono::high_resolution_clock::now();
 #endif
       fos.write(buffer.get(), chunk_sz);
-#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+#ifdef CONFIG_SNEAKERNET_PROFILE_SDCARD
   const auto end_write = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_seconds = end_write - start_write;
   const double mbps = (static_cast<double>(chunk_sz) / (1024 * 1024)) / elapsed_seconds.count();
@@ -204,7 +204,7 @@ const auto start_time = std::chrono::high_resolution_clock::now();
 
     if (found_empty_chunk)  // empty chunk identifies end of transfer
   {
-#ifdef CONFIG_SNEAKERNET_LOG_DEFAULT_LEVEL_DEBUG
+#ifdef CONFIG_SNEAKERNET_PROFILE_WIFI
 const auto end_time = std::chrono::high_resolution_clock::now();
 const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
 const double mbps = (static_cast<double>(total_sz) / (1024 * 1024)) / elapsed_seconds.count();
