@@ -25,6 +25,7 @@ div.card {
     border-radius: 5px;
     padding: 5px;
     font-size: 5vw;
+    margin-bottom: 10px;
 }
 
 div.card .icon {
