@@ -25,8 +25,8 @@
     @for(entry of (folderData.entries | keyvalue); track entry) {
         @if(entry.value.isFolder) {
         <div class="card" (click)="chooseSubfolder(entry.key)">
-            <ng-icon name="MatFolderOutline" size="10vw"/>
-            <span class="title">{{httpDecode(entry.key)}}</span>
+            <ng-icon class="icon" name="MatFolderOutline"/>
+            {{httpDecode(entry.key)}}
         </div>
         }
     }
@@ -35,8 +35,8 @@
         @if(! entry.value.isFolder) {
             <div class="card">
                 <a download href="api/catalog/{{currentPath}}/{{entry.key}}"><div>
-                    <ng-icon name="MatFileDownloadOutline" size="15vw"/>
-                    <span class="title"> {{entry.value.title || httpDecode(entry.key)}} </span>
+                    <ng-icon class="icon" name="MatFileDownloadOutline"/>
+                    {{entry.value.title || httpDecode(entry.key)}}
                 </div></a>
                 <div class="info">
                     <span>{{entry.value.timestamp! | timeago:true}}</span>
