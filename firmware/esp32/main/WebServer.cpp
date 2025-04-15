@@ -55,6 +55,8 @@ WebServer::WebServer(const size_t max_sockets) {
   {
     // prioritize http
     httpConfig.task_priority = 1;
+    // provide handlers
+    httpConfig.max_uri_handlers = 9;
     // allow wildcard uris
     httpConfig.uri_match_fn = httpd_uri_match_wildcard;
     // maximize the availability to users
@@ -68,21 +70,26 @@ WebServer::WebServer(const size_t max_sockets) {
   // provide captive portal
   {
     // lie that this connection has internet connectivity
-    constexpr httpd_uri_t _204 = {
+    { constexpr httpd_uri_t _204 = {
+        .uri = "/gen_204",
+        .method = HTTP_GET,
+        .handler = GENERATE_204,
+        .user_ctx = nullptr,
+      };
+      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &_204));
+    }
+    { constexpr httpd_uri_t _204 = {
         .uri = "/generate_204",
         .method = HTTP_GET,
         .handler = GENERATE_204,
         .user_ctx = nullptr,
-    };
-    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &_204));
-
-    /// provide 404 redirect to support captive portal
-    ESP_ERROR_CHECK(httpd_register_err_handler(httpHandle, HTTPD_404_NOT_FOUND,
-                                               http_redirect));
+      };
+      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &_204));
+    }
   }
 
   registerUriHandler(httpd_uri_t{
-      .uri = "/",
+      .uri = "/app",
       .method = HTTP_GET,
       .handler = PORTAL,
       .user_ctx = nullptr,
