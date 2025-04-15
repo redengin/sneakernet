@@ -135,6 +135,24 @@ enum dns_class {
 }  // namespace rr
 }  // namespace dns
 
+static size_t sizeof_qname(const uint8_t* const qname)
+{
+  size_t ret = 0;
+  size_t cursor = 0;
+  do {
+    if (qname[cursor] == 0) {
+      ESP_LOGD(WifiAccessPoint::TAG, "qname '%s' size: %d",
+                qname, ret);
+      return ret;
+    }
+
+    // ESP_LOGD(WifiAccessPoint::TAG, "qname length: %d", qname[cursor]);
+    ret += qname[cursor];
+    cursor += qname[cursor] + 1;
+  } while(true);
+}
+
+
 void dns_service_task(void *) {
   // find out our IP info
   esp_netif_ip_info_t ip_info;
@@ -151,66 +169,72 @@ void dns_service_task(void *) {
   assert(0 == bind(sock, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)));
   ESP_LOGI(WifiAccessPoint::TAG, "DNS started");
 
+  int8_t request_count = 0;
   while (true) {
-    static char buffer[256];
+    static uint8_t buffer[256];
     struct sockaddr from;
     socklen_t from_sz = sizeof(from);
     const int sz = recvfrom(sock, buffer, sizeof(buffer), 0 /* flags (none) */,
                             &from, &from_sz);
     assert(sz >= 0);  // make sure our socket is still working
     if (sz <= sizeof(dns::header_t)) {
-      ESP_LOGV(WifiAccessPoint::TAG, "dns request too small (ignoring)");
+      ESP_LOGW(WifiAccessPoint::TAG, "dns request too small (ignoring)");
       continue;
     }
-    // create reply
-    // reuse the request buffer for the response
-    auto header = reinterpret_cast<dns::header_t *>(buffer);
-    if (header->op != dns::opcode::query) {
-      ESP_LOGW(WifiAccessPoint::TAG, "invalid DNS opcode [%i] (ignoring)",
-               header->op);
-      continue;
-    }
-    ESP_LOGV(WifiAccessPoint::TAG, "handling DNS request");
-    // change the packet type to response
-    header->qr = dns::type::response;
-    size_t requestCursor = sizeof(dns::header_t);
-    size_t responseCursor = sz;
-    uint16_t an_count;
-    size_t response_sz = sz;
-    const auto qd_count = htons(header->qd_count);
-    for (an_count = 0; an_count < qd_count; ++an_count) {
-      ESP_LOGD(WifiAccessPoint::TAG, "dns request for '%s'",
-               &buffer[requestCursor]);
-      if ((responseCursor + sizeof(dns::compressed_answer)) > sizeof(buffer)) {
-        ESP_LOGW(WifiAccessPoint::TAG,
-                 "unable to respond to all queries (buffer too small)");
-        // mark the response as truncated
-        header->tc = true;
-        break;
+
+    // create reply (reusing the request buffer for the response)
+    {
+      auto header = reinterpret_cast<dns::header_t *>(buffer);
+      if (header->op != dns::opcode::query) {
+        ESP_LOGW(WifiAccessPoint::TAG, "invalid DNS opcode [%i] (ignoring)",
+                header->op);
+        continue;
       }
-      auto answer =
-          reinterpret_cast<dns::compressed_answer *>(&buffer[responseCursor]);
-      answer->offset = htons(dns::compressed_name_mask | requestCursor);
-      answer->type = htons(dns::rr::type::A);
-      answer->dns_class = htons(dns::rr::dns_class::IN);
-      constexpr size_t TTL_sec = 1;
-      answer->ttl = htonl(TTL_sec);
-      answer->addr_len = htons(sizeof(ip_info.ip.addr));
-      answer->ipv4_addr = ip_info.ip.addr;
+      // change the packet type to response
+      header->qr = dns::type::response;
+      size_t requestCursor = sizeof(dns::header_t);
+      size_t responseCursor = sz;
+      uint16_t an_count;
+      size_t response_sz = sz;
+      const auto qd_count = htons(header->qd_count);
+      for (an_count = 0; an_count < qd_count; ++an_count) {
+        ESP_LOGD(WifiAccessPoint::TAG, "dns request[%d] for '%s'",
+                request_count, &buffer[requestCursor]);
+        if ((responseCursor + sizeof(dns::compressed_answer)) > sizeof(buffer)) {
+          ESP_LOGW(WifiAccessPoint::TAG,
+                  "unable to respond to all queries (buffer too small)");
+          // mark the response as truncated
+          header->tc = true;
+          break;
+        }
+        auto answer =
+            reinterpret_cast<dns::compressed_answer *>(buffer + responseCursor);
+        answer->offset = htons(dns::compressed_name_mask | requestCursor);
+        answer->type = htons(dns::rr::type::A);
+        answer->dns_class = htons(dns::rr::dns_class::IN);
+        constexpr size_t TTL_sec = 1;
+        answer->ttl = htonl(TTL_sec);
+        answer->addr_len = htons(sizeof(ip_info.ip.addr));
+        answer->ipv4_addr = ip_info.ip.addr;
 
-      // update response cursor
-      responseCursor += sizeof(dns::compressed_answer);
-      response_sz += sizeof(dns::compressed_answer);
+        // update response cursor
+        responseCursor += sizeof(dns::compressed_answer);
+        response_sz += sizeof(dns::compressed_answer);
 
-      // update request cursor
-      const size_t name_sz = buffer[requestCursor];
-      requestCursor +=
-          sizeof(uint8_t) + name_sz + sizeof(uint16_t) + sizeof(uint16_t);
+        // update request cursor
+        const size_t qname_sz = sizeof_qname(buffer + requestCursor);
+        requestCursor +=
+            qname_sz + sizeof(uint16_t) /* qtype */ + sizeof(uint16_t) /* qclass */;
+      }
+
+      // send response
+      ESP_LOGD(WifiAccessPoint::TAG, "dns response[%d] queries[%d] answers[%d]",
+                request_count, qd_count, an_count);
+      header->an_count = htons(an_count);
+      sendto(sock, buffer, response_sz, 0 /* flags (none) */, &from, from_sz);
+
+      ++request_count;
     }
-
-    // send response
-    header->an_count = htons(an_count);
-    sendto(sock, buffer, response_sz, 0 /* flags (none) */, &from, from_sz);
   }
 
   // remove thread from scheduler
