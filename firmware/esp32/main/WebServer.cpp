@@ -45,8 +45,6 @@ WebServer::WebServer(const size_t max_sockets) {
     httpsConfig.servercert = servercert_start;
     httpsConfig.servercert_len = servercert_end - servercert_start;
     ESP_ERROR_CHECK(httpd_ssl_start(&httpsHandle, &httpsConfig));
-    // upon 404, redirect to index
-    ESP_ERROR_CHECK(httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, http_redirect));
   }
 
   // create HTTP server
@@ -89,7 +87,7 @@ WebServer::WebServer(const size_t max_sockets) {
   }
 
   registerUriHandler(httpd_uri_t{
-      .uri = "/app",
+      .uri = "/",
       .method = HTTP_GET,
       .handler = PORTAL,
       .user_ctx = nullptr,
