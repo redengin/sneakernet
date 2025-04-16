@@ -146,9 +146,9 @@ static size_t sizeof_qname(const uint8_t* const qname)
       return ret;
     }
 
-    // ESP_LOGD(WifiAccessPoint::TAG, "qname length: %d", qname[cursor]);
+    ESP_LOGD(WifiAccessPoint::TAG, "qname length: %d", qname[cursor]);
     ret += qname[cursor];
-    cursor += qname[cursor] + 1;
+    cursor += sizeof(uint8_t) + qname[cursor];
   } while(true);
 }
 
