@@ -137,21 +137,16 @@ enum dns_class {
 
 static size_t sizeof_qname(const uint8_t* const qname)
 {
-  size_t ret = 0;
   size_t cursor = 0;
   do {
     if (qname[cursor] == 0) {
       ESP_LOGD(WifiAccessPoint::TAG, "qname '%s' size: %d",
-                qname, ret);
-      return ret;
+                qname, cursor + sizeof(uint8_t));
+      return cursor + sizeof(uint8_t);
     }
-
-    ESP_LOGD(WifiAccessPoint::TAG, "qname length: %d", qname[cursor]);
-    ret += qname[cursor];
     cursor += sizeof(uint8_t) + qname[cursor];
   } while(true);
 }
-
 
 void dns_service_task(void *) {
   // find out our IP info

@@ -1,3 +1,8 @@
+// extra profiling debug
+#define CONFIG_SNEAKERNET_PROFILE_WIFI
+// #define CONFIG_SNEAKERNET_PROFILE_SDCARD
+
+
 #include "utils.hpp"
 
 #include <esp_log.h>

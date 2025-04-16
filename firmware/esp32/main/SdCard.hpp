@@ -13,4 +13,7 @@ public:
 
 private:
     static constexpr char path[] = "/sdcard";
+
+    // characterize read/write speed
+    void characterize() const;
 };
