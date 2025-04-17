@@ -1,5 +1,5 @@
 // extra profiling debug
-#define SNEAKERNET_CHARACTERIZE_SDCARD
+// #define SNEAKERNET_CHARACTERIZE_SDCARD
 
 
 #include "SdCard.hpp"
@@ -33,7 +33,7 @@ SdCard::SdCard() {
       .data6_io_num = GPIO_NUM_NC,  // not used
       .data7_io_num = GPIO_NUM_NC,  // not used
       .data_io_default_level = false,
-      .max_transfer_sz = 0,         // use default FIXME
+      .max_transfer_sz = CONFIG_FATFS_VFS_FSTAT_BLKSIZE,
       .flags = 0,                   // not used
       .isr_cpu_id = ESP_INTR_CPU_AFFINITY_0,
       .intr_flags = 0 /* not used */
