@@ -5,8 +5,15 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 #toolbar {
     background-color: whitesmoke;
-    font-size: xx-large;
-    padding: 10px;
+    padding: 1vw;
+    font-size: 10vw;
+}
+
+main #background {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    z-index: -1;
 }
 
 #currentPath {
@@ -26,6 +33,8 @@ div.card {
     border-radius: 5px;
     padding: 5px;
     font-size: 5vw;
+    background-color: ghostwhite;
+    opacity: 0.97;
 }
 
 div.card .icon {
@@ -39,13 +48,14 @@ div.card a {
 }
 
 div.card .info {
-    font-size: small;
+    font-size: 3vw;
     display: flexbox;
     text-align: right;
 }
 
 div.card .info span {
-    margin-left: 5vw;
+    margin-left: 3vw;
+    vertical-align: middle
 }
 
 .fab {
