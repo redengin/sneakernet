@@ -28,8 +28,6 @@ WebServer::WebServer(const size_t max_sockets) {
   httpd_ssl_config_t httpsConfig = HTTPD_SSL_CONFIG_DEFAULT();
   // apply specialization
   {
-    // prioritize https
-    httpsConfig.httpd.task_priority = 1;
     // only support one admin at at time
     httpsConfig.httpd.max_open_sockets = 1;
     // allow wildcard uris
@@ -51,8 +49,6 @@ WebServer::WebServer(const size_t max_sockets) {
   httpd_config_t httpConfig = HTTPD_DEFAULT_CONFIG();
   // apply specialization
   {
-    // prioritize http
-    httpConfig.task_priority = 1;
     // provide handlers
     httpConfig.max_uri_handlers = 9;
     // allow wildcard uris
