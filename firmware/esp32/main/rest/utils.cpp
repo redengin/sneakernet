@@ -22,16 +22,18 @@ void rest::httpDecode(std::string& encoded) {
   std::replace(encoded.begin(), encoded.end(), '+', ' ');
 
   // translate UTF-8
-  for (auto pos = encoded.find('%'); pos != std::string::npos;
-       pos = encoded.find(pos + 1, '%')) {
+  for (auto pos = encoded.find('%'); pos != std::string::npos; pos = encoded.find('%', pos + 1))
+  {
     if ((pos + 2) <= encoded.length()) {
       const char utf8[] = {encoded[pos + 1], encoded[pos + 2]};
       const char actualChar = static_cast<char>(std::stoi(utf8, 0, 16));
       if (actualChar)
         encoded.replace(pos, 3, 1, actualChar);
-      else
-        // invalid char, erase it instead
-        encoded.erase(pos, 3);
+      else {
+        // illegal uri, dropping the remaining characters
+        encoded.erase(pos);
+        break;
+      }
     } else {
       // illegal uri, dropping the remaining characters
       encoded.erase(pos);
