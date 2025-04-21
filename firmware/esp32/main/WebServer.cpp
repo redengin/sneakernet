@@ -28,10 +28,14 @@ WebServer::WebServer(const size_t max_sockets) {
   httpd_ssl_config_t httpsConfig = HTTPD_SSL_CONFIG_DEFAULT();
   // apply specialization
   {
+    // purge oldest connection
+    httpsConfig.httpd.lru_purge_enable = true;
     // only support one admin at at time
     httpsConfig.httpd.max_open_sockets = 1;
     // allow wildcard uris
     httpsConfig.httpd.uri_match_fn = httpd_uri_match_wildcard;
+    // provide handlers
+    httpsConfig.httpd.max_uri_handlers = 9;
     // provide the private key
     extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_https_priv_pem_start");
     extern const unsigned char prvtkey_pem_end[]   asm("_binary_sneakernet_https_priv_pem_end");
@@ -49,6 +53,8 @@ WebServer::WebServer(const size_t max_sockets) {
   httpd_config_t httpConfig = HTTPD_DEFAULT_CONFIG();
   // apply specialization
   {
+    // purge oldest connection
+    httpConfig.lru_purge_enable = true;
     // provide handlers
     httpConfig.max_uri_handlers = 9;
     // allow wildcard uris
