@@ -14,6 +14,8 @@ idf_component_register(
         "~/keystore/sneakernet_https_pub.pem"   # HTTPS public key
 
     EMBED_FILES
+        # add captive portal files
+        "../../../webapp/angular/dist/browser/captiveportal.html"
         # add portal files
         "../../../webapp/angular/dist/browser/favicon.ico"
         "../../../webapp/angular/dist/browser/index.html"

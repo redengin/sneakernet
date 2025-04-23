@@ -6,13 +6,16 @@
 #undef LOG_LOCAL_LEVEL
 #define LOG_LOCAL_LEVEL CONFIG_SNEAKERNET_LOG_LEVEL
 
-extern "C" esp_err_t http_redirect(httpd_req_t* req, httpd_err_code_t err);
+#include <string>
 
-extern "C" esp_err_t GENERATE_204(httpd_req_t*);
-extern "C" esp_err_t PORTAL(httpd_req_t*);
+extern "C" esp_err_t https_redirect(httpd_req_t* req, httpd_err_code_t err);
+extern "C" esp_err_t CAPTIVEPORTAL(httpd_req_t*);
+
+extern "C" esp_err_t WEBAPP(httpd_req_t*);
 extern "C" esp_err_t STYLES_CSS(httpd_req_t*);
 extern "C" esp_err_t MAIN_JS(httpd_req_t*);
 extern "C" esp_err_t POLYFILLS_JS(httpd_req_t*);
+
 
 WebServer::WebServer(const size_t max_sockets) {
   // tune down logging chatter
@@ -69,29 +72,28 @@ WebServer::WebServer(const size_t max_sockets) {
 
   // provide captive portal
   {
-    // lie that this connection has internet connectivity
-    { constexpr httpd_uri_t _204 = {
-        .uri = "/gen_204",
+    // redirect non-sneakernet https traffic
+    httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, https_redirect);
+
+    // Android support
+    {
+      httpd_uri_t captiveportal_handler = {
+        .uri = "",
         .method = HTTP_GET,
-        .handler = GENERATE_204,
+        .handler = CAPTIVEPORTAL,
         .user_ctx = nullptr,
       };
-      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &_204));
-    }
-    { constexpr httpd_uri_t _204 = {
-        .uri = "/generate_204",
-        .method = HTTP_GET,
-        .handler = GENERATE_204,
-        .user_ctx = nullptr,
-      };
-      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &_204));
+      captiveportal_handler.uri = "/gen_204";
+      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &captiveportal_handler));
+      captiveportal_handler.uri = "/generate_204";
+      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &captiveportal_handler));
     }
   }
 
   registerUriHandler(httpd_uri_t{
       .uri = "/",
       .method = HTTP_GET,
-      .handler = PORTAL,
+      .handler = WEBAPP,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
@@ -119,13 +121,8 @@ void WebServer::registerUriHandler(const httpd_uri_t& handler) {
   ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
 }
 
-/// signal that this has internet connectivity
-esp_err_t GENERATE_204(httpd_req_t* request) {
-  return httpd_resp_send_custom_err(request, "204 No Content", "");
-}
-
 /// provides captive portal redirect
-esp_err_t http_redirect(httpd_req_t* request, httpd_err_code_t err) {
+esp_err_t https_redirect(httpd_req_t* request, httpd_err_code_t err) {
   ESP_LOGI(WebServer::TAG, "Serving 303 redirect for request[%s]", request->uri);
   // Set status
   httpd_resp_set_status(request, "303 See Other");
@@ -138,16 +135,28 @@ esp_err_t http_redirect(httpd_req_t* request, httpd_err_code_t err) {
   return ESP_OK;
 }
 
-extern "C" const char portalHtml_start[] asm("_binary_index_html_start");
-extern "C" const char portalHtml_end[] asm("_binary_index_html_end");
-esp_err_t PORTAL(httpd_req_t* request) {
+extern "C" const char captiveportalHtml_start[] asm("_binary_captiveportal_html_start");
+extern "C" const char captiveportalHtml_end[] asm("_binary_captiveportal_html_end");
+esp_err_t CAPTIVEPORTAL(httpd_req_t* request) {
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
   // send the data
   httpd_resp_set_type(response, "text/html");
-  const size_t sz = portalHtml_end - portalHtml_start;
-  return httpd_resp_send(response, portalHtml_start, sz);
+  const size_t sz = captiveportalHtml_end - captiveportalHtml_start;
+  return httpd_resp_send(response, captiveportalHtml_start, sz);
+}
+
+extern "C" const char webappHtml_start[] asm("_binary_index_html_start");
+extern "C" const char webappHtml_end[] asm("_binary_index_html_end");
+esp_err_t WEBAPP(httpd_req_t* request) {
+  auto response = request;
+  // limit caching to 15 minutes (15 * 60) = 900
+  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
+  // send the data
+  httpd_resp_set_type(response, "text/html");
+  const size_t sz = webappHtml_end - webappHtml_start;
+  return httpd_resp_send(response, webappHtml_start, sz);
 }
 
 extern "C" const char stylesCss_start[] asm("_binary_styles_css_start");
