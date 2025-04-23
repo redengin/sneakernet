@@ -125,15 +125,15 @@ export class AppComponent {
   }
 
   addFile(event: Event): void {
-    this.closeChooseUploadDialog();
+    // clear the Choose dialog
+    this.dialogRef.close();
     // get the files from the event target
     const fileSelect = event.target as HTMLInputElement;
     if (fileSelect.files) {
       const fileList: FileList = fileSelect.files;
       for (const file of fileList) {
-        const dialogRef = this.dialog.open(ProgressDialog,
+        this.dialogRef = this.dialog.open(ProgressDialog,
           {
-            disableClose: true,
             data: {
               'title': `${file.name}`,
               'progress_pct': 0,
@@ -160,26 +160,24 @@ export class AppComponent {
             switch (event.type) {
               case HttpEventType.UploadProgress:
                 const progress_pct = event.total ? (100 * (event.loaded / event.total)) : 0;
-                dialogRef.componentInstance.data.progress_pct = progress_pct;
+                this.dialogRef.componentInstance.data.progress_pct = progress_pct;
                 console.log(`progress ${progress_pct}%`);
                 break;
-              case HttpEventType.ResponseHeader:
               case HttpEventType.Response:
-                dialogRef.close();
+                this.dialogRef.close();
                 this.getFolderData();
                 break;
             }
           });
       }
+      // clear the selection
+      fileSelect.value = '';
     }
   }
 
   dialogRef: any;
   openChooseUploadDialog() {
     this.dialogRef = this.dialog.open(ChooseUploadDialog);
-  }
-  closeChooseUploadDialog() {
-    this.dialogRef.close();
   }
 }
 
