@@ -75,17 +75,26 @@ WebServer::WebServer(const size_t max_sockets) {
     // redirect non-sneakernet https traffic
     httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, https_redirect);
 
+    httpd_uri_t captiveportal_handler = {
+      .uri = "",
+      .method = HTTP_GET,
+      .handler = CAPTIVEPORTAL,
+      .user_ctx = nullptr,
+    };
+
     // Android support
     {
-      httpd_uri_t captiveportal_handler = {
-        .uri = "",
-        .method = HTTP_GET,
-        .handler = CAPTIVEPORTAL,
-        .user_ctx = nullptr,
-      };
       captiveportal_handler.uri = "/gen_204";
       ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &captiveportal_handler));
       captiveportal_handler.uri = "/generate_204";
+      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &captiveportal_handler));
+    }
+
+    // iOS support
+    {
+      captiveportal_handler.uri = "/hotspot-detect.html";
+      // TODO see if iOS allows direct usage of webapp
+      captiveportal_handler.handler = WEBAPP;
       ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &captiveportal_handler));
     }
   }
