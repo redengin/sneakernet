@@ -59,7 +59,7 @@ WebServer::WebServer(const size_t max_sockets) {
     // purge oldest connection
     httpConfig.lru_purge_enable = true;
     // provide handlers
-    httpConfig.max_uri_handlers = 9;
+    httpConfig.max_uri_handlers = 10;
     // allow wildcard uris
     httpConfig.uri_match_fn = httpd_uri_match_wildcard;
     // maximize the availability to users
