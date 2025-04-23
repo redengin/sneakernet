@@ -118,7 +118,8 @@ WebServer::WebServer(const size_t max_sockets) {
 
 void WebServer::registerUriHandler(const httpd_uri_t& handler) {
   ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-  ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
+  // FIXME disabled for now
+  // ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
 }
 
 /// provides captive portal redirect
