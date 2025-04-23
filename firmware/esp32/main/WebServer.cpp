@@ -19,7 +19,9 @@ extern "C" esp_err_t POLYFILLS_JS(httpd_req_t*);
 
 WebServer::WebServer(const size_t max_sockets) {
   // tune down logging chatter
-  // esp_log_level_set("httpd_uri", ESP_LOG_ERROR);
+  esp_log_level_set("esp-tls-mbedtls", ESP_LOG_NONE);
+  esp_log_level_set("esp_https_server", ESP_LOG_NONE);
+  esp_log_level_set("httpd", ESP_LOG_NONE);
   // esp_log_level_set("httpd_txrx", ESP_LOG_WARN);
   // esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
 
