@@ -118,7 +118,7 @@ WebServer::WebServer(const size_t max_sockets) {
 
 void WebServer::registerUriHandler(const httpd_uri_t& handler) {
   ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-  // FIXME disabled for now
+  // FIXME disabled admin for now
   // ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
 }
 
