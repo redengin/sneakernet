@@ -16,7 +16,7 @@ def pytest_addoption(parser):
 def sneakernet():
     # SneakerNet node profile
     profile = pywifi.Profile()
-    profile.ssid = "SneakerNet"
+    profile.ssid = "SneakerNet 2043A867AF10"
     profile.auth = pywifi.const.AUTH_ALG_OPEN
     profile.key = pywifi.const.AKM_TYPE_NONE
 
@@ -31,7 +31,7 @@ def sneakernet():
     # connect to sneakernet
     p = iface.add_network_profile(profile) 
     iface.connect(p)
-    time.sleep(1)
+    time.sleep(2)
     while True:
         status = iface.status()
         if status in [pywifi.const.IFACE_CONNECTING, pywifi.const.IFACE_SCANNING]:
@@ -45,8 +45,10 @@ def sneakernet():
 
     # disconnect from sneakernet
     iface.disconnect()
-    time.sleep(5)
-
+    while True:
+        status = iface.status()
+        if status == pywifi.const.IFACE_DISCONNECTED:
+            break
 
 if __name__ == "__main__":
     ''' provide info about pywifi
