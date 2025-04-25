@@ -35,7 +35,7 @@ SdCard::SdCard() {
       .data_io_default_level = false,
       .max_transfer_sz = CONFIG_FATFS_VFS_FSTAT_BLKSIZE,
       .flags = 0,                   // not used
-      .isr_cpu_id = ESP_INTR_CPU_AFFINITY_0,
+      .isr_cpu_id = ESP_INTR_CPU_AFFINITY_1,    // put SPI on CPU 1
       .intr_flags = 0 /* not used */
   };
   ESP_ERROR_CHECK(spi_bus_initialize(static_cast<spi_host_device_t>(host.slot),

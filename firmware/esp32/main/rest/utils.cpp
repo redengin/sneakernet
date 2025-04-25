@@ -170,6 +170,9 @@ bool rest::receiveOctetStream(httpd_req_t* const request, std::ofstream& fos) {
 #ifdef CONFIG_SNEAKERNET_PROFILE_WIFI
 const auto start_time = std::chrono::high_resolution_clock::now();
 #endif
+#ifdef CONFIG_SNEAKERNET_PROFILE_SDCARD
+  double min_write_mbps = 100;
+#endif
   // receive the data
   while (fos.good()) {
     // buffer a full chunk to optimize sdcard write
@@ -204,7 +207,11 @@ const auto start_time = std::chrono::high_resolution_clock::now();
   const auto end_write = std::chrono::high_resolution_clock::now();
   const std::chrono::duration<double> elapsed_seconds = end_write - start_write;
   const double mbps = (static_cast<double>(chunk_sz) / (1024 * 1024)) / elapsed_seconds.count();
-  ESP_LOGD(TAG, "write rate %f mbps", mbps);
+  if (mbps < min_write_mbps)
+  {
+    min_write_mbps = mbps;
+    ESP_LOGD(TAG, "min write rate %f mbps", mbps);
+  }
 #endif
       total_sz += chunk_sz;
     }
