@@ -57,7 +57,7 @@ WifiAccessPoint::WifiAccessPoint() {
   // Start the DNS server that will redirect all queries to the softAP IP
   assert(pdPASS == xTaskCreate(
                        dns_service_task, "dns_service",
-                       4096 /* stack depth */,  // TODO reduce to minimum
+                       2048 /* stack depth */,
                        nullptr /* parameters (none) */,
                        tskIDLE_PRIORITY /* priority */,
                        nullptr /* handle (not used) */
@@ -65,7 +65,7 @@ WifiAccessPoint::WifiAccessPoint() {
 
   // publish the WiFi access point
   ESP_ERROR_CHECK(esp_wifi_start());
-  ESP_LOGI(TAG, "started");
+  ESP_LOGI(TAG, "publishing SSID '%s'", wifi_config.ap.ssid);
 }
 
 namespace dns {
