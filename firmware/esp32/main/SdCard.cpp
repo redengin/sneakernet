@@ -20,7 +20,7 @@ SdCard::SdCard() {
 
   sdmmc_host_t host = SDSPI_HOST_DEFAULT();
   // specialize host config
-  host.max_freq_khz = SDMMC_FREQ_26M;   // TODO max rate currently possible under idf
+  // host.max_freq_khz = SDMMC_FREQ_26M;   // max rate currently possible under idf
   const spi_bus_config_t spi_bus_config{
       // pins configured for straight-thru to mmc peripheral
       .mosi_io_num = GPIO_NUM_15,
