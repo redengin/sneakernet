@@ -19,6 +19,11 @@ sneakernet.esp32: $(RELEASE_DIR)/bootloader.bin \
 				  $(RELEASE_DIR)/ota_data_initial.bin \
 				  $(RELEASE_DIR)/SneakerNet.bin
 
+# clean off any stored data
+	@${DOCKER} run --rm -it --privileged \
+			espressif/idf \
+		esptool.py erase_flash
+# load the target image
 	@${DOCKER} run --rm -it --privileged \
 		--volume $(abspath $(RELEASE_DIR)):/tmp/release \
 		--workdir /tmp/release \
