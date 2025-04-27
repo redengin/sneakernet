@@ -35,3 +35,11 @@ sneakernet.esp32: $(RELEASE_DIR)/bootloader.bin \
 				0x8000 partition-table.bin \
 				0xd000 ota_data_initial.bin \
 				0x10000 SneakerNet.bin
+
+.PHONY: sneakernet.esp32.create_release
+sneakernet.esp32.create_release:
+	mkdir -p $(RELEASE_DIR)
+	cp firmware/esp32/build/bootloader/bootloader.bin $(RELEASE_DIR)
+	cp firmware/esp32/build/partition_table/partition-table.bin $(RELEASE_DIR)
+	cp firmware/esp32/build/ota_data_initial.bin $(RELEASE_DIR)
+	cp firmware/esp32/build/SneakerNet.bin $(RELEASE_DIR)
