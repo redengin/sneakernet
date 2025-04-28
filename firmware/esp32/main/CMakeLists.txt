@@ -4,7 +4,7 @@ idf_component_register(
         "SdCard.cpp"
         "WifiAccessPoint.cpp"
         "WebServer.cpp"
-        "dns_server.c"
+        "CaptiveDnsServer.cpp"
         "rest/firmware.cpp"
         "Catalog.cpp"
         "rest/catalog.cpp"

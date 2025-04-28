@@ -7,11 +7,12 @@
 #define LOG_LOCAL_LEVEL CONFIG_SNEAKERNET_LOG_LEVEL
 
 #include <esp_wifi.h>
-#include <freertos/task.h>
-#include <hal/efuse_hal.h>
+#include <esp_mac.h>
 #include <nvs_flash.h>
-#include <lwip/sockets.h>
-#include "dns_server.h"
+#include <hal/efuse_hal.h>
+#include <freertos/task.h>
+
+#include "CaptiveDnsServer.hpp"
 
 WifiAccessPoint::WifiAccessPoint() {
   // tune down log chatter
@@ -55,8 +56,9 @@ WifiAccessPoint::WifiAccessPoint() {
 
 
   // Start the DNS server that will redirect all queries to the softAP IP
-  dns_server_config_t config = DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
-  start_dns_server(&config);
+  static CaptiveDnsServer dnsServer;
+  // dns_server_config_t config = DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
+  // start_dns_server(&config);
   // assert(pdPASS == xTaskCreate(
   //                      dns_service_task, "dns_service",
   //                      2048 /* stack depth */,
