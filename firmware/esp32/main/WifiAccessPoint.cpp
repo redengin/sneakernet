@@ -14,7 +14,7 @@ static void dns_service_task(void *pvParameters);
 
 #include <cstring>
 
-WifiAccessPoint::WifiAccessPoint(const std::string ssid) : ssid(ssid) {
+WifiAccessPoint::WifiAccessPoint(const std::string &ssid) {
   // tune down log chatter
   esp_log_level_set("wifi_init", ESP_LOG_WARN);
 
@@ -30,8 +30,6 @@ WifiAccessPoint::WifiAccessPoint(const std::string ssid) : ssid(ssid) {
   ESP_ERROR_CHECK(nvs_flash_init());
   ESP_ERROR_CHECK(esp_wifi_init(&cfg));
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-
-  // set the ssid
   setSsid(ssid);
 
   // handle DNS requests, redirecting to captive portal
@@ -42,11 +40,12 @@ WifiAccessPoint::WifiAccessPoint(const std::string ssid) : ssid(ssid) {
                        tskIDLE_PRIORITY /* priority */,
                        nullptr /* handle (not used) */
                        ));
+
   ESP_ERROR_CHECK(esp_wifi_start());
   ESP_LOGI(TAG, "started");
 }
 
-void WifiAccessPoint::setSsid(const std::string ssid) {
+void WifiAccessPoint::setSsid(const std::string &ssid) {
   wifi_config_t wifi_config;
   esp_wifi_get_config(WIFI_IF_AP, &wifi_config);
   std::memcpy(&wifi_config.ap.ssid, ssid.c_str(), ssid.size());
@@ -55,7 +54,28 @@ void WifiAccessPoint::setSsid(const std::string ssid) {
   ESP_ERROR_CHECK(esp_wifi_set_config(
       static_cast<wifi_interface_t>(ESP_IF_WIFI_AP), &wifi_config));
 
-  ESP_LOGI(TAG, "publishing SSID: %s", ssid.c_str());
+  ESP_LOGI(TAG, "publishing SSID: '%s'", ssid.c_str());
+}
+
+void WifiAccessPoint::setCaptivePortalUri(const std::string &uri) {
+  // delete previous allocation
+  free(captivePortalUri);
+
+  // FIXME DHCP 114 doesn't appear to work on android
+
+  // configure DHCP server
+  const auto netif = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
+  ESP_ERROR_CHECK(esp_netif_dhcps_stop(netif));
+  captivePortalUri = static_cast<char*>(malloc(uri.size() + 1));
+  uri.copy(captivePortalUri, uri.size());
+  captivePortalUri[uri.size()] = 0; // null terminate the string
+  ESP_ERROR_CHECK(esp_netif_dhcps_option(
+      netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI,
+      // captivePortalUri, (uri.size() + 1)
+      captivePortalUri, uri.size()
+  ));
+  ESP_LOGE(TAG, "desired captive portal uri: '%s'", (char*)captivePortalUri);
+  ESP_ERROR_CHECK(esp_netif_dhcps_start(netif));
 }
 
 namespace dns {
@@ -173,7 +193,8 @@ void dns_service_task(void *) {
     size_t response_sz = sz;
     const auto qd_count = htons(header->qd_count);
     for (an_count = 0; an_count < qd_count; ++an_count) {
-      ESP_LOGD(WifiAccessPoint::TAG, "dns request for '%s'", &buffer[requestCursor]);
+      ESP_LOGD(WifiAccessPoint::TAG, "dns request for '%s'",
+               &buffer[requestCursor]);
       if ((responseCursor + sizeof(dns::compressed_answer)) > sizeof(buffer)) {
         ESP_LOGW(WifiAccessPoint::TAG,
                  "unable to respond to all queries (buffer too small)");

@@ -7,16 +7,17 @@ public:
     static constexpr char TAG[] = "WifiAccessPoint";    ///< ESP logging tag
 
     /// @brief Creates the Open Wifi Access Point
-    /// @post call publish()
-    /// @param ssid 
-    WifiAccessPoint(const std::string ssid = "SneakerNet");
+    WifiAccessPoint(const std::string& ssid);
 
     // provide system context with number of sockets created
-    static constexpr int socketsUsed = 1;
+    static constexpr int socketsUsed = 1;   // DNS handler
 
     /// @brief change the published SSID
-    void setSsid(const std::string ssid);
+    void setSsid(const std::string& ssid);
+
+    /// @brief set the captive portal uri (DHCP 114 option)
+    void setCaptivePortalUri(const std::string& uri);
 
 private:
-    std::string ssid;
+    char* captivePortalUri;
 };
