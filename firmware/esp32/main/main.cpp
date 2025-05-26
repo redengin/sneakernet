@@ -1,6 +1,7 @@
 #include <esp_log.h>
 #include <esp_ota_ops.h>
-#include <sdkconfig.h>  // used to select logging level for the project
+#include <sdkconfig.h> // used to select logging level for the project
+#include <hal/efuse_hal.h>
 
 #include "Catalog.hpp"
 #include "SdCard.hpp"
@@ -9,10 +10,10 @@
 #include "rest/catalog.hpp"
 #include "rest/firmware.hpp"
 
-extern "C" void app_main(void) {
+extern "C" void app_main(void)
+{
   // use the configured logging level for project
-  esp_log_level_set("*",
-                    static_cast<esp_log_level_t>(CONFIG_SNEAKERNET_LOG_LEVEL));
+  esp_log_level_set("*", static_cast<esp_log_level_t>(CONFIG_SNEAKERNET_LOG_LEVEL));
 
   // provide the storage
   static SdCard sdcard;
@@ -24,7 +25,15 @@ extern "C" void app_main(void) {
   size_t available_sockets_count = CONFIG_LWIP_MAX_SOCKETS;
 
   // create the access point
-  static WifiAccessPoint wap;
+  uint8_t mac[6];
+  efuse_hal_get_mac(mac);
+  char ssid[32];
+  snprintf(ssid, sizeof(ssid),
+           "SneakerNet %X%X%X%X%X%X",
+           mac[5], mac[4], mac[3], mac[2], mac[1], mac[0]);
+  // FIXME use WifiAccessPoint IP
+  const std::string captivePortalUrl = std::string("http://sneakernet.monster") + WebServer::CAPTIVE_PORTAL_URI;
+  static WifiAccessPoint wap(ssid, captivePortalUrl);
   // account for used sockets
   available_sockets_count -= WifiAccessPoint::socketsUsed;
 

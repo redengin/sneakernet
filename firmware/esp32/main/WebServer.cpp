@@ -8,16 +8,17 @@
 
 #include <string>
 
-extern "C" esp_err_t https_redirect(httpd_req_t* req, httpd_err_code_t err);
-extern "C" esp_err_t CAPTIVEPORTAL(httpd_req_t*);
+extern "C" esp_err_t https_redirect(httpd_req_t *req, httpd_err_code_t err);
+extern "C" esp_err_t CAPTIVEPORTALAPI(httpd_req_t *);
+extern "C" esp_err_t CAPTIVEPORTAL(httpd_req_t *);
 
-extern "C" esp_err_t WEBAPP(httpd_req_t*);
-extern "C" esp_err_t STYLES_CSS(httpd_req_t*);
-extern "C" esp_err_t MAIN_JS(httpd_req_t*);
-extern "C" esp_err_t POLYFILLS_JS(httpd_req_t*);
+extern "C" esp_err_t WEBAPP(httpd_req_t *);
+extern "C" esp_err_t STYLES_CSS(httpd_req_t *);
+extern "C" esp_err_t MAIN_JS(httpd_req_t *);
+extern "C" esp_err_t POLYFILLS_JS(httpd_req_t *);
 
-
-WebServer::WebServer(const size_t max_sockets) {
+WebServer::WebServer(const size_t max_sockets)
+{
   // tune down logging chatter
   esp_log_level_set("esp-tls-mbedtls", ESP_LOG_NONE);
   esp_log_level_set("esp_https_server", ESP_LOG_NONE);
@@ -31,76 +32,44 @@ WebServer::WebServer(const size_t max_sockets) {
 
   // create HTTPS server
   httpd_ssl_config_t httpsConfig = HTTPD_SSL_CONFIG_DEFAULT();
-  // apply specialization
-  {
-    // purge oldest connection
-    httpsConfig.httpd.lru_purge_enable = true;
-    // only support one admin at at time
-    httpsConfig.httpd.max_open_sockets = 1;
-    // allow wildcard uris
-    httpsConfig.httpd.uri_match_fn = httpd_uri_match_wildcard;
-    // provide handlers
-    httpsConfig.httpd.max_uri_handlers = 9;
-    // provide the private key
-    extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_https_priv_pem_start");
-    extern const unsigned char prvtkey_pem_end[]   asm("_binary_sneakernet_https_priv_pem_end");
-    httpsConfig.prvtkey_pem = prvtkey_pem_start;
-    httpsConfig.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
-    // provide the public key
-    extern const unsigned char servercert_start[] asm("_binary_sneakernet_https_pub_pem_start");
-    extern const unsigned char servercert_end[]   asm("_binary_sneakernet_https_pub_pem_end");
-    httpsConfig.servercert = servercert_start;
-    httpsConfig.servercert_len = servercert_end - servercert_start;
-    ESP_ERROR_CHECK(httpd_ssl_start(&httpsHandle, &httpsConfig));
-  }
+  // purge oldest connection
+  httpsConfig.httpd.lru_purge_enable = true;
+  // only support one admin at at time
+  httpsConfig.httpd.max_open_sockets = 1;
+  // allow wildcard uris
+  httpsConfig.httpd.uri_match_fn = httpd_uri_match_wildcard;
+  // provide handlers
+  httpsConfig.httpd.max_uri_handlers = 9;
+  // provide the private key
+  extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_https_priv_pem_start");
+  extern const unsigned char prvtkey_pem_end[] asm("_binary_sneakernet_https_priv_pem_end");
+  httpsConfig.prvtkey_pem = prvtkey_pem_start;
+  httpsConfig.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+  // provide the public key
+  extern const unsigned char servercert_start[] asm("_binary_sneakernet_https_pub_pem_start");
+  extern const unsigned char servercert_end[] asm("_binary_sneakernet_https_pub_pem_end");
+  httpsConfig.servercert = servercert_start;
+  httpsConfig.servercert_len = servercert_end - servercert_start;
+  // start the https server
+  ESP_ERROR_CHECK(httpd_ssl_start(&httpsHandle, &httpsConfig));
 
   // create HTTP server
   httpd_config_t httpConfig = HTTPD_DEFAULT_CONFIG();
-  // apply specialization
-  {
-    // purge oldest connection
-    httpConfig.lru_purge_enable = true;
-    // provide handlers
-    httpConfig.max_uri_handlers = 10;
-    // allow wildcard uris
-    httpConfig.uri_match_fn = httpd_uri_match_wildcard;
-    // maximize the availability to users
-    httpConfig.max_open_sockets =
-        max_http_sockets - httpsConfig.httpd.max_open_sockets;
-    // increase stack size
-    httpConfig.stack_size = 10 * 1024;
-    ESP_ERROR_CHECK(httpd_start(&httpHandle, &httpConfig));
-  }
+  // purge oldest connection
+  httpConfig.lru_purge_enable = true;
+  // provide handlers
+  httpConfig.max_uri_handlers = 11; // FIXME make users aware of limits
+  // allow wildcard uris
+  httpConfig.uri_match_fn = httpd_uri_match_wildcard;
+  // maximize the availability to users
+  httpConfig.max_open_sockets =
+      max_http_sockets - httpsConfig.httpd.max_open_sockets;
+  // increase stack size
+  httpConfig.stack_size = 10 * 1024;
+  // start the http server
+  ESP_ERROR_CHECK(httpd_start(&httpHandle, &httpConfig));
 
-  // provide captive portal
-  {
-    // redirect non-sneakernet https traffic
-    httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, https_redirect);
-
-    httpd_uri_t captiveportal_handler = {
-      .uri = "",
-      .method = HTTP_GET,
-      .handler = CAPTIVEPORTAL,
-      .user_ctx = nullptr,
-    };
-
-    // Android support
-    {
-      captiveportal_handler.uri = "/gen_204";
-      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &captiveportal_handler));
-      captiveportal_handler.uri = "/generate_204";
-      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &captiveportal_handler));
-    }
-
-    // iOS support
-    {
-      captiveportal_handler.uri = "/hotspot-detect.html";
-      // TODO see if iOS allows direct usage of webapp
-      captiveportal_handler.handler = WEBAPP;
-      ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &captiveportal_handler));
-    }
-  }
-
+  // register the web-app
   registerUriHandler(httpd_uri_t{
       .uri = "/",
       .method = HTTP_GET,
@@ -125,16 +94,56 @@ WebServer::WebServer(const size_t max_sockets) {
       .handler = POLYFILLS_JS,
       .user_ctx = nullptr,
   });
+
+  // redirect non-sneakernet https traffic to web-app
+  httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, https_redirect);
+
+  // capport support (https://datatracker.ietf.org/doc/html/rfc8908)
+  {
+    const httpd_uri_t handler = {
+        .uri = CAPTIVE_PORTAL_URI,
+        .method = HTTP_GET,
+        .handler = CAPTIVEPORTALAPI,
+        .user_ctx = nullptr,
+    };
+    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+  }
+  // Generic Android support
+  {
+    httpd_uri_t handler = {
+        .uri = "",
+        .method = HTTP_GET,
+        .handler = CAPTIVEPORTAL,
+        .user_ctx = nullptr,
+    };
+    handler.uri = "/gen_204";
+    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+    handler.uri = "/generate_204";
+    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+  }
+
+  // Generic iOS support
+  {
+    const httpd_uri_t handler = {
+        .uri = "/hotspot-detect.html",
+        .method = HTTP_GET,
+        .handler = WEBAPP,  // iOS is able to use the web-app directly
+        .user_ctx = nullptr,
+    };
+    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+  }
 }
 
-void WebServer::registerUriHandler(const httpd_uri_t& handler) {
+void WebServer::registerUriHandler(const httpd_uri_t &handler)
+{
   ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
   // FIXME disabled admin for now
   // ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
 }
 
 /// provides captive portal redirect
-esp_err_t https_redirect(httpd_req_t* request, httpd_err_code_t err) {
+esp_err_t https_redirect(httpd_req_t *request, httpd_err_code_t err)
+{
   ESP_LOGI(WebServer::TAG, "Serving 303 redirect for request[%s]", request->uri);
   // Set status
   httpd_resp_set_status(request, "303 See Other");
@@ -147,9 +156,18 @@ esp_err_t https_redirect(httpd_req_t* request, httpd_err_code_t err) {
   return ESP_OK;
 }
 
+/// @brief send capport json
+esp_err_t CAPTIVEPORTALAPI(httpd_req_t *request)
+{
+  ESP_LOGD(WebServer::TAG, "got a capport query");
+  constexpr char capport[] = "{\"captive\"=true,user-}";
+  return ESP_FAIL;
+}
+
 extern "C" const char captiveportalHtml_start[] asm("_binary_captiveportal_html_start");
 extern "C" const char captiveportalHtml_end[] asm("_binary_captiveportal_html_end");
-esp_err_t CAPTIVEPORTAL(httpd_req_t* request) {
+esp_err_t CAPTIVEPORTAL(httpd_req_t *request)
+{
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
@@ -161,7 +179,8 @@ esp_err_t CAPTIVEPORTAL(httpd_req_t* request) {
 
 extern "C" const char webappHtml_start[] asm("_binary_index_html_start");
 extern "C" const char webappHtml_end[] asm("_binary_index_html_end");
-esp_err_t WEBAPP(httpd_req_t* request) {
+esp_err_t WEBAPP(httpd_req_t *request)
+{
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
@@ -173,7 +192,8 @@ esp_err_t WEBAPP(httpd_req_t* request) {
 
 extern "C" const char stylesCss_start[] asm("_binary_styles_css_start");
 extern "C" const char stylesCss_end[] asm("_binary_styles_css_end");
-esp_err_t STYLES_CSS(httpd_req_t* request) {
+esp_err_t STYLES_CSS(httpd_req_t *request)
+{
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
@@ -185,7 +205,8 @@ esp_err_t STYLES_CSS(httpd_req_t* request) {
 
 extern "C" const char mainJs_start[] asm("_binary_main_js_start");
 extern "C" const char mainJs_end[] asm("_binary_main_js_end");
-esp_err_t MAIN_JS(httpd_req_t* request) {
+esp_err_t MAIN_JS(httpd_req_t *request)
+{
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
@@ -197,7 +218,8 @@ esp_err_t MAIN_JS(httpd_req_t* request) {
 
 extern "C" const char polyfillsJs_start[] asm("_binary_polyfills_js_start");
 extern "C" const char polyfillsJs_end[] asm("_binary_polyfills_js_end");
-esp_err_t POLYFILLS_JS(httpd_req_t* request) {
+esp_err_t POLYFILLS_JS(httpd_req_t *request)
+{
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");

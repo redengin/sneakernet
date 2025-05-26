@@ -1,24 +1,10 @@
 menu "SneakerNet"
-    choice SNEAKERNET_WIFI_CHANNEL_MAX
-        bool "WiFi Channel Max"
+    config SNEAKERNET_WIFI_COUNTRY_CODE
+        string
+        prompt "WiFi Country Code"
         help
-            Limit use of WiFi channels per your location
-            https://en.wikipedia.org/wiki/List_of_WLAN_channels
-
-            By default, all channels can be used.
-        default SNEAKERNET_WIFI_CHANNEL_MOST
-        config SNEAKERNET_WIFI_CHANNEL_ALL
-            bool "All WiFi Channels"
-        config SNEAKERNET_WIFI_CHANNEL_US
-            bool "United States WiFi Channels"
-        config SNEAKERNET_WIFI_CHANNEL_MOST
-            bool "Generally allowed WiFi Channels"
-    endchoice
-    config SNEAKERNET_WIFI_CHANNEL_MAX
-        int
-        default 14 if SNEAKERNET_WIFI_CHANNEL_ALL
-        default 11 if SNEAKERNET_WIFI_CHANNEL_US
-        default 13 if SNEAKERNET_WIFI_CHANNEL_MOST
+            Determines available wifi channels per country
+        default "US"
 
     choice SNEAKERNET_LOG_LEVEL
         bool "Default log verbosity"

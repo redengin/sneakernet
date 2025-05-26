@@ -8,12 +8,14 @@
 
 #include <esp_wifi.h>
 #include <freertos/task.h>
-#include <hal/efuse_hal.h>
 #include <nvs_flash.h>
 #include <lwip/sockets.h>
 #include "dns_server.h"
 
-WifiAccessPoint::WifiAccessPoint() {
+WifiAccessPoint::WifiAccessPoint(const std::string &ssid,
+                                 const std::string &_captivePortalUri)
+  : captivePortalUri(_captivePortalUri)
+{
   // tune down log chatter
   esp_log_level_set("wifi_init", ESP_LOG_WARN);
 
@@ -21,44 +23,46 @@ WifiAccessPoint::WifiAccessPoint() {
   ESP_ERROR_CHECK(esp_netif_init());
   ESP_ERROR_CHECK(esp_event_loop_create_default());
   ESP_ERROR_CHECK(nvs_flash_init());
-  esp_netif_t* const netif = esp_netif_create_default_wifi_ap();
 
   // initialize wifi
-  wifi_init_config_t init_cfg = WIFI_INIT_CONFIG_DEFAULT();
+  const wifi_init_config_t init_cfg = WIFI_INIT_CONFIG_DEFAULT();
   ESP_ERROR_CHECK(esp_wifi_init(&init_cfg));
+  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
 
   // configure wifi
-  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
   wifi_config_t wifi_config;
   ESP_ERROR_CHECK(esp_wifi_get_config(WIFI_IF_AP, &wifi_config));
-  // make it passwordless
+  // make it passwordless (i.e. Open)
   wifi_config.ap.authmode = WIFI_AUTH_OPEN;
-  // set the ssid via tha MAC
-  uint8_t mac[6];
-  efuse_hal_get_mac(mac);
-  wifi_config.ap.ssid_len =
-      snprintf(reinterpret_cast<char *>(&wifi_config.ap.ssid), sizeof(wifi_config.ap.ssid),
-               "SneakerNet %X%X%X%X%X%X",
-               mac[5], mac[4], mac[3], mac[2], mac[1], mac[0]);
+  // support multiple connections
+  wifi_config.ap.max_connection = 10;
   // randomize channel
-    srand(*reinterpret_cast<uint32_t*>(mac + 2));
-    wifi_config.ap.channel = (rand() % (CONFIG_SNEAKERNET_WIFI_CHANNEL_MAX + 1));
+  ESP_ERROR_CHECK(esp_wifi_set_country_code(CONFIG_SNEAKERNET_WIFI_COUNTRY_CODE, false /* not used */));
+  wifi_country_t country_info;
+  ESP_ERROR_CHECK(esp_wifi_get_country(&country_info));
+  wifi_config.ap.channel = (esp_random() % country_info.nchan) + 1; // valid channel range [1, nchan]
+  // set the ssid
+  ssid.copy(reinterpret_cast<char *>(wifi_config.ap.ssid), ssid.size(), 0);
+  wifi_config.ap.ssid_len = ssid.size();
+  // update the wifi configuration
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
 
-  // add captive portal option to dhcps
-  static const std::string captiveportal_uri = "http://192.168.4.1/CAPTIVE_PORTAL";
-  ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_dhcps_stop(netif));
+  // configure dhcp Captive-Portal Identification (https://www.rfc-editor.org/rfc/rfc8910.html)
+  esp_netif_t *const netif = esp_netif_create_default_wifi_ap();
+  ESP_ERROR_CHECK(esp_netif_dhcps_stop(netif));
   ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI,
-                                         const_cast<char*>(captiveportal_uri.c_str()),
-                                         captiveportal_uri.length()));
-  ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_dhcps_start(netif));
+                                         const_cast<char *>(captivePortalUri.c_str()),
+                                         captivePortalUri.length()));
+  ESP_ERROR_CHECK(esp_netif_dhcps_start(netif));
+  ESP_LOGD(TAG, "captive portal uri '%s'",
+           captivePortalUri.c_str());
 
-
-  // Start the DNS server that will redirect all queries to the softAP IP
+  // start the DNS server that will redirect all queries to captive portal
   dns_server_config_t config = DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
   start_dns_server(&config);
-  
+
   // publish the WiFi access point
   ESP_ERROR_CHECK(esp_wifi_start());
-  ESP_LOGI(TAG, "publishing SSID '%s'", wifi_config.ap.ssid);
+  ESP_LOGI(TAG, "publishing SSID '%s' on channel %d",
+           wifi_config.ap.ssid, wifi_config.ap.channel);
 }
