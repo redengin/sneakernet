@@ -22,6 +22,9 @@ public:
     { return request->handle == httpsHandle; }
 
 private:
-    httpd_handle_t httpHandle;
     httpd_handle_t httpsHandle;
+    static constexpr size_t MAX_HTTPS_URI_HANDLERS = 9;
+
+    httpd_handle_t httpHandle;
+    static constexpr size_t MAX_HTTP_URI_HANDLERS = 11;
 };

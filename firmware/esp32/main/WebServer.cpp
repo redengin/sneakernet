@@ -23,11 +23,11 @@ extern "C" esp_err_t POLYFILLS_JS(httpd_req_t *);
 WebServer::WebServer(const size_t max_sockets)
 {
   // tune down logging chatter
-  esp_log_level_set("esp-tls-mbedtls", ESP_LOG_NONE);
-  esp_log_level_set("esp_https_server", ESP_LOG_NONE);
-  esp_log_level_set("httpd", ESP_LOG_NONE);
-  // esp_log_level_set("httpd_txrx", ESP_LOG_WARN);
-  // esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
+  esp_log_level_set("esp-tls-mbedtls", ESP_LOG_NONE);   // hides TLS errors
+  esp_log_level_set("esp_https_server", ESP_LOG_NONE);  // hides session failed errors
+  esp_log_level_set("httpd", ESP_LOG_NONE);             // hides session failed errors
+  esp_log_level_set("httpd_txrx", ESP_LOG_NONE);        // hides 404 warnings
+  esp_log_level_set("httpd_parse", ESP_LOG_NONE);       // hides parsing messages
 
   // per httpd_main.c, http uses internal sockets
   constexpr size_t HTTP_INTERNAL_SOCKET_COUNT = 3;
@@ -42,7 +42,7 @@ WebServer::WebServer(const size_t max_sockets)
   // allow wildcard uris
   httpsConfig.httpd.uri_match_fn = httpd_uri_match_wildcard;
   // provide handlers
-  httpsConfig.httpd.max_uri_handlers = 9;
+  httpsConfig.httpd.max_uri_handlers = MAX_HTTPS_URI_HANDLERS;
   // provide the private key
   extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_https_priv_pem_start");
   extern const unsigned char prvtkey_pem_end[] asm("_binary_sneakernet_https_priv_pem_end");
@@ -64,7 +64,7 @@ WebServer::WebServer(const size_t max_sockets)
   // purge oldest connection
   httpConfig.lru_purge_enable = true;
   // provide handlers
-  httpConfig.max_uri_handlers = 11; // FIXME make users aware of limits
+  httpConfig.max_uri_handlers = MAX_HTTP_URI_HANDLERS;
   // allow wildcard uris
   httpConfig.uri_match_fn = httpd_uri_match_wildcard;
   // maximize the availability to users
@@ -139,8 +139,7 @@ WebServer::WebServer(const size_t max_sockets)
 void WebServer::registerUriHandler(const httpd_uri_t &handler)
 {
   ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-  // FIXME disabled admin for now
-  // ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
+  ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
 }
 
 /// provides captive portal redirect to webapp
