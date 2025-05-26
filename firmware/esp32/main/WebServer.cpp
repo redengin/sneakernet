@@ -8,14 +8,17 @@
 
 #include <string>
 
-extern "C" esp_err_t https_redirect(httpd_req_t *req, httpd_err_code_t err);
-extern "C" esp_err_t CAPTIVEPORTALAPI(httpd_req_t *);
-extern "C" esp_err_t CAPTIVEPORTAL(httpd_req_t *);
+extern "C" esp_err_t redirect(httpd_req_t *req, httpd_err_code_t err);
+
+extern "C" esp_err_t CAPPORT_JSON(httpd_req_t *);
+extern "C" esp_err_t CONNECT_INSTRUCTIONS(httpd_req_t *);
 
 extern "C" esp_err_t WEBAPP(httpd_req_t *);
 extern "C" esp_err_t STYLES_CSS(httpd_req_t *);
 extern "C" esp_err_t MAIN_JS(httpd_req_t *);
 extern "C" esp_err_t POLYFILLS_JS(httpd_req_t *);
+
+
 
 WebServer::WebServer(const size_t max_sockets)
 {
@@ -53,6 +56,9 @@ WebServer::WebServer(const size_t max_sockets)
   // start the https server
   ESP_ERROR_CHECK(httpd_ssl_start(&httpsHandle, &httpsConfig));
 
+  // redirect non-sneakernet https traffic to web-app
+  httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, redirect);
+
   // create HTTP server
   httpd_config_t httpConfig = HTTPD_DEFAULT_CONFIG();
   // purge oldest connection
@@ -68,6 +74,40 @@ WebServer::WebServer(const size_t max_sockets)
   httpConfig.stack_size = 10 * 1024;
   // start the http server
   ESP_ERROR_CHECK(httpd_start(&httpHandle, &httpConfig));
+
+  // capport support (https://datatracker.ietf.org/doc/html/rfc8908)
+  {
+    const httpd_uri_t handler = {
+        .uri = CAPTIVE_PORTAL_URI,
+        .method = HTTP_GET,
+        .handler = CAPPORT_JSON,
+        .user_ctx = nullptr,
+    };
+    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+  }
+  // Android captive portal support
+  {
+    httpd_uri_t handler = {
+        .uri = "",
+        .method = HTTP_GET,
+        .handler = CONNECT_INSTRUCTIONS, // provide connecting instructions
+        .user_ctx = nullptr,
+    };
+    handler.uri = "/gen_204";
+    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+    handler.uri = "/generate_204";
+    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+  }
+  // iOS captive portal support
+  {
+    const httpd_uri_t handler = {
+        .uri = "/hotspot-detect.html",
+        .method = HTTP_GET,
+        .handler = WEBAPP,  // iOS is able to use the web-app directly
+        .user_ctx = nullptr,
+    };
+    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+  }
 
   // register the web-app
   registerUriHandler(httpd_uri_t{
@@ -94,44 +134,6 @@ WebServer::WebServer(const size_t max_sockets)
       .handler = POLYFILLS_JS,
       .user_ctx = nullptr,
   });
-
-  // redirect non-sneakernet https traffic to web-app
-  httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, https_redirect);
-
-  // capport support (https://datatracker.ietf.org/doc/html/rfc8908)
-  {
-    const httpd_uri_t handler = {
-        .uri = CAPTIVE_PORTAL_URI,
-        .method = HTTP_GET,
-        .handler = CAPTIVEPORTALAPI,
-        .user_ctx = nullptr,
-    };
-    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-  }
-  // Generic Android support
-  {
-    httpd_uri_t handler = {
-        .uri = "",
-        .method = HTTP_GET,
-        .handler = CAPTIVEPORTAL,
-        .user_ctx = nullptr,
-    };
-    handler.uri = "/gen_204";
-    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-    handler.uri = "/generate_204";
-    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-  }
-
-  // Generic iOS support
-  {
-    const httpd_uri_t handler = {
-        .uri = "/hotspot-detect.html",
-        .method = HTTP_GET,
-        .handler = WEBAPP,  // iOS is able to use the web-app directly
-        .user_ctx = nullptr,
-    };
-    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-  }
 }
 
 void WebServer::registerUriHandler(const httpd_uri_t &handler)
@@ -141,32 +143,33 @@ void WebServer::registerUriHandler(const httpd_uri_t &handler)
   // ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
 }
 
-/// provides captive portal redirect
-esp_err_t https_redirect(httpd_req_t *request, httpd_err_code_t err)
+/// provides captive portal redirect to webapp
+esp_err_t redirect(httpd_req_t *request, httpd_err_code_t err)
 {
-  ESP_LOGI(WebServer::TAG, "Serving 303 redirect for request[%s]", request->uri);
-  // Set status
+  ESP_LOGD(WebServer::TAG, "Serving 303 redirect for request[%s]", request->uri);
   httpd_resp_set_status(request, "303 See Other");
-  // Redirect to the "/" root directory
   httpd_resp_set_hdr(request, "Location", "http://192.168.4.1/");
-  // iOS requires content in the response to detect a captive portal, simply
-  // redirecting is not sufficient.
-  httpd_resp_send(request, "Redirect to the captive portal",
+  // iOS requires content in the response to detect a captive portal
+  return httpd_resp_send(request, "Redirect to the captive portal",
                   HTTPD_RESP_USE_STRLEN);
-  return ESP_OK;
 }
 
 /// @brief send capport json
-esp_err_t CAPTIVEPORTALAPI(httpd_req_t *request)
+esp_err_t CAPPORT_JSON(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "got a capport query");
-  constexpr char capport[] = "{\"captive\"=true,user-}";
-  return ESP_FAIL;
+  constexpr char capport_json[] = R"END(
+{
+  "captive": true,
+  "venue-info-url": "http://192.168.4.1/",
+}
+)END";
+  return httpd_resp_send(request, capport_json, HTTPD_RESP_USE_STRLEN);
 }
 
 extern "C" const char captiveportalHtml_start[] asm("_binary_captiveportal_html_start");
 extern "C" const char captiveportalHtml_end[] asm("_binary_captiveportal_html_end");
-esp_err_t CAPTIVEPORTAL(httpd_req_t *request)
+esp_err_t CONNECT_INSTRUCTIONS(httpd_req_t *request)
 {
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
