@@ -43,16 +43,22 @@ WebServer::WebServer(const size_t max_sockets)
   httpsConfig.httpd.uri_match_fn = httpd_uri_match_wildcard;
   // provide handlers
   httpsConfig.httpd.max_uri_handlers = MAX_HTTPS_URI_HANDLERS;
-  // provide the private key
-  extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_https_priv_pem_start");
-  extern const unsigned char prvtkey_pem_end[] asm("_binary_sneakernet_https_priv_pem_end");
-  httpsConfig.prvtkey_pem = prvtkey_pem_start;
-  httpsConfig.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
   // provide the public key
   extern const unsigned char servercert_start[] asm("_binary_sneakernet_https_pub_pem_start");
   extern const unsigned char servercert_end[] asm("_binary_sneakernet_https_pub_pem_end");
   httpsConfig.servercert = servercert_start;
   httpsConfig.servercert_len = servercert_end - servercert_start;
+  // provide the cacert
+  // FIXME need a cacert
+  // extern const unsigned char cacert_start[] asm("_binary_sneakernet_https_ca_pem_start");
+  // extern const unsigned char cacert_end[] asm("_binary_sneakernet_https_ca_pem_end");
+  // httpsConfig.cacert_pem = cacert_start;
+  // httpsConfig.cacert_len = cacert_end - cacert_start;
+  // provide the private key
+  extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_https_priv_pem_start");
+  extern const unsigned char prvtkey_pem_end[] asm("_binary_sneakernet_https_priv_pem_end");
+  httpsConfig.prvtkey_pem = prvtkey_pem_start;
+  httpsConfig.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
   // start the https server
   ESP_ERROR_CHECK(httpd_ssl_start(&httpsHandle, &httpsConfig));
 
