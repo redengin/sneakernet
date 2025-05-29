@@ -10,7 +10,7 @@
 
 extern "C" esp_err_t redirect(httpd_req_t *req, httpd_err_code_t err);
 
-extern "C" esp_err_t CAPPORT_JSON(httpd_req_t *);
+extern "C" esp_err_t CAPPORT(httpd_req_t *);
 extern "C" esp_err_t CONNECT_INSTRUCTIONS(httpd_req_t *);
 
 extern "C" esp_err_t WEBAPP(httpd_req_t *);
@@ -78,12 +78,12 @@ WebServer::WebServer(const size_t max_sockets)
   // capport support (https://datatracker.ietf.org/doc/html/rfc8908)
   {
     const httpd_uri_t handler = {
-        .uri = CAPTIVE_PORTAL_URI,
+        .uri = CAPPORT_URI,
         .method = HTTP_GET,
-        .handler = CAPPORT_JSON,
+        .handler = CAPPORT,
         .user_ctx = nullptr,
     };
-    ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
+    ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
   }
   // Android captive portal support
   {
@@ -154,7 +154,7 @@ esp_err_t redirect(httpd_req_t *request, httpd_err_code_t err)
 }
 
 /// @brief send capport json
-esp_err_t CAPPORT_JSON(httpd_req_t *request)
+esp_err_t CAPPORT(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "got a capport query");
   constexpr char capport_json[] = R"END(
@@ -163,6 +163,8 @@ esp_err_t CAPPORT_JSON(httpd_req_t *request)
   "venue-info-url": "http://192.168.4.1/",
 }
 )END";
+  auto response = request;
+  httpd_resp_set_type(response, "application/json");
   return httpd_resp_send(request, capport_json, HTTPD_RESP_USE_STRLEN);
 }
 

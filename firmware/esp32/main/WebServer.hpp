@@ -9,7 +9,7 @@ class WebServer
 public:
     static constexpr char TAG[] = "WebServer";    ///< ESP logging tag
 
-    static constexpr char CAPTIVE_PORTAL_URI[] = "/captive-portal-api";
+    static constexpr char CAPPORT_URI[] = "/capport";
 
     /// Creates both an HTTP and HTTPS server
     WebServer(const size_t max_sockets);

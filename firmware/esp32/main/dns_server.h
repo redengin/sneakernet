@@ -14,11 +14,6 @@ extern "C" {
 #define DNS_SERVER_MAX_ITEMS 1
 #endif
 
-#define DNS_SERVER_CONFIG_SINGLE(queried_name, netif_key)  {            \
-        .num_of_entries = 1,                                            \
-        .item = {{.name=queried_name, .if_key=netif_key, .ip{.addr=0} }}\
-}
-
 /**
  * @brief Definition of one DNS entry: NAME - IP (or the netif whose IP to answer)
  *
@@ -64,7 +59,7 @@ typedef struct dns_server_handle *dns_server_handle_t;
  * @param config Configuration structure listing the pairs of (name, IP/netif-id)
  * @return dns_server's handle on success, NULL on failure
  */
-dns_server_handle_t start_dns_server(dns_server_config_t *config);
+dns_server_handle_t start_dns_server(const dns_server_config_t *config);
 
 /**
  * @brief Stops and destroys DNS server's task and structs

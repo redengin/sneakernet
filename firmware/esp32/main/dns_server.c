@@ -3,6 +3,10 @@
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
+#include <sdkconfig.h>
+// override LOG_LOCAL_LEVEL per project setting
+#undef LOG_LOCAL_LEVEL
+#define LOG_LOCAL_LEVEL CONFIG_SNEAKERNET_LOG_LEVEL
 
 #include <sys/param.h>
 #include <inttypes.h>
@@ -293,7 +297,7 @@ void dns_server_task(void *pvParameters)
     vTaskDelete(NULL);
 }
 
-dns_server_handle_t start_dns_server(dns_server_config_t *config)
+dns_server_handle_t start_dns_server(const dns_server_config_t *config)
 {
     dns_server_handle_t handle = calloc(1, sizeof(struct dns_server_handle) + config->num_of_entries * sizeof(dns_entry_pair_t));
     ESP_RETURN_ON_FALSE(handle, NULL, TAG, "Failed to allocate dns server handle");
