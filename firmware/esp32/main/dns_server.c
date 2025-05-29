@@ -304,7 +304,7 @@ dns_server_handle_t start_dns_server(const dns_server_config_t *config)
 
     handle->started = true;
     handle->num_of_entries = config->num_of_entries;
-    memcpy(handle->entry, config->item, config->num_of_entries * sizeof(dns_entry_pair_t));
+    memcpy(handle->entry, config->entries, config->num_of_entries * sizeof(dns_entry_pair_t));
 
     xTaskCreate(dns_server_task, "dns_server", 4096, handle, 5, &handle->task);
     return handle;

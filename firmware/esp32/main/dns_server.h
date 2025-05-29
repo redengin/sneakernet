@@ -10,9 +10,9 @@
 extern "C" {
 #endif
 
-#ifndef DNS_SERVER_MAX_ITEMS
-#define DNS_SERVER_MAX_ITEMS 1
-#endif
+// #ifndef DNS_SERVER_MAX_ITEMS
+// #define DNS_SERVER_MAX_ITEMS 1
+// #endif
 
 /**
  * @brief Definition of one DNS entry: NAME - IP (or the netif whose IP to answer)
@@ -44,7 +44,7 @@ typedef struct dns_entry_pair {
  */
 typedef struct dns_server_config {
     int num_of_entries;                             /**<! Number of rules specified in the config struct */
-    dns_entry_pair_t item[DNS_SERVER_MAX_ITEMS];    /**<! Array of pairs */
+    dns_entry_pair_t entries[];    /**<! Array of pairs */
 } dns_server_config_t;
 
 /**

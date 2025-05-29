@@ -50,15 +50,39 @@ WifiAccessPoint::WifiAccessPoint(const std::string &ssid,
   // configure dhcp Captive-Portal Identification (https://www.rfc-editor.org/rfc/rfc8910.html)
   esp_netif_t *const netif = esp_netif_create_default_wifi_ap();
   ESP_ERROR_CHECK(esp_netif_dhcps_stop(netif));
-  ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI,
-                                         const_cast<char *>(captivePortalUri.c_str()),
-                                         captivePortalUri.length()));
-  ESP_ERROR_CHECK(esp_netif_dhcps_start(netif));
-  ESP_LOGD(TAG, "captive portal uri '%s'",
-           captivePortalUri.c_str());
 
-  // start the DNS server that will redirect all queries to captive portal
-  dns_server_config_t config = DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
+  // magic uri to avoid login screen (doesn't appear to work)
+  // static const std::string uri = "urn:ietf:params:capport:unrestricted";
+  // ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI,
+  //     const_cast<char*>(uri.c_str()), uri.length()));
+
+  // ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI,
+  //                                        const_cast<char *>(captivePortalUri.c_str()),
+  //                                        captivePortalUri.length()));
+
+  // FIXME not currently supported
+  // constexpr esp_netif_dhcp_option_id_t ESP_NETIF_CAPTIVE_PORTAL_URI_IP6 =
+  //     static_cast<esp_netif_dhcp_option_id_t>(103);
+  // ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVE_PORTAL_URI_IP6,
+  //                                        const_cast<char *>(captivePortalUri.c_str()),
+  //                                        captivePortalUri.length()));
+
+  // FIXME not currently supported
+  // constexpr esp_netif_dhcp_option_id_t ESP_NETIF_CAPTIVE_PORTAL_URI_RA =
+  //     static_cast<esp_netif_dhcp_option_id_t>(37);
+  // ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVE_PORTAL_URI_RA,
+  //                                        const_cast<char *>(captivePortalUri.c_str()),
+  //                                        captivePortalUri.length()));
+
+  ESP_ERROR_CHECK(esp_netif_dhcps_start(netif));
+
+  // start the DNS server that will redirect queries to captive portal
+  static const dns_server_config_t config = {
+    .num_of_entries = 1,
+    .entries = {{.name="*", .if_key="WIFI_AP_DEF", .ip{.addr=0}}}
+    // .item = {{.name="sneakernet.com", .if_key="WIFI_AP_DEF", .ip{.addr=0}}}
+  };
+  // DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
   start_dns_server(&config);
 
   // publish the WiFi access point
