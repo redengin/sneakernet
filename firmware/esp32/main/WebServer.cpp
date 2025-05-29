@@ -159,12 +159,12 @@ esp_err_t CAPPORT(httpd_req_t *request)
   ESP_LOGD(WebServer::TAG, "got a capport query");
   constexpr char capport_json[] = R"END(
 {
-  "captive": true,
+  "captive": false,
   "venue-info-url": "http://192.168.4.1/",
 }
 )END";
   auto response = request;
-  httpd_resp_set_type(response, "application/json");
+  httpd_resp_set_type(response, "application/captive+json");
   return httpd_resp_send(request, capport_json, HTTPD_RESP_USE_STRLEN);
 }
 

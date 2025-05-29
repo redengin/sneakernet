@@ -51,14 +51,9 @@ WifiAccessPoint::WifiAccessPoint(const std::string &ssid,
   esp_netif_t *const netif = esp_netif_create_default_wifi_ap();
   ESP_ERROR_CHECK(esp_netif_dhcps_stop(netif));
 
-  // magic uri to avoid login screen (doesn't appear to work)
-  // static const std::string uri = "urn:ietf:params:capport:unrestricted";
-  // ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI,
-  //     const_cast<char*>(uri.c_str()), uri.length()));
-
-  // ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI,
-  //                                        const_cast<char *>(captivePortalUri.c_str()),
-  //                                        captivePortalUri.length()));
+  ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI,
+                                         const_cast<char *>(captivePortalUri.c_str()),
+                                         captivePortalUri.length()));
 
   // FIXME not currently supported
   // constexpr esp_netif_dhcp_option_id_t ESP_NETIF_CAPTIVE_PORTAL_URI_IP6 =

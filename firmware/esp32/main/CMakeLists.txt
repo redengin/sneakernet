@@ -11,6 +11,7 @@ idf_component_register(
         "rest/utils.cpp"
 
     EMBED_TXTFILES
+        # FIXME for CAPPORT likely needs a signed certificate
         "~/keystore/sneakernet_https_priv.pem"  # HTTPS private key
         "~/keystore/sneakernet_https_pub.pem"   # HTTPS public key
 
