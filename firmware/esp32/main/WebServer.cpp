@@ -11,12 +11,13 @@
 extern "C" esp_err_t redirect(httpd_req_t *req, httpd_err_code_t err);
 
 extern "C" esp_err_t CAPPORT(httpd_req_t *);
+extern "C" esp_err_t GENERATE_204(httpd_req_t *);
 extern "C" esp_err_t CONNECT_INSTRUCTIONS(httpd_req_t *);
 
 extern "C" esp_err_t WEBAPP(httpd_req_t *);
-extern "C" esp_err_t STYLES_CSS(httpd_req_t *);
-extern "C" esp_err_t MAIN_JS(httpd_req_t *);
-extern "C" esp_err_t POLYFILLS_JS(httpd_req_t *);
+extern "C" esp_err_t WEBAPP_CSS(httpd_req_t *);
+extern "C" esp_err_t WEBAPP_JS(httpd_req_t *);
+extern "C" esp_err_t WEBAPP_POLYFILLS(httpd_req_t *);
 
 
 
@@ -98,6 +99,7 @@ WebServer::WebServer(const size_t max_sockets)
         .uri = "",
         .method = HTTP_GET,
         .handler = CONNECT_INSTRUCTIONS, // provide connecting instructions
+        // .handler = GENERATE_204, // respond with "204 No Content"
         .user_ctx = nullptr,
     };
     handler.uri = "/gen_204";
@@ -126,19 +128,19 @@ WebServer::WebServer(const size_t max_sockets)
   registerUriHandler(httpd_uri_t{
       .uri = "/styles.css",
       .method = HTTP_GET,
-      .handler = STYLES_CSS,
+      .handler = WEBAPP_CSS,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
       .uri = "/main.js",
       .method = HTTP_GET,
-      .handler = MAIN_JS,
+      .handler = WEBAPP_JS,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
       .uri = "/polyfills.js",
       .method = HTTP_GET,
-      .handler = POLYFILLS_JS,
+      .handler = WEBAPP_POLYFILLS,
       .user_ctx = nullptr,
   });
 }
@@ -163,7 +165,7 @@ esp_err_t redirect(httpd_req_t *request, httpd_err_code_t err)
 /// @brief send capport json
 esp_err_t CAPPORT(httpd_req_t *request)
 {
-  ESP_LOGD(WebServer::TAG, "got a capport query");
+  ESP_LOGD(WebServer::TAG, "got a capport request");
   constexpr char capport_json[] = R"END(
 {
   "captive": false,
@@ -175,10 +177,20 @@ esp_err_t CAPPORT(httpd_req_t *request)
   return httpd_resp_send(request, capport_json, HTTPD_RESP_USE_STRLEN);
 }
 
+esp_err_t GENERATE_204(httpd_req_t *request)
+{
+  ESP_LOGD(WebServer::TAG, "got a generate 204 request - providing 204");
+  auto response = request;
+  httpd_resp_set_status(response, "204 No Content");
+  httpd_resp_set_type(response, HTTPD_TYPE_TEXT);
+  return httpd_resp_send(response, nullptr, 0);
+}
+
 extern "C" const char captiveportalHtml_start[] asm("_binary_captiveportal_html_start");
 extern "C" const char captiveportalHtml_end[] asm("_binary_captiveportal_html_end");
 esp_err_t CONNECT_INSTRUCTIONS(httpd_req_t *request)
 {
+  ESP_LOGD(WebServer::TAG, "got a generate 204 request - providing page");
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
@@ -192,6 +204,7 @@ extern "C" const char webappHtml_start[] asm("_binary_index_html_start");
 extern "C" const char webappHtml_end[] asm("_binary_index_html_end");
 esp_err_t WEBAPP(httpd_req_t *request)
 {
+  ESP_LOGD(WebServer::TAG, "got a webapp index request");
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
@@ -203,8 +216,9 @@ esp_err_t WEBAPP(httpd_req_t *request)
 
 extern "C" const char stylesCss_start[] asm("_binary_styles_css_start");
 extern "C" const char stylesCss_end[] asm("_binary_styles_css_end");
-esp_err_t STYLES_CSS(httpd_req_t *request)
+esp_err_t WEBAPP_CSS(httpd_req_t *request)
 {
+  ESP_LOGD(WebServer::TAG, "got a webapp css request");
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
@@ -216,8 +230,9 @@ esp_err_t STYLES_CSS(httpd_req_t *request)
 
 extern "C" const char mainJs_start[] asm("_binary_main_js_start");
 extern "C" const char mainJs_end[] asm("_binary_main_js_end");
-esp_err_t MAIN_JS(httpd_req_t *request)
+esp_err_t WEBAPP_JS(httpd_req_t *request)
 {
+  ESP_LOGD(WebServer::TAG, "got a webapp js request");
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
@@ -229,8 +244,9 @@ esp_err_t MAIN_JS(httpd_req_t *request)
 
 extern "C" const char polyfillsJs_start[] asm("_binary_polyfills_js_start");
 extern "C" const char polyfillsJs_end[] asm("_binary_polyfills_js_end");
-esp_err_t POLYFILLS_JS(httpd_req_t *request)
+esp_err_t WEBAPP_POLYFILLS(httpd_req_t *request)
 {
+  ESP_LOGD(WebServer::TAG, "got a webapp polyfills request");
   auto response = request;
   // limit caching to 15 minutes (15 * 60) = 900
   httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
