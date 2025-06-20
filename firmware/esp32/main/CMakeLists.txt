@@ -12,6 +12,7 @@ idf_component_register(
 
     EMBED_TXTFILES
         #[[
+            Create a self-signed cert
             openssl req -newkey rsa:4096 -nodes -keyout sneakernet_https.key \
                 -x509 -days 3650 -out sneakernet_https.cert \
                 -subj "/C=US/ST=Massachusetts/L=Boston/O=SneakerNet/OU=Org/CN=sneakernet.monster"

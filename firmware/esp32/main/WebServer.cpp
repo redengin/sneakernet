@@ -51,13 +51,13 @@ WebServer::WebServer(const size_t max_sockets)
   // httpsConfig.cacert_pem = cacert_start;
   // httpsConfig.cacert_len = cacert_end - cacert_start;
   // provide the public key
-  extern const unsigned char servercert_start[] asm("_binary_sneakernet_https_pub_pem_start");
-  extern const unsigned char servercert_end[] asm("_binary_sneakernet_https_pub_pem_end");
+  extern const unsigned char servercert_start[] asm("_binary_sneakernet_https_cert_start");
+  extern const unsigned char servercert_end[] asm("_binary_sneakernet_https_cert_end");
   httpsConfig.servercert = servercert_start;
   httpsConfig.servercert_len = servercert_end - servercert_start;
   // provide the private key
-  extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_https_priv_pem_start");
-  extern const unsigned char prvtkey_pem_end[] asm("_binary_sneakernet_https_priv_pem_end");
+  extern const unsigned char prvtkey_pem_start[] asm("_binary_sneakernet_https_key_start");
+  extern const unsigned char prvtkey_pem_end[] asm("_binary_sneakernet_https_key_end");
   httpsConfig.prvtkey_pem = prvtkey_pem_start;
   httpsConfig.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
   // start the https server
@@ -165,11 +165,11 @@ esp_err_t redirect(httpd_req_t *request, httpd_err_code_t err)
 /// @brief send capport json
 esp_err_t CAPPORT(httpd_req_t *request)
 {
-  ESP_LOGD(WebServer::TAG, "got a capport request");
+  ESP_LOGD(WebServer::TAG, "XXXXXXXXXXX   got a capport request");
   constexpr char capport_json[] = R"END(
 {
   "captive": false,
-  "venue-info-url": "http://192.168.4.1/",
+  "venue-info-url": "http://192.168.4.1/"
 }
 )END";
   auto response = request;

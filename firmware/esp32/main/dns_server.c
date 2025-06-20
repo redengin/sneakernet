@@ -118,7 +118,7 @@ static int parse_dns_request(char *req, size_t req_len, char *dns_reply, size_t 
 
     // Endianess of NW packet different from chip
     dns_header_t *header = (dns_header_t *)dns_reply;
-    ESP_LOGD(TAG, "DNS query with header id: 0x%X, flags: 0x%X, qd_count: %d",
+    ESP_LOGV(TAG, "DNS query with header id: 0x%X, flags: 0x%X, qd_count: %d",
              ntohs(header->id), ntohs(header->flags), ntohs(header->qd_count));
 
     // Not a standard query
@@ -194,7 +194,7 @@ static int parse_dns_request(char *req, size_t req_len, char *dns_reply, size_t 
             answer->class = htons(qd_class);
             answer->ttl = htonl(ANS_TTL_SEC);
 
-            ESP_LOGD(TAG, "Answer with PTR offset: 0x%" PRIX16 " and IP 0x%" PRIX32, ntohs(answer->ptr_offset), ip.addr);
+            ESP_LOGV(TAG, "Answer with PTR offset: 0x%" PRIX16 " and IP 0x%" PRIX32, ntohs(answer->ptr_offset), ip.addr);
 
             answer->addr_len = htons(sizeof(ip.addr));
             answer->ip_addr = ip.addr;
@@ -242,7 +242,7 @@ void dns_server_task(void *pvParameters)
 
         while (handle->started)
         {
-            ESP_LOGD(TAG, "Waiting for request");
+            ESP_LOGV(TAG, "Waiting for request");
             struct sockaddr_in6 source_addr; // Large enough for both IPv4 or IPv6
             socklen_t socklen = sizeof(source_addr);
             int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
@@ -273,7 +273,7 @@ void dns_server_task(void *pvParameters)
                 char reply[DNS_MAX_LEN];
                 int reply_len = parse_dns_request(rx_buffer, len, reply, DNS_MAX_LEN, handle);
 
-                ESP_LOGD(TAG, "Received %d bytes from %s | DNS reply with len: %d", len, addr_str, reply_len);
+                ESP_LOGV(TAG, "Received %d bytes from %s | DNS reply with len: %d", len, addr_str, reply_len);
                 if (reply_len <= 0)
                 {
                     ESP_LOGE(TAG, "Failed to prepare a DNS reply");
