@@ -32,7 +32,7 @@ extern "C" void app_main(void)
            "SneakerNet %X%X%X%X%X%X",
            mac[5], mac[4], mac[3], mac[2], mac[1], mac[0]);
   // captive portal url must be https and dns resolvable
-  const std::string captivePortalUrl = std::string("https://sneakernet.com") + WebServer::CAPPORT_URI;
+  const std::string captivePortalUrl = std::string("https://sneakernet.monster") + WebServer::CAPPORT_URI;
   static WifiAccessPoint wap(ssid, captivePortalUrl);
   // account for used sockets
   available_sockets_count -= WifiAccessPoint::socketsUsed;

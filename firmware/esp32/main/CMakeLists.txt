@@ -11,9 +11,15 @@ idf_component_register(
         "rest/utils.cpp"
 
     EMBED_TXTFILES
+        #[[
+            openssl req -newkey rsa:4096 -nodes -keyout sneakernet_https.key \
+                -x509 -days 3650 -out sneakernet_https.cert \
+                -subj "/C=US/ST=Massachusetts/L=Boston/O=SneakerNet/OU=Org/CN=sneakernet.monster"
+        ]]
         # FIXME for CAPPORT likely needs a signed certificate
-        "~/keystore/sneakernet_https_priv.pem"  # HTTPS private key
-        "~/keystore/sneakernet_https_pub.pem"   # HTTPS public key
+        "~/keystore/sneakernet_https.cert"
+        "~/keystore/sneakernet_https.key"   # private key
+
 
     EMBED_FILES
         # add captive portal files
