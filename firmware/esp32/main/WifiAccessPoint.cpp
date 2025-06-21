@@ -46,11 +46,12 @@ WifiAccessPoint::WifiAccessPoint(const std::string &ssid,
   wifi_config.ap.ssid_len = ssid.size();
   // update the wifi configuration
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
-
-  // configure dhcp Captive-Portal Identification (https://www.rfc-editor.org/rfc/rfc8910.html)
   esp_netif_t *const netif = esp_netif_create_default_wifi_ap();
+
+  // update the netif configuration
   ESP_ERROR_CHECK(esp_netif_dhcps_stop(netif));
 
+  // configure dhcp Captive-Portal Identification (https://www.rfc-editor.org/rfc/rfc8910.html)
   ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI,
                                          const_cast<char *>(captivePortalUri.c_str()),
                                          captivePortalUri.length()));
