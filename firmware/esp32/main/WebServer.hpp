@@ -9,6 +9,10 @@ class WebServer
 public:
     static constexpr char TAG[] = "WebServer";    ///< ESP logging tag
 
+    // limit caching to 15 minutes (15 * 60) = 900
+    static constexpr char CACHE_CONTROL[] = "max-age=900";
+
+    // capport API end-point
     static constexpr char CAPPORT_URI[] = "/capport";
 
     /// Creates both an HTTP and HTTPS server
@@ -22,6 +26,7 @@ public:
     { return request->handle == httpsHandle; }
 
 private:
+
     httpd_handle_t httpsHandle;
     static constexpr size_t MAX_HTTPS_URI_HANDLERS = 9;
 

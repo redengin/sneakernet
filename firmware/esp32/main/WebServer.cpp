@@ -19,8 +19,6 @@ extern "C" esp_err_t WEBAPP_CSS(httpd_req_t *);
 extern "C" esp_err_t WEBAPP_JS(httpd_req_t *);
 extern "C" esp_err_t WEBAPP_POLYFILLS(httpd_req_t *);
 
-
-
 WebServer::WebServer(const size_t max_sockets)
 {
   // tune down logging chatter
@@ -112,7 +110,7 @@ WebServer::WebServer(const size_t max_sockets)
     const httpd_uri_t handler = {
         .uri = "/hotspot-detect.html",
         .method = HTTP_GET,
-        .handler = WEBAPP,  // iOS is able to use the web-app directly
+        .handler = WEBAPP, // iOS is able to use the web-app directly
         .user_ctx = nullptr,
     };
     ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
@@ -155,31 +153,36 @@ void WebServer::registerUriHandler(const httpd_uri_t &handler)
 esp_err_t redirect(httpd_req_t *request, httpd_err_code_t err)
 {
   ESP_LOGD(WebServer::TAG, "Serving 303 redirect for request[%s]", request->uri);
-  httpd_resp_set_status(request, "303 See Other");
-  httpd_resp_set_hdr(request, "Location", "http://192.168.4.1/");
+
+  auto response = request;
+  httpd_resp_set_status(response, "303 See Other");
+  httpd_resp_set_hdr(response, "Location", "http://192.168.4.1/");
   // iOS requires content in the response to detect a captive portal
-  return httpd_resp_send(request, "Redirect to the captive portal",
-                  HTTPD_RESP_USE_STRLEN);
+  return httpd_resp_send(response, "Redirect to the captive portal",
+                         HTTPD_RESP_USE_STRLEN);
 }
 
 /// @brief send capport json
 esp_err_t CAPPORT(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "XXXXXXXXXXX   got a capport request");
+
+  auto response = request;
+  httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
+  httpd_resp_set_type(response, "application/captive+json");
   constexpr char capport_json[] = R"END(
 {
   "captive": false,
   "venue-info-url": "http://192.168.4.1/"
 }
 )END";
-  auto response = request;
-  httpd_resp_set_type(response, "application/captive+json");
-  return httpd_resp_send(request, capport_json, HTTPD_RESP_USE_STRLEN);
+  return httpd_resp_send(response, capport_json, HTTPD_RESP_USE_STRLEN);
 }
 
 esp_err_t GENERATE_204(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "got a generate 204 request - providing 204");
+
   auto response = request;
   httpd_resp_set_status(response, "204 No Content");
   httpd_resp_set_type(response, HTTPD_TYPE_TEXT);
@@ -191,10 +194,9 @@ extern "C" const char captiveportalHtml_end[] asm("_binary_captiveportal_html_en
 esp_err_t CONNECT_INSTRUCTIONS(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "got a generate 204 request - providing page");
+
   auto response = request;
-  // limit caching to 15 minutes (15 * 60) = 900
-  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
-  // send the data
+  httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
   httpd_resp_set_type(response, "text/html");
   const size_t sz = captiveportalHtml_end - captiveportalHtml_start;
   return httpd_resp_send(response, captiveportalHtml_start, sz);
@@ -205,10 +207,9 @@ extern "C" const char webappHtml_end[] asm("_binary_index_html_end");
 esp_err_t WEBAPP(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "got a webapp index request");
+
   auto response = request;
-  // limit caching to 15 minutes (15 * 60) = 900
-  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
-  // send the data
+  httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
   httpd_resp_set_type(response, "text/html");
   const size_t sz = webappHtml_end - webappHtml_start;
   return httpd_resp_send(response, webappHtml_start, sz);
@@ -219,10 +220,9 @@ extern "C" const char stylesCss_end[] asm("_binary_styles_css_end");
 esp_err_t WEBAPP_CSS(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "got a webapp css request");
+
   auto response = request;
-  // limit caching to 15 minutes (15 * 60) = 900
-  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
-  // send the data
+  httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
   httpd_resp_set_type(response, "text/css");
   const size_t sz = stylesCss_end - stylesCss_start;
   return httpd_resp_send(response, stylesCss_start, sz);
@@ -233,10 +233,9 @@ extern "C" const char mainJs_end[] asm("_binary_main_js_end");
 esp_err_t WEBAPP_JS(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "got a webapp js request");
+
   auto response = request;
-  // limit caching to 15 minutes (15 * 60) = 900
-  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
-  // send the data
+  httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
   httpd_resp_set_type(response, "text/javascript");
   const size_t sz = mainJs_end - mainJs_start;
   return httpd_resp_send(response, mainJs_start, sz);
@@ -247,10 +246,9 @@ extern "C" const char polyfillsJs_end[] asm("_binary_polyfills_js_end");
 esp_err_t WEBAPP_POLYFILLS(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "got a webapp polyfills request");
+
   auto response = request;
-  // limit caching to 15 minutes (15 * 60) = 900
-  httpd_resp_set_hdr(response, "Cache-Control", "max-age=900");
-  // send the data
+  httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
   httpd_resp_set_type(response, "text/javascript");
   const size_t sz = polyfillsJs_end - polyfillsJs_start;
   return httpd_resp_send(response, polyfillsJs_start, sz);

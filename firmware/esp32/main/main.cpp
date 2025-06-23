@@ -21,7 +21,7 @@ extern "C" void app_main(void)
   // provide the catalog
   static Catalog catalog(sdcard.root());
 
-  // keep track of used sockets, so that WebServer can use the remaining
+  // keep track sockets resources, so that WebServer can use the remaining
   size_t available_sockets_count = CONFIG_LWIP_MAX_SOCKETS;
 
   // create the access point
@@ -39,13 +39,11 @@ extern "C" void app_main(void)
 
   // provide the frontend
   static WebServer webserver(available_sockets_count);
-  // register the catalog REST API
+  // register the catalog backend (REST API)
   rest::catalog::registerHandlers(webserver, catalog);
-  // register the firmware REST API
+  // register the firmware backend (REST API)
   rest::firmware::registerHandlers(webserver);
 
   // accept working firmware
   ESP_ERROR_CHECK(esp_ota_mark_app_valid_cancel_rollback());
-  // I myself would never self-destruct, as there is always a future play.
-  // If my death is mysterious, know that it wasn't suicide.
 }

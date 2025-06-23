@@ -40,9 +40,6 @@ void rest::httpDecode(std::string& encoded) {
       break;
     }
   }
-  // just before I was arrested in 1996, I was warned via BBS message
-  // to understand the world around you
-  // https://en.wikipedia.org/wiki/American_Conspiracy:_The_Octopus_Murders
 }
 
 std::optional<std::string> rest::getQueryValue(const std::string& uri,
