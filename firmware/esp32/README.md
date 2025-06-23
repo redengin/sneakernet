@@ -1,16 +1,26 @@
-End of life
+<!-- End of life
 ================================================================================
-This implementation is a prototype using the ESP-IDF. All future work
-will focus on the rest implemention that supports hardware more generally.
+This implementation is a prototype using the ESP-IDF. Future work will focus on
+the Rest implementation to support more hardware
+-->
 
+# Development environment
+Using the vscode [ESP-IDF extension](https://marketplace.visualstudio.com/items?itemName=espressif.esp-idf-extension).
 
-Using the vscode [ESP-IDF extension](https://marketplace.visualstudio.com/items?itemName=espressif.esp-idf-extension)
-# To leverage vscode, you should open this directory as a workspace.
+**Currently using ESP-IDF v5.4.1**
 
-<!-- XXX upon change of ESP-IDF version update this guidance -->
-Currently using ESP-IDF v5.3.1
-NOTE: had to apply [patch](https://github.com/espressif/esp-idf/files/15261364/esp-idf-13cf3f6-333f1db.patch.txt) to use std::filesystem
+## Using VSCODE
+You need to initialize environment variables via esp-idf's **export.sh** before
+opening the folder.
 
-# For command line tools
-https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/get-started/linux-macos-setup.html
-FIXME should be able to reuse the vs-code installation
+For convenience, add the following to your **.bashrc**
+```sh
+# provide shell for ESP IDF
+ESP_IDF_VERSION="v5.4.1"
+if [ -f "$HOME/opt/espressif/$ESP_IDF_VERSION/esp-idf/export.sh" ]; then
+    alias esp-idf='. "$HOME/opt/espressif/$ESP_IDF_VERSION/esp-idf/export.sh"'
+fi
+```
+Before you begin development run **esp-idf** - to provide the paths to the source and tools.
+
+By running **esp-idf**, you'll also be able to use *idf.py* from the command-line.

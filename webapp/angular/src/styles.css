@@ -5,13 +5,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 #toolbar {
     background-color: whitesmoke;
-    font-size: xx-large;
-    padding: 10px;
+    padding: 1vw;
+    font-size: 10vw;
 }
 
 #currentPath {
     padding: 10px;
-    font-size: x-large;
+    font-size: xx-large;
 }
 
 div.centered {
@@ -21,24 +21,34 @@ div.centered {
 
 div.card {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    margin-bottom: 10px;
     transition: 0.3s;
     border-radius: 5px;
     padding: 5px;
+    font-size: 5vw;
+    background-color: ghostwhite;
+    opacity: 0.97;
 }
 
-div.card .title {
-    font-size: x-large;
-    overflow-wrap: break-word;
+div.card .icon {
+    position: relative;
+    width: 10vw;
+}
+
+div.card a {
+    /* remove the underline of anchors */
+    text-decoration: none !important;
 }
 
 div.card .info {
-    font-size: small;
+    font-size: 3vw;
     display: flexbox;
     text-align: right;
 }
 
 div.card .info span {
-    margin-left: 10px;
+    margin-left: 3vw;
+    vertical-align: middle
 }
 
 .fab {

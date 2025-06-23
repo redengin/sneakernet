@@ -7,7 +7,6 @@
 #define LOG_LOCAL_LEVEL CONFIG_SNEAKERNET_LOG_LEVEL
 
 #include <utime.h>
-
 #include <cstring>
 
 Catalog::Catalog(const std::filesystem::path _root) : root(_root) {
@@ -32,16 +31,19 @@ Catalog::Catalog(const std::filesystem::path _root) : root(_root) {
 // Folder Support
 //==============================================================================
 bool Catalog::hasFolder(const std::filesystem::path &folderpath) const {
+  // always have the root
+  if (folderpath.empty()) return true;
+
   // don't allow catalog folders to conflict with hidden files/folders
   if (isHidden(folderpath)) return false;
 
   // check if folder exists
   std::error_code ec;
   bool ret = std::filesystem::is_directory(root / folderpath, ec);
-  if (ec)
+  if (ec.value() != ENOENT)
     // "No such file or directory" results in ec, so using DEBUG
-    ESP_LOGD(TAG, "failed is_directory [%s ec:%s]", folderpath.c_str(),
-             ec.message().c_str());
+    ESP_LOGE(TAG, "failed hasFolder [%s ec:[%d]%s]", folderpath.c_str(),
+             ec.value(), ec.message().c_str());
 
   return ret;
 }
@@ -54,9 +56,9 @@ std::optional<bool> Catalog::isLocked(
   std::error_code ec;
   bool ret =
       std::filesystem::is_regular_file(root / folderpath / LOCKED_FILENAME, ec);
-  if (ec)
-    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", folderpath.c_str(),
-             ec.message().c_str());
+  if (ec.value() != ENOENT)
+    ESP_LOGE(TAG, "failed search for folder lock '%s' [ec:[%d]%s]",
+             folderpath.c_str(), ec.value(), ec.message().c_str());
 
   return ret;
 }
@@ -134,9 +136,9 @@ bool Catalog::hasFile(const std::filesystem::path &filepath) const {
   // check that file exists
   std::error_code ec;
   bool ret = std::filesystem::is_regular_file(root / filepath, ec);
-  if (ec)
-    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", filepath.c_str(),
-             ec.message().c_str());
+  if (ec.value() != ENOENT)
+    ESP_LOGE(TAG, "failed hasFile ['%s' ec:[%d]%s]", filepath.c_str(),
+             ec.value(), ec.message().c_str());
 
   return ret;
 }
@@ -156,9 +158,9 @@ std::optional<std::string> Catalog::getTitle(
   // check if title file exists
   std::error_code ec;
   bool exists = std::filesystem::is_regular_file(titlepath, ec);
-  if (ec)
-    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", titlepath.c_str(),
-             ec.message().c_str());
+  if (ec.value() != ENOENT)
+    ESP_LOGE(TAG, "failed search for title ['%s' ec:[%d]%s]", titlepath.c_str(),
+             ec.value(), ec.message().c_str());
 
   if (!exists) return std::nullopt;
 
@@ -173,7 +175,7 @@ bool Catalog::setTitle(const std::filesystem::path &filepath,
                        const std::string &title) const {
   if (!hasFile(filepath)) return false;
 
-  auto titlepath = titlepathFor(filepath);
+  const auto titlepath = titlepathFor(filepath);
 
   // set the new title file contents
   std::ofstream ofs(titlepath);
@@ -185,14 +187,14 @@ bool Catalog::setTitle(const std::filesystem::path &filepath,
 bool Catalog::hasIcon(const std::filesystem::path &filepath) const {
   if (!hasFile(filepath)) return false;
 
-  auto iconpath = iconpathFor(filepath);
+  const auto iconpath = iconpathFor(filepath);
 
   // check if icon exists
   std::error_code ec;
   bool ret = std::filesystem::is_regular_file(iconpath, ec);
-  if (ec)
-    ESP_LOGE(TAG, "failed is_regular_file [%s ec:%s]", iconpath.c_str(),
-             ec.message().c_str());
+  if (ec.value() != ENOENT)
+    ESP_LOGE(TAG, "failed search for icon ['%s' ec:[%d]%s]", iconpath.c_str(),
+             ec.value(), ec.message().c_str());
 
   return ret;
 }
@@ -211,14 +213,14 @@ bool Catalog::removeFile(const std::filesystem::path &filepath) const {
   std::error_code ec;
   // remove any title file
   std::filesystem::remove(titlepathFor(filepath), ec);
-  if (ec)
-    ESP_LOGD(TAG, "failed to remove file [%s ec:%s]", titlepathFor(filepath).c_str(),
+  if (ec.value() != ENOENT)
+    ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", titlepathFor(filepath).c_str(),
              ec.message().c_str());
 
   // remove any icon file
   std::filesystem::remove(iconpathFor(filepath), ec);
-  if (ec)
-    ESP_LOGD(TAG, "failed to remove file [%s ec:%s]", iconpathFor(filepath).c_str(),
+  if (ec.value() != ENOENT)
+    ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", iconpathFor(filepath).c_str(),
              ec.message().c_str());
 
   // remove the file

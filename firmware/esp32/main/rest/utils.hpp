@@ -29,7 +29,8 @@ esp_err_t ILLEGAL_REQUEST(httpd_req_t* request);
 static constexpr char FORBIDDEN[] = "403 Forbidden";
 static constexpr char TOO_MANY_REQUESTS[] = "429 Too Many Requests";
 
-static constexpr std::size_t CHUNK_SIZE = 1450;
+/// optimized for sdcard write
+static constexpr std::size_t CHUNK_SIZE = CONFIG_FATFS_VFS_FSTAT_BLKSIZE;
 /// @brief send chunked HTTP stream
 bool sendOctetStream(httpd_req_t* const request, std::ifstream& fis);
 

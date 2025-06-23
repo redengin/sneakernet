@@ -17,7 +17,7 @@ catalog = {
         "file 2": { isFolder: false,
             size: 2,
             timestamp : "2025-02-12T19:26:24Z",
-            title: "This is File 2",
+            title: "This is File 2 with a really long name that should wrap",
             hasIcon: false,
         },
     },

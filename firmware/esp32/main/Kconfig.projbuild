@@ -1,4 +1,11 @@
 menu "SneakerNet"
+    config SNEAKERNET_WIFI_COUNTRY_CODE
+        string
+        prompt "WiFi Country Code"
+        help
+            Determines available wifi channels per country
+        default "US"
+
     choice SNEAKERNET_LOG_LEVEL
         bool "Default log verbosity"
         default SNEAKERNET_LOG_DEFAULT_LEVEL_INFO

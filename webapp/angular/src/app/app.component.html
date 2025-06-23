@@ -5,7 +5,7 @@
         <span>{{httpDecode(currentPath)}}/</span>
         <mat-form-field>
             <mat-label>
-                <ng-icon name="MatCreateNewFolderOutline" size="50px"/>
+                <ng-icon name="MatCreateNewFolderOutline" size="10vw"/>
             </mat-label>
             <input matInput (change)="createSubfolder($event)" placeholder="new subfolder"/>
         </mat-form-field>
@@ -13,20 +13,20 @@
 
     <div class="centered">
 <!-- provide link to parent folder -->
-    @if(currentPath) {
+@if(currentPath) {
         <div class="card" (click)="chooseParentFolder()">
-            <ng-icon name="MatFolderOutline" size="60px"/>
-            <span class="title">..</span>
+            <ng-icon name="MatFolderOutline"/>
+            ..
         </div>
-    }
+}
 
 @if(folderData.entries) {
 <!-- provide links to subfolders -->
     @for(entry of (folderData.entries | keyvalue); track entry) {
         @if(entry.value.isFolder) {
         <div class="card" (click)="chooseSubfolder(entry.key)">
-            <ng-icon name="MatFolderOutline" size="60px"/>
-            <span class="title">{{httpDecode(entry.key)}}</span>
+            <ng-icon class="icon" name="MatFolderOutline"/>
+            {{httpDecode(entry.key)}}
         </div>
         }
     }
@@ -35,14 +35,14 @@
         @if(! entry.value.isFolder) {
             <div class="card">
                 <a download href="api/catalog/{{currentPath}}/{{entry.key}}"><div>
-                    <ng-icon name="MatFileDownloadOutline" size="60px"/>
-                    <span class="title"> {{entry.value.title || httpDecode(entry.key)}} </span>
+                    <ng-icon class="icon" name="MatFileDownloadOutline"/>
+                    {{entry.value.title || httpDecode(entry.key)}}
                 </div></a>
                 <div class="info">
                     <span>{{entry.value.timestamp! | timeago:true}}</span>
                     <span>{{entry.value.size! | filesize:{standard:'jedec'} }}</span>
                     <span>
-                        <ng-icon (click)="deleteFile(entry.key)" name="MatDeleteOutline" color="red" size="30px"/>
+                        <ng-icon (click)="deleteFile(entry.key)" name="MatDeleteOutline" color="red" size="6vw"/>
                     </span>
                 </div>
             </div>
