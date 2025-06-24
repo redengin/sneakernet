@@ -1,77 +1,61 @@
 #![no_std]
 #![no_main]
+
+/// implements panic
 use esp_backtrace as _;
-use esp_alloc as _;
+/// do a software reset upon panic
+#[unsafe(no_mangle)]
+pub extern "C" fn custom_halt() {
+    esp_hal::reset::software_reset();
+}
 
 use sneakernet::log;
-use sneakernet::{static_cell, make_static, embassy_net};
+/// provide the logging timestamp
+#[no_mangle]
+pub extern "Rust" fn _esp_println_timestamp() -> u64 {
+    esp_hal::time::now().duration_since_epoch().to_millis()
+}
 
+use sneakernet::{make_static, static_cell};
+
+// use esp_alloc as _;
 
 #[esp_hal_embassy::main]
 async fn main(spawner: embassy_executor::Spawner) {
+    // initialize SoC (with max compute - aka cpu_clock frequency)
+    let peripherals =
+        esp_hal::init(esp_hal::Config::default().with_cpu_clock(esp_hal::clock::CpuClock::max()));
+
     // initialize logger
-    esp_println::logger::init_logger_from_env();
+    #[cfg(debug_assertions)]
+    esp_println::logger::init_logger(log::LevelFilter::Debug);
+    #[cfg(not(debug_assertions))]
+    esp_println::logger::init_logger(log::LevelFilter::Info);
 
-    // initialize the chip (max cpuclock, required for wifi)
-    let peripherals = esp_hal::init(
-        esp_hal::Config::default()
-            .with_cpu_clock(esp_hal::clock::CpuClock::max())
-    );
-
-    // initialize embassy scheduler
-#[cfg(feature = "esp32")] {
-    let timg1 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1);
-    esp_hal_embassy::init(timg1.timer0);
-}
-#[cfg(not(feature = "esp32"))] {
-    use esp_hal::timer::systimer::SystemTimer;
-    let systimer = SystemTimer::new(peripherals.SYSTIMER);
-    esp_hal_embassy::init(systimer.alarm0);
-}
-
-    // initialize wifi hardware
+    log::debug!("Initializing WiFi");
     esp_alloc::heap_allocator!(72 * 1024);
     let timg0 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG0);
     let mut rng = esp_hal::rng::Rng::new(peripherals.RNG);
-    let wifi_init = &*make_static!(
+    let wifi_controller = &*make_static!(
         esp_wifi::EspWifiController<'static>,
         esp_wifi::init(timg0.timer0, rng.clone(), peripherals.RADIO_CLK).unwrap()
     );
-    let (wifi_device, mut wifi_controller) =
-        esp_wifi::wifi::new_with_mode(&wifi_init, peripherals.WIFI, esp_wifi::wifi::WifiApDevice).unwrap();
-    // configure SSID
-    let ssid = sneakernet::ssid::from(wifi_device.mac_address());
-    let wifi_config = esp_wifi::wifi::Configuration::AccessPoint(
-        esp_wifi::wifi::AccessPointConfiguration{
-            ssid: ssid.clone(),
+    let (wifi_device, mut wifi_controller) = esp_wifi::wifi::new_with_mode(
+        &wifi_controller,
+        peripherals.WIFI,
+        esp_wifi::wifi::WifiApDevice,
+    )
+    .unwrap();
+    let wifi_max_channel: u8 = env!("WIFI_MAX_CHANNEL").parse().unwrap();
+    let wifi_config =
+        esp_wifi::wifi::Configuration::AccessPoint(esp_wifi::wifi::AccessPointConfiguration {
+            ssid: sneakernet::ssid_from_mac(wifi_device.mac_address()),
+            channel: 1 + ((rng.random() as u8) % wifi_max_channel),
+            secondary_channel: Some(1 + ((rng.random() as u8) % wifi_max_channel)),
             ..Default::default()
-        }
-    );
+        });
     wifi_controller.set_configuration(&wifi_config).unwrap();
-
-    // create the network stack
-    let net_config = embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
-        address: embassy_net::Ipv4Cidr::new(sneakernet::IP_ADDRESS, 24),
-        gateway: Some(sneakernet::IP_ADDRESS),
-        dns_servers: Default::default(),
-    });
-    let seed = (rng.random() as u64) << 32 | rng.random() as u64;
-    const SOCKETS_MAX:usize = 20; // TODO tune to optimize client support
-    let (net_stack, mut runner) = embassy_net::new(
-        wifi_device,
-        net_config,
-        make_static!(embassy_net::StackResources<{SOCKETS_MAX}>, embassy_net::StackResources::<{SOCKETS_MAX}>::new()),
-        seed,
-    );
-
-    // start sneakernet
-    sneakernet::start(spawner, net_stack);
-    log::info!("SneakerNet started");
-
-    // start the wifi_controller
     wifi_controller.start().unwrap();
-    log::info!("Publishing wifi ssid [{ssid}]");
 
-    // enter the network stack loop
-    runner.run().await
+    loop {}
 }

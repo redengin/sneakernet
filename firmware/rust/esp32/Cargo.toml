@@ -1,91 +1,43 @@
 [package]
-edition = "2021"
-name = "esp32"
+name = "sneakernet-esp32"
 version = "0.1.0"
+license = "Apache-2.0"
+publish = false
+edition = "2021"
 
 [[bin]]
-name = "sneakernet"
-path = "./src/bin/main.rs"
+name = "sneakernet-esp32"
+path = "src/bin/main.rs"
 
 [dependencies]
-# FIXME esp dependencies should use a real semvar version label
-esp-hal = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=["log"] }
-esp-backtrace = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=[
+sneakernet = { path = ".." }
+
+esp-backtrace = { version = "*", features = [
     "exception-handler",
     "panic-handler",
     "println",
-]}
-esp-alloc = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1" }
-esp-println = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=["log"] }
-esp-wifi = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", features=["wifi"] }
-esp-storage = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", optional=true }
-esp-ieee802154 = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", optional=true }
-esp-hal-embassy = { git="https://github.com/esp-rs/esp-hal.git", tag="v0.23.1", optional=true }
+    "custom-halt",       # reboot upon halt
+] }
+esp-println = { version = "*", features = ["log-04", "timestamp"] }
+esp-hal = { version = "*", features = ["log"] }
+esp-wifi = { version = "*", features = ["wifi"] }
+esp-alloc = "*"
 
-embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
-sneakernet = { path=".." }
+esp-hal-embassy = "*"
+embassy-executor = "*"
+
 
 [features]
 default = ["esp32"]
-esp32 = ["esp-hal/esp32", "esp-backtrace/esp32", "esp-println/esp32", "esp-hal-embassy/esp32", "esp-wifi/esp32" ]
-# esp32 = [
-#     "esp-hal/esp32",
-#     "esp-backtrace/esp32",
-#     "esp-hal-embassy/esp32",
-#     "esp-println/esp32",
-#     "esp-storage?/esp32",
-#     "esp-wifi/esp32",
-# ]
-# esp32c2 = [
-#     "esp-hal/esp32c2",
-#     "esp-backtrace/esp32c2",
-#     "esp-hal-embassy/esp32c2",
-#     "esp-println/esp32c2",
-#     "esp-storage?/esp32c2",
-#     "esp-wifi/esp32c2",
-# ]
-# esp32c3 = [
-#     "esp-hal/esp32c3",
-#     "esp-backtrace/esp32c3",
-#     "esp-hal-embassy/esp32c3",
-#     "esp-println/esp32c3",
-#     "esp-storage?/esp32c3",
-#     "esp-wifi/esp32c3",
-# ]
-# esp32c6 = [
-#     "esp-hal/esp32c6",
-#     "esp-backtrace/esp32c6",
-#     "esp-hal-embassy/esp32c6",
-#     "esp-println/esp32c6",
-#     "esp-storage?/esp32c6",
-#     "esp-wifi/esp32c6",
-#     "esp-ieee802154?/esp32c6",
-# ]
-# esp32h2 = [
-#     "esp-hal/esp32h2",
-#     "esp-backtrace/esp32h2",
-#     "esp-hal-embassy/esp32h2",
-#     "esp-println/esp32h2",
-#     "esp-storage?/esp32h2",
-#     "esp-wifi/esp32h2",
-#     "esp-ieee802154?/esp32h2",
-# ]
-# esp32s2 = [
-#     "esp-hal/esp32s2",
-#     "esp-backtrace/esp32s2",
-#     "esp-hal-embassy/esp32s2",
-#     "esp-println/esp32s2",
-#     "esp-storage?/esp32s2",
-#     "esp-wifi/esp32s2",
-# ]
-# esp32s3 = [
-#     "esp-hal/esp32s3",
-#     "esp-backtrace/esp32s3",
-#     "esp-hal-embassy/esp32s3",
-#     "esp-println/esp32s3",
-#     "esp-storage?/esp32s3",
-#     "esp-wifi/esp32s3",
-# ]
+
+esp32 = [
+    "esp-backtrace/esp32",
+    "esp-println/esp32",
+    "esp-hal/esp32",
+    "esp-wifi/esp32",
+    "esp-hal-embassy/esp32",
+]
+
 
 [profile.dev]
 # Rust debug is too slow.

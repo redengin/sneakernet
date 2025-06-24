@@ -1,8 +1,6 @@
-[target.xtensa-esp32-none-elf]
-runner = "espflash flash --monitor --chip esp32 --baud 460800"
-
 [env]
 ESP_LOG = "sneakernet=debug"
+WIFI_MAX_CHANNEL = "11"   # North America 11 / Others 13
 
 [build]
 target = "xtensa-esp32-none-elf"
@@ -12,3 +10,7 @@ rustflags = [
 
 [unstable]
 build-std = ["core", "alloc"]
+
+[target.xtensa-esp32-none-elf]
+runner = "espflash flash --monitor --chip esp32 --baud 460800"
+

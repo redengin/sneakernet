@@ -1,11 +1,11 @@
 #![no_std]
-// export common cargo
+#![doc(html_favicon_url = "https://sneakernet.monster/favicon.ico")]
+#![doc(issue_tracker_base_url = "https://github.com/redengin/sneakernet/issues/")]
+
+// re-export shared cargo
 pub use log;
 pub use static_cell;
-pub use embassy_time;
-pub use embassy_net;
-
-/// create a run-once body of code (second run will cause panic)
+/// create a static allocation with runtime initialization
 // When you are okay with using a nightly compiler it's better to use https://docs.rs/static_cell/2.1.0/static_cell/macro.make_static.html
 #[macro_export]
 macro_rules! make_static {
@@ -17,25 +17,25 @@ macro_rules! make_static {
     }};
 }
 
-/// used to create WiFi SSIDs
-pub mod ssid;
-
-/// IP Address for SneakerNet node
-pub const IP_ADDRESS:embassy_net::Ipv4Address = embassy_net::Ipv4Address::new(192,168,4,1);
-
-/// create the sneakernet services
-pub fn start(spawner:embassy_executor::Spawner, net_stack:embassy_net::Stack<'static>)
+pub fn ssid_from_mac(mac: [u8; 6]) -> heapless::String<32> {
+    let mut ssid:heapless::String<32> = heapless::String::try_from("SneakerNet").unwrap();
+    // add the MAC address
+    ssid.push(' ').unwrap();
+    for byte in mac {
+        ssid.push(hex_char(byte/16)).unwrap();
+        ssid.push(hex_char(byte%16)).unwrap();
+    }
+    return ssid;
+}
+fn hex_char(val:u8) -> char
 {
-    // start dhcp service
-    spawner.spawn(dhcp_service(net_stack)).unwrap();
-    log::info!("DHCP service started");
+    if val < 10 { return (('0' as u8) + val) as char};
+    return (('A' as u8) + val - 10) as char;
 }
 
-/// dhcp server
-mod dhcp_server;
-#[embassy_executor::task]
-async fn dhcp_service(net_stack: embassy_net::Stack<'static>)
-{
-    dhcp_server::run(net_stack).await;
-    log::error!("DHCP server died");
-}
+
+/// entrypoint for SneakerNet
+/// called by hardware implementations, which pass their drivers in
+///
+/// panics upon failure
+pub fn start() {}
