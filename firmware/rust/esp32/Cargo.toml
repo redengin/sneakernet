@@ -24,7 +24,7 @@ esp-wifi = { version = "*", features = ["wifi"] }
 esp-alloc = "*"
 
 esp-hal-embassy = "*"
-embassy-executor = "*"
+embassy-executor = { version = "*", features = ["task-arena-size-20480"] }
 
 
 [features]

@@ -1,5 +1,5 @@
 [package]
-name    = "sneakernet"
+name = "sneakernet"
 version = "0.1.0"
 license = "Apache-2.0"
 publish = false
@@ -9,3 +9,9 @@ edition = "2024"
 log = "*"
 static_cell = "*"
 heapless = "*"
+embassy-net = { version = "*", features = ["medium-ethernet", "proto-ipv4", "tcp"] }
+embassy-executor = "*"
+embassy-time = "*"
+edge-dhcp = "*"
+edge-nal = "*"
+edge-nal-embassy = "*"
