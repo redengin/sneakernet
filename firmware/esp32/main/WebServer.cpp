@@ -42,12 +42,6 @@ WebServer::WebServer(const size_t max_sockets)
   httpsConfig.httpd.uri_match_fn = httpd_uri_match_wildcard;
   // provide handlers
   httpsConfig.httpd.max_uri_handlers = MAX_HTTPS_URI_HANDLERS;
-  // provide the cacert
-  // FIXME
-  // extern const unsigned char cacert_start[] asm("_binary_sneakernet_https_ca_pem_start");
-  // extern const unsigned char cacert_end[] asm("_binary_sneakernet_https_ca_pem_end");
-  // httpsConfig.cacert_pem = cacert_start;
-  // httpsConfig.cacert_len = cacert_end - cacert_start;
   // provide the public key
   extern const unsigned char servercert_start[] asm("_binary_sneakernet_https_cert_start");
   extern const unsigned char servercert_end[] asm("_binary_sneakernet_https_cert_end");
