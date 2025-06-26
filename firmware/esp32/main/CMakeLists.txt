@@ -17,7 +17,7 @@ idf_component_register(
                 -x509 -days 3650 -out sneakernet_https.cert \
                 -subj "/C=US/ST=Massachusetts/L=Boston/O=SneakerNet/OU=Org/CN=sneakernet.monster"
         ]]
-        # FIXME for CAPPORT likely needs a signed certificate
+        # CAPPORT needs a CA-signed certificate
         "~/keystore/sneakernet_https.cert"
         "~/keystore/sneakernet_https.key"   # private key
 
