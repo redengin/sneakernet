@@ -14,7 +14,7 @@
 
 WifiAccessPoint::WifiAccessPoint(const std::string &ssid,
                                  const std::string &_captivePortalUri)
-  : captivePortalUri(_captivePortalUri)
+    : captivePortalUri(_captivePortalUri)
 {
   // tune down log chatter
   esp_log_level_set("wifi_init", ESP_LOG_WARN);
@@ -72,12 +72,15 @@ WifiAccessPoint::WifiAccessPoint(const std::string &ssid,
 
   ESP_ERROR_CHECK(esp_netif_dhcps_start(netif));
 
-  // start the DNS server that will redirect queries to captive portal
+  // start the DNS server that will redirect queries to captive portalA
   static const dns_server_config_t config = {
-    .num_of_entries = 1,
-    .entries = {{.name="*", .if_key="WIFI_AP_DEF", .ip{.addr=0}}}
-    // .item = {{.name="sneakernet.com", .if_key="WIFI_AP_DEF", .ip{.addr=0}}}
-  };
+      .num_of_entries = 2,
+      .entries = {
+          // hide google to trigger capport api call
+          {.name = "www.google.com", .if_key = nullptr, .ip{.addr = IPADDR_NONE}},
+          // {.name = "connectivitycheck.gstatic.com", .if_key = nullptr, .ip{.addr = IPADDR_NONE}},
+          // resolve all other DNS queries to ourself
+          {.name = "*", .if_key = "WIFI_AP_DEF", .ip{0}}}};
   // DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
   start_dns_server(&config);
 

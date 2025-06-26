@@ -165,15 +165,16 @@ esp_err_t redirect(httpd_req_t *request, httpd_err_code_t err)
 /// @brief send capport json
 esp_err_t CAPPORT(httpd_req_t *request)
 {
-  ESP_LOGD(WebServer::TAG, "XXXXXXXXXXX   got a capport request");
+  ESP_LOGD(WebServer::TAG, "got a capport api request");
 
   auto response = request;
   httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
   httpd_resp_set_type(response, "application/captive+json");
   constexpr char capport_json[] = R"END(
 {
-  "captive": false,
-  "venue-info-url": "http://192.168.4.1/"
+  "captive": true,
+  "user-portal-url": "http://sneakernet.monster/generate_204",
+  "venue-info-url": "http://sneakernet.monster/"
 }
 )END";
   return httpd_resp_send(response, capport_json, HTTPD_RESP_USE_STRLEN);
