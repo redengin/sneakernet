@@ -40,7 +40,7 @@ bool Catalog::hasFolder(const std::filesystem::path &folderpath) const {
   // check if folder exists
   std::error_code ec;
   bool ret = std::filesystem::is_directory(root / folderpath, ec);
-  if (ec.value() != ENOENT)
+  if ((ec.value() != 0) && (ec.value() != ENOENT))
     // "No such file or directory" results in ec, so using DEBUG
     ESP_LOGE(TAG, "failed hasFolder [%s ec:[%d]%s]", folderpath.c_str(),
              ec.value(), ec.message().c_str());
@@ -56,7 +56,7 @@ std::optional<bool> Catalog::isLocked(
   std::error_code ec;
   bool ret =
       std::filesystem::is_regular_file(root / folderpath / LOCKED_FILENAME, ec);
-  if (ec.value() != ENOENT)
+  if ((ec.value() != 0) && (ec.value() != ENOENT))
     ESP_LOGE(TAG, "failed search for folder lock '%s' [ec:[%d]%s]",
              folderpath.c_str(), ec.value(), ec.message().c_str());
 
@@ -136,7 +136,7 @@ bool Catalog::hasFile(const std::filesystem::path &filepath) const {
   // check that file exists
   std::error_code ec;
   bool ret = std::filesystem::is_regular_file(root / filepath, ec);
-  if (ec.value() != ENOENT)
+  if ((ec.value() != 0) && (ec.value() != ENOENT))
     ESP_LOGE(TAG, "failed hasFile ['%s' ec:[%d]%s]", filepath.c_str(),
              ec.value(), ec.message().c_str());
 
@@ -158,7 +158,7 @@ std::optional<std::string> Catalog::getTitle(
   // check if title file exists
   std::error_code ec;
   bool exists = std::filesystem::is_regular_file(titlepath, ec);
-  if (ec.value() != ENOENT)
+  if ((ec.value() != 0) && (ec.value() != ENOENT))
     ESP_LOGE(TAG, "failed search for title ['%s' ec:[%d]%s]", titlepath.c_str(),
              ec.value(), ec.message().c_str());
 
@@ -192,7 +192,7 @@ bool Catalog::hasIcon(const std::filesystem::path &filepath) const {
   // check if icon exists
   std::error_code ec;
   bool ret = std::filesystem::is_regular_file(iconpath, ec);
-  if (ec.value() != ENOENT)
+  if ((ec.value() != 0) && (ec.value() != ENOENT))
     ESP_LOGE(TAG, "failed search for icon ['%s' ec:[%d]%s]", iconpath.c_str(),
              ec.value(), ec.message().c_str());
 
@@ -213,13 +213,13 @@ bool Catalog::removeFile(const std::filesystem::path &filepath) const {
   std::error_code ec;
   // remove any title file
   std::filesystem::remove(titlepathFor(filepath), ec);
-  if (ec.value() != ENOENT)
+  if ((ec.value() != 0) && (ec.value() != ENOENT))
     ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", titlepathFor(filepath).c_str(),
              ec.message().c_str());
 
   // remove any icon file
   std::filesystem::remove(iconpathFor(filepath), ec);
-  if (ec.value() != ENOENT)
+  if ((ec.value() != 0) && (ec.value() != ENOENT))
     ESP_LOGE(TAG, "failed to remove file [%s ec:%s]", iconpathFor(filepath).c_str(),
              ec.message().c_str());
 
