@@ -14,9 +14,9 @@ security:
 
 
 paths:
-  /catalog/{path}/:
+  /catalog/{folder}/:
     parameters:
-      - name: path
+      - name: folder
         in: path
         required: true    # FIXME not required for root
         schema: { type: string }
@@ -45,9 +45,9 @@ paths:
         "401" : { $ref: '#/components/responses/adminCurated' }
 
 
-  /catalog/{path}/{file}:
+  /catalog/{folder}/{file}:
     parameters:
-      - name: path
+      - name: folder
         in: path
         required: true 
         schema: { type: string }
@@ -91,9 +91,9 @@ paths:
         "404" : { description: "File Not Found" }
         "401": { $ref: '#/components/responses/adminCurated' }
 
-  /catalog/{path}/{file}?title={title}:
+  /catalog/{folder}/{file}?title={title}:
     parameters:
-      - name: path
+      - name: folder
         in: path
         required: true 
         schema: { type: string }
@@ -113,9 +113,9 @@ paths:
         "404" : { description: "File Not Found" }
         "401" : { $ref: '#/components/responses/adminCurated' }
 
-  /catalog/{path}/{file}?icon:
+  /catalog/{folder}/{file}?icon:
     parameters:
-      - name: path
+      - name: folder
         in: path
         required: true 
         schema: { type: string }

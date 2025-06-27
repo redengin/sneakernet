@@ -18,64 +18,64 @@ void main() {
   group('tests for DefaultApi', () {
     // remove empty subfolder
     //
-    //Future catalogPathDelete(String path) async
-    test('test catalogPathDelete', () async {
+    //Future catalogFolderDelete(String folder) async
+    test('test catalogFolderDelete', () async {
       // TODO
     });
 
     // remove a file
     //
-    //Future catalogPathFileDelete(String path, String file, int contentLength) async
-    test('test catalogPathFileDelete', () async {
+    //Future catalogFolderFileDelete(String folder, String file, int contentLength) async
+    test('test catalogFolderFileDelete', () async {
       // TODO
     });
 
     // download file
     //
-    //Future catalogPathFileGet(String path, String file, int contentLength) async
-    test('test catalogPathFileGet', () async {
+    //Future catalogFolderFileGet(String folder, String file, int contentLength) async
+    test('test catalogFolderFileGet', () async {
       // TODO
     });
 
     // add a file
     //
-    //Future catalogPathFilePut(int contentLength, String xTimestamp, String path, String file) async
-    test('test catalogPathFilePut', () async {
+    //Future catalogFolderFilePut(int contentLength, String xTimestamp, String folder, String file) async
+    test('test catalogFolderFilePut', () async {
       // TODO
     });
 
     // download icon
     //
-    //Future catalogPathFileiconGet(String path, String file) async
-    test('test catalogPathFileiconGet', () async {
+    //Future catalogFolderFileiconGet(String folder, String file) async
+    test('test catalogFolderFileiconGet', () async {
       // TODO
     });
 
     // upload a new icon
     //
-    //Future catalogPathFileiconPut(String path, String file) async
-    test('test catalogPathFileiconPut', () async {
+    //Future catalogFolderFileiconPut(String folder, String file) async
+    test('test catalogFolderFileiconPut', () async {
       // TODO
     });
 
     // set the title for the file
     //
-    //Future catalogPathFiletitletitlePut(String title, String path, String file) async
-    test('test catalogPathFiletitletitlePut', () async {
+    //Future catalogFolderFiletitletitlePut(String title, String folder, String file) async
+    test('test catalogFolderFiletitletitlePut', () async {
       // TODO
     });
 
     // get folder content
     //
-    //Future<Folder> catalogPathGet(String path) async
-    test('test catalogPathGet', () async {
+    //Future<Folder> catalogFolderGet(String folder) async
+    test('test catalogFolderGet', () async {
       // TODO
     });
 
     // create subfolder
     //
-    //Future catalogPathPut(String path) async
-    test('test catalogPathPut', () async {
+    //Future catalogFolderPut(String folder) async
+    test('test catalogFolderPut', () async {
       // TODO
     });
   });

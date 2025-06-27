@@ -9,19 +9,19 @@ All URIs are relative to *http://192.168.4.1/api*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**catalogPathDelete**](DefaultApi.md#catalogpathdelete) | **DELETE** /catalog/{path}/ | 
-[**catalogPathFileDelete**](DefaultApi.md#catalogpathfiledelete) | **DELETE** /catalog/{path}/{file} | 
-[**catalogPathFileGet**](DefaultApi.md#catalogpathfileget) | **GET** /catalog/{path}/{file} | 
-[**catalogPathFilePut**](DefaultApi.md#catalogpathfileput) | **PUT** /catalog/{path}/{file} | 
-[**catalogPathFileiconGet**](DefaultApi.md#catalogpathfileiconget) | **GET** /catalog/{path}/{file}?icon | 
-[**catalogPathFileiconPut**](DefaultApi.md#catalogpathfileiconput) | **PUT** /catalog/{path}/{file}?icon | 
-[**catalogPathFiletitletitlePut**](DefaultApi.md#catalogpathfiletitletitleput) | **PUT** /catalog/{path}/{file}?title={title} | 
-[**catalogPathGet**](DefaultApi.md#catalogpathget) | **GET** /catalog/{path}/ | 
-[**catalogPathPut**](DefaultApi.md#catalogpathput) | **PUT** /catalog/{path}/ | 
+[**catalogFolderDelete**](DefaultApi.md#catalogfolderdelete) | **DELETE** /catalog/{folder}/ | 
+[**catalogFolderFileDelete**](DefaultApi.md#catalogfolderfiledelete) | **DELETE** /catalog/{folder}/{file} | 
+[**catalogFolderFileGet**](DefaultApi.md#catalogfolderfileget) | **GET** /catalog/{folder}/{file} | 
+[**catalogFolderFilePut**](DefaultApi.md#catalogfolderfileput) | **PUT** /catalog/{folder}/{file} | 
+[**catalogFolderFileiconGet**](DefaultApi.md#catalogfolderfileiconget) | **GET** /catalog/{folder}/{file}?icon | 
+[**catalogFolderFileiconPut**](DefaultApi.md#catalogfolderfileiconput) | **PUT** /catalog/{folder}/{file}?icon | 
+[**catalogFolderFiletitletitlePut**](DefaultApi.md#catalogfolderfiletitletitleput) | **PUT** /catalog/{folder}/{file}?title={title} | 
+[**catalogFolderGet**](DefaultApi.md#catalogfolderget) | **GET** /catalog/{folder}/ | 
+[**catalogFolderPut**](DefaultApi.md#catalogfolderput) | **PUT** /catalog/{folder}/ | 
 
 
-# **catalogPathDelete**
-> catalogPathDelete(path)
+# **catalogFolderDelete**
+> catalogFolderDelete(folder)
 
 
 
@@ -32,12 +32,12 @@ remove empty subfolder
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 
 try {
-    api_instance.catalogPathDelete(path);
+    api_instance.catalogFolderDelete(folder);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathDelete: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderDelete: $e\n');
 }
 ```
 
@@ -45,7 +45,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **path** | **String**|  | 
+ **folder** | **String**|  | 
 
 ### Return type
 
@@ -62,8 +62,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **catalogPathFileDelete**
-> catalogPathFileDelete(path, file, contentLength)
+# **catalogFolderFileDelete**
+> catalogFolderFileDelete(folder, file, contentLength)
 
 
 
@@ -74,14 +74,14 @@ remove a file
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 final file = file_example; // String | 
 final contentLength = 56; // int | 
 
 try {
-    api_instance.catalogPathFileDelete(path, file, contentLength);
+    api_instance.catalogFolderFileDelete(folder, file, contentLength);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathFileDelete: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderFileDelete: $e\n');
 }
 ```
 
@@ -89,7 +89,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **path** | **String**|  | 
+ **folder** | **String**|  | 
  **file** | **String**|  | 
  **contentLength** | **int**|  | 
 
@@ -108,8 +108,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **catalogPathFileGet**
-> catalogPathFileGet(path, file, contentLength)
+# **catalogFolderFileGet**
+> catalogFolderFileGet(folder, file, contentLength)
 
 
 
@@ -120,14 +120,14 @@ download file
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 final file = file_example; // String | 
 final contentLength = 56; // int | 
 
 try {
-    api_instance.catalogPathFileGet(path, file, contentLength);
+    api_instance.catalogFolderFileGet(folder, file, contentLength);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathFileGet: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderFileGet: $e\n');
 }
 ```
 
@@ -135,7 +135,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **path** | **String**|  | 
+ **folder** | **String**|  | 
  **file** | **String**|  | 
  **contentLength** | **int**|  | 
 
@@ -154,8 +154,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **catalogPathFilePut**
-> catalogPathFilePut(contentLength, xTimestamp, path, file)
+# **catalogFolderFilePut**
+> catalogFolderFilePut(contentLength, xTimestamp, folder, file)
 
 
 
@@ -168,13 +168,13 @@ import 'package:openapi/api.dart';
 final api_instance = DefaultApi();
 final contentLength = 56; // int | 
 final xTimestamp = xTimestamp_example; // String | 
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 final file = file_example; // String | 
 
 try {
-    api_instance.catalogPathFilePut(contentLength, xTimestamp, path, file);
+    api_instance.catalogFolderFilePut(contentLength, xTimestamp, folder, file);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathFilePut: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderFilePut: $e\n');
 }
 ```
 
@@ -184,7 +184,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **contentLength** | **int**|  | 
  **xTimestamp** | **String**|  | 
- **path** | **String**|  | 
+ **folder** | **String**|  | 
  **file** | **String**|  | 
 
 ### Return type
@@ -202,8 +202,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **catalogPathFileiconGet**
-> catalogPathFileiconGet(path, file)
+# **catalogFolderFileiconGet**
+> catalogFolderFileiconGet(folder, file)
 
 
 
@@ -214,13 +214,13 @@ download icon
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 final file = file_example; // String | 
 
 try {
-    api_instance.catalogPathFileiconGet(path, file);
+    api_instance.catalogFolderFileiconGet(folder, file);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathFileiconGet: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderFileiconGet: $e\n');
 }
 ```
 
@@ -228,7 +228,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **path** | **String**|  | 
+ **folder** | **String**|  | 
  **file** | **String**|  | 
 
 ### Return type
@@ -246,8 +246,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **catalogPathFileiconPut**
-> catalogPathFileiconPut(path, file)
+# **catalogFolderFileiconPut**
+> catalogFolderFileiconPut(folder, file)
 
 
 
@@ -258,13 +258,13 @@ upload a new icon
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 final file = file_example; // String | 
 
 try {
-    api_instance.catalogPathFileiconPut(path, file);
+    api_instance.catalogFolderFileiconPut(folder, file);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathFileiconPut: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderFileiconPut: $e\n');
 }
 ```
 
@@ -272,7 +272,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **path** | **String**|  | 
+ **folder** | **String**|  | 
  **file** | **String**|  | 
 
 ### Return type
@@ -290,8 +290,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **catalogPathFiletitletitlePut**
-> catalogPathFiletitletitlePut(title, path, file)
+# **catalogFolderFiletitletitlePut**
+> catalogFolderFiletitletitlePut(title, folder, file)
 
 
 
@@ -303,13 +303,13 @@ import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
 final title = title_example; // String | 
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 final file = file_example; // String | 
 
 try {
-    api_instance.catalogPathFiletitletitlePut(title, path, file);
+    api_instance.catalogFolderFiletitletitlePut(title, folder, file);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathFiletitletitlePut: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderFiletitletitlePut: $e\n');
 }
 ```
 
@@ -318,7 +318,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **title** | **String**|  | 
- **path** | **String**|  | 
+ **folder** | **String**|  | 
  **file** | **String**|  | 
 
 ### Return type
@@ -336,8 +336,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **catalogPathGet**
-> Folder catalogPathGet(path)
+# **catalogFolderGet**
+> Folder catalogFolderGet(folder)
 
 
 
@@ -348,13 +348,13 @@ get folder content
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 
 try {
-    final result = api_instance.catalogPathGet(path);
+    final result = api_instance.catalogFolderGet(folder);
     print(result);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathGet: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderGet: $e\n');
 }
 ```
 
@@ -362,7 +362,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **path** | **String**|  | 
+ **folder** | **String**|  | 
 
 ### Return type
 
@@ -379,8 +379,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **catalogPathPut**
-> catalogPathPut(path)
+# **catalogFolderPut**
+> catalogFolderPut(folder)
 
 
 
@@ -391,12 +391,12 @@ create subfolder
 import 'package:openapi/api.dart';
 
 final api_instance = DefaultApi();
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 
 try {
-    api_instance.catalogPathPut(path);
+    api_instance.catalogFolderPut(folder);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathPut: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderPut: $e\n');
 }
 ```
 
@@ -404,7 +404,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **path** | **String**|  | 
+ **folder** | **String**|  | 
 
 ### Return type
 

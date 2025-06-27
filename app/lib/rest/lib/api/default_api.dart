@@ -22,12 +22,12 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
-  Future<Response> catalogPathDeleteWithHttpInfo(
-    String path,
+  /// * [String] folder (required):
+  Future<Response> catalogFolderDeleteWithHttpInfo(
+    String folder,
   ) async {
     // ignore: prefer_const_declarations
-    final path = r'/catalog/{path}/'.replaceAll('{path}', path);
+    final path = r'/catalog/{folder}/'.replaceAll('{folder}', folder);
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -53,12 +53,12 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
-  Future<void> catalogPathDelete(
-    String path,
+  /// * [String] folder (required):
+  Future<void> catalogFolderDelete(
+    String folder,
   ) async {
-    final response = await catalogPathDeleteWithHttpInfo(
-      path,
+    final response = await catalogFolderDeleteWithHttpInfo(
+      folder,
     );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
@@ -71,19 +71,19 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
   ///
   /// * [int] contentLength (required):
-  Future<Response> catalogPathFileDeleteWithHttpInfo(
-    String path,
+  Future<Response> catalogFolderFileDeleteWithHttpInfo(
+    String folder,
     String file,
     int contentLength,
   ) async {
     // ignore: prefer_const_declarations
-    final path = r'/catalog/{path}/{file}'
-        .replaceAll('{path}', path)
+    final path = r'/catalog/{folder}/{file}'
+        .replaceAll('{folder}', folder)
         .replaceAll('{file}', file);
 
     // ignore: prefer_final_locals
@@ -112,18 +112,18 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
   ///
   /// * [int] contentLength (required):
-  Future<void> catalogPathFileDelete(
-    String path,
+  Future<void> catalogFolderFileDelete(
+    String folder,
     String file,
     int contentLength,
   ) async {
-    final response = await catalogPathFileDeleteWithHttpInfo(
-      path,
+    final response = await catalogFolderFileDeleteWithHttpInfo(
+      folder,
       file,
       contentLength,
     );
@@ -138,19 +138,19 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
   ///
   /// * [int] contentLength (required):
-  Future<Response> catalogPathFileGetWithHttpInfo(
-    String path,
+  Future<Response> catalogFolderFileGetWithHttpInfo(
+    String folder,
     String file,
     int contentLength,
   ) async {
     // ignore: prefer_const_declarations
-    final path = r'/catalog/{path}/{file}'
-        .replaceAll('{path}', path)
+    final path = r'/catalog/{folder}/{file}'
+        .replaceAll('{folder}', folder)
         .replaceAll('{file}', file);
 
     // ignore: prefer_final_locals
@@ -179,18 +179,18 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
   ///
   /// * [int] contentLength (required):
-  Future<void> catalogPathFileGet(
-    String path,
+  Future<void> catalogFolderFileGet(
+    String folder,
     String file,
     int contentLength,
   ) async {
-    final response = await catalogPathFileGetWithHttpInfo(
-      path,
+    final response = await catalogFolderFileGetWithHttpInfo(
+      folder,
       file,
       contentLength,
     );
@@ -209,18 +209,18 @@ class DefaultApi {
   ///
   /// * [String] xTimestamp (required):
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
-  Future<Response> catalogPathFilePutWithHttpInfo(
+  Future<Response> catalogFolderFilePutWithHttpInfo(
     int contentLength,
     String xTimestamp,
-    String path,
+    String folder,
     String file,
   ) async {
     // ignore: prefer_const_declarations
-    final path = r'/catalog/{path}/{file}'
-        .replaceAll('{path}', path)
+    final path = r'/catalog/{folder}/{file}'
+        .replaceAll('{folder}', folder)
         .replaceAll('{file}', file);
 
     // ignore: prefer_final_locals
@@ -254,19 +254,19 @@ class DefaultApi {
   ///
   /// * [String] xTimestamp (required):
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
-  Future<void> catalogPathFilePut(
+  Future<void> catalogFolderFilePut(
     int contentLength,
     String xTimestamp,
-    String path,
+    String folder,
     String file,
   ) async {
-    final response = await catalogPathFilePutWithHttpInfo(
+    final response = await catalogFolderFilePutWithHttpInfo(
       contentLength,
       xTimestamp,
-      path,
+      folder,
       file,
     );
     if (response.statusCode >= HttpStatus.badRequest) {
@@ -280,16 +280,16 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
-  Future<Response> catalogPathFileiconGetWithHttpInfo(
-    String path,
+  Future<Response> catalogFolderFileiconGetWithHttpInfo(
+    String folder,
     String file,
   ) async {
     // ignore: prefer_const_declarations
-    final path = r'/catalog/{path}/{file}?icon'
-        .replaceAll('{path}', path)
+    final path = r'/catalog/{folder}/{file}?icon'
+        .replaceAll('{folder}', folder)
         .replaceAll('{file}', file);
 
     // ignore: prefer_final_locals
@@ -316,15 +316,15 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
-  Future<void> catalogPathFileiconGet(
-    String path,
+  Future<void> catalogFolderFileiconGet(
+    String folder,
     String file,
   ) async {
-    final response = await catalogPathFileiconGetWithHttpInfo(
-      path,
+    final response = await catalogFolderFileiconGetWithHttpInfo(
+      folder,
       file,
     );
     if (response.statusCode >= HttpStatus.badRequest) {
@@ -338,16 +338,16 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
-  Future<Response> catalogPathFileiconPutWithHttpInfo(
-    String path,
+  Future<Response> catalogFolderFileiconPutWithHttpInfo(
+    String folder,
     String file,
   ) async {
     // ignore: prefer_const_declarations
-    final path = r'/catalog/{path}/{file}?icon'
-        .replaceAll('{path}', path)
+    final path = r'/catalog/{folder}/{file}?icon'
+        .replaceAll('{folder}', folder)
         .replaceAll('{file}', file);
 
     // ignore: prefer_final_locals
@@ -374,15 +374,15 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
-  Future<void> catalogPathFileiconPut(
-    String path,
+  Future<void> catalogFolderFileiconPut(
+    String folder,
     String file,
   ) async {
-    final response = await catalogPathFileiconPutWithHttpInfo(
-      path,
+    final response = await catalogFolderFileiconPutWithHttpInfo(
+      folder,
       file,
     );
     if (response.statusCode >= HttpStatus.badRequest) {
@@ -398,17 +398,17 @@ class DefaultApi {
   ///
   /// * [String] title (required):
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
-  Future<Response> catalogPathFiletitletitlePutWithHttpInfo(
+  Future<Response> catalogFolderFiletitletitlePutWithHttpInfo(
     String title,
-    String path,
+    String folder,
     String file,
   ) async {
     // ignore: prefer_const_declarations
-    final path = r'/catalog/{path}/{file}?title={title}'
-        .replaceAll('{path}', path)
+    final path = r'/catalog/{folder}/{file}?title={title}'
+        .replaceAll('{folder}', folder)
         .replaceAll('{file}', file);
 
     // ignore: prefer_final_locals
@@ -439,17 +439,17 @@ class DefaultApi {
   ///
   /// * [String] title (required):
   ///
-  /// * [String] path (required):
+  /// * [String] folder (required):
   ///
   /// * [String] file (required):
-  Future<void> catalogPathFiletitletitlePut(
+  Future<void> catalogFolderFiletitletitlePut(
     String title,
-    String path,
+    String folder,
     String file,
   ) async {
-    final response = await catalogPathFiletitletitlePutWithHttpInfo(
+    final response = await catalogFolderFiletitletitlePutWithHttpInfo(
       title,
-      path,
+      folder,
       file,
     );
     if (response.statusCode >= HttpStatus.badRequest) {
@@ -463,12 +463,12 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
-  Future<Response> catalogPathGetWithHttpInfo(
-    String path,
+  /// * [String] folder (required):
+  Future<Response> catalogFolderGetWithHttpInfo(
+    String folder,
   ) async {
     // ignore: prefer_const_declarations
-    final path = r'/catalog/{path}/'.replaceAll('{path}', path);
+    final path = r'/catalog/{folder}/'.replaceAll('{folder}', folder);
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -494,12 +494,12 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
-  Future<Folder?> catalogPathGet(
-    String path,
+  /// * [String] folder (required):
+  Future<Folder?> catalogFolderGet(
+    String folder,
   ) async {
-    final response = await catalogPathGetWithHttpInfo(
-      path,
+    final response = await catalogFolderGetWithHttpInfo(
+      folder,
     );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
@@ -523,12 +523,12 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
-  Future<Response> catalogPathPutWithHttpInfo(
-    String path,
+  /// * [String] folder (required):
+  Future<Response> catalogFolderPutWithHttpInfo(
+    String folder,
   ) async {
     // ignore: prefer_const_declarations
-    final path = r'/catalog/{path}/'.replaceAll('{path}', path);
+    final path = r'/catalog/{folder}/'.replaceAll('{folder}', folder);
 
     // ignore: prefer_final_locals
     Object? postBody;
@@ -554,12 +554,12 @@ class DefaultApi {
   ///
   /// Parameters:
   ///
-  /// * [String] path (required):
-  Future<void> catalogPathPut(
-    String path,
+  /// * [String] folder (required):
+  Future<void> catalogFolderPut(
+    String folder,
   ) async {
-    final response = await catalogPathPutWithHttpInfo(
-      path,
+    final response = await catalogFolderPutWithHttpInfo(
+      folder,
     );
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));

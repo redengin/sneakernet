@@ -42,12 +42,12 @@ import 'package:openapi/api.dart';
 
 
 final api_instance = DefaultApi();
-final path = path_example; // String | 
+final folder = folder_example; // String | 
 
 try {
-    api_instance.catalogPathDelete(path);
+    api_instance.catalogFolderDelete(folder);
 } catch (e) {
-    print('Exception when calling DefaultApi->catalogPathDelete: $e\n');
+    print('Exception when calling DefaultApi->catalogFolderDelete: $e\n');
 }
 
 ```
@@ -58,15 +58,15 @@ All URIs are relative to *http://192.168.4.1/api*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*DefaultApi* | [**catalogPathDelete**](doc//DefaultApi.md#catalogpathdelete) | **DELETE** /catalog/{path}/ | 
-*DefaultApi* | [**catalogPathFileDelete**](doc//DefaultApi.md#catalogpathfiledelete) | **DELETE** /catalog/{path}/{file} | 
-*DefaultApi* | [**catalogPathFileGet**](doc//DefaultApi.md#catalogpathfileget) | **GET** /catalog/{path}/{file} | 
-*DefaultApi* | [**catalogPathFilePut**](doc//DefaultApi.md#catalogpathfileput) | **PUT** /catalog/{path}/{file} | 
-*DefaultApi* | [**catalogPathFileiconGet**](doc//DefaultApi.md#catalogpathfileiconget) | **GET** /catalog/{path}/{file}?icon | 
-*DefaultApi* | [**catalogPathFileiconPut**](doc//DefaultApi.md#catalogpathfileiconput) | **PUT** /catalog/{path}/{file}?icon | 
-*DefaultApi* | [**catalogPathFiletitletitlePut**](doc//DefaultApi.md#catalogpathfiletitletitleput) | **PUT** /catalog/{path}/{file}?title={title} | 
-*DefaultApi* | [**catalogPathGet**](doc//DefaultApi.md#catalogpathget) | **GET** /catalog/{path}/ | 
-*DefaultApi* | [**catalogPathPut**](doc//DefaultApi.md#catalogpathput) | **PUT** /catalog/{path}/ | 
+*DefaultApi* | [**catalogFolderDelete**](doc//DefaultApi.md#catalogfolderdelete) | **DELETE** /catalog/{folder}/ | 
+*DefaultApi* | [**catalogFolderFileDelete**](doc//DefaultApi.md#catalogfolderfiledelete) | **DELETE** /catalog/{folder}/{file} | 
+*DefaultApi* | [**catalogFolderFileGet**](doc//DefaultApi.md#catalogfolderfileget) | **GET** /catalog/{folder}/{file} | 
+*DefaultApi* | [**catalogFolderFilePut**](doc//DefaultApi.md#catalogfolderfileput) | **PUT** /catalog/{folder}/{file} | 
+*DefaultApi* | [**catalogFolderFileiconGet**](doc//DefaultApi.md#catalogfolderfileiconget) | **GET** /catalog/{folder}/{file}?icon | 
+*DefaultApi* | [**catalogFolderFileiconPut**](doc//DefaultApi.md#catalogfolderfileiconput) | **PUT** /catalog/{folder}/{file}?icon | 
+*DefaultApi* | [**catalogFolderFiletitletitlePut**](doc//DefaultApi.md#catalogfolderfiletitletitleput) | **PUT** /catalog/{folder}/{file}?title={title} | 
+*DefaultApi* | [**catalogFolderGet**](doc//DefaultApi.md#catalogfolderget) | **GET** /catalog/{folder}/ | 
+*DefaultApi* | [**catalogFolderPut**](doc//DefaultApi.md#catalogfolderput) | **PUT** /catalog/{folder}/ | 
 
 
 ## Documentation For Models
