@@ -22,11 +22,11 @@ extern "C" esp_err_t WEBAPP_POLYFILLS(httpd_req_t *);
 WebServer::WebServer(const size_t max_sockets)
 {
   // tune down logging chatter
-  esp_log_level_set("esp-tls-mbedtls", ESP_LOG_NONE);   // hides TLS errors
-  esp_log_level_set("esp_https_server", ESP_LOG_NONE);  // hides session failed errors
-  esp_log_level_set("httpd", ESP_LOG_NONE);             // hides session failed errors
-  esp_log_level_set("httpd_txrx", ESP_LOG_NONE);        // hides 404 warnings
-  esp_log_level_set("httpd_parse", ESP_LOG_NONE);       // hides parsing messages
+  esp_log_level_set("esp-tls-mbedtls", ESP_LOG_NONE);  // hides TLS errors
+  esp_log_level_set("esp_https_server", ESP_LOG_NONE); // hides session failed errors
+  esp_log_level_set("httpd", ESP_LOG_NONE);            // hides session failed errors
+  esp_log_level_set("httpd_txrx", ESP_LOG_NONE);       // hides 404 warnings
+  esp_log_level_set("httpd_parse", ESP_LOG_NONE);      // hides parsing messages
 
   // per httpd_main.c, http uses internal sockets
   constexpr size_t HTTP_INTERNAL_SOCKET_COUNT = 3;
@@ -161,17 +161,37 @@ esp_err_t CAPPORT(httpd_req_t *request)
 {
   ESP_LOGD(WebServer::TAG, "got a capport api request");
 
+  // determine if it's an iphone request (since iPhones can use the webapp directly)
+  char user_agent[100];
+  esp_err_t status = httpd_req_get_hdr_value_str(request, "User-Agent", user_agent, sizeof(user_agent));
+  const bool isIphone = strstr(user_agent, "CaptiveNetworkSupport") != nullptr;
+  ESP_LOGD(WebServer::TAG, "request with User-Agent: %s [isIphone: %s, status: %x]",
+           user_agent, isIphone ? "true" : "false", status);
+
   auto response = request;
   httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
   httpd_resp_set_type(response, "application/captive+json");
-  constexpr char capport_json[] = R"END(
-{
-  "captive": true,
-  "user-portal-url": "http://sneakernet.monster/generate_204",
-  "venue-info-url": "http://sneakernet.monster/"
-}
-)END";
-  return httpd_resp_send(response, capport_json, HTTPD_RESP_USE_STRLEN);
+
+  if (isIphone)
+  {
+    constexpr char capport_json[] = R"END(
+      {
+        "captive": true,
+        "user-portal-url": "http://sneakernet.monster/"
+        "venue-info-url": "http://sneakernet.monster/"
+      })END";
+    return httpd_resp_send(response, capport_json, HTTPD_RESP_USE_STRLEN);
+  }
+  else
+  {
+    constexpr char capport_json[] = R"END(
+      {
+        "captive": true,
+        "user-portal-url": "http://sneakernet.monster/generate_204",
+        "venue-info-url": "http://sneakernet.monster/"
+      })END";
+    return httpd_resp_send(response, capport_json, HTTPD_RESP_USE_STRLEN);
+  }
 }
 
 esp_err_t GENERATE_204(httpd_req_t *request)
