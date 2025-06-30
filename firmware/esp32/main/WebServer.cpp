@@ -15,6 +15,7 @@ extern "C" esp_err_t GENERATE_204(httpd_req_t *);
 extern "C" esp_err_t CONNECT_INSTRUCTIONS(httpd_req_t *);
 
 extern "C" esp_err_t WEBAPP(httpd_req_t *);
+extern "C" esp_err_t TERMS_OF_SERVICE(httpd_req_t *);
 extern "C" esp_err_t WEBAPP_CSS(httpd_req_t *);
 extern "C" esp_err_t WEBAPP_JS(httpd_req_t *);
 extern "C" esp_err_t WEBAPP_POLYFILLS(httpd_req_t *);
@@ -115,6 +116,12 @@ WebServer::WebServer(const size_t max_sockets)
       .uri = "/",
       .method = HTTP_GET,
       .handler = WEBAPP,
+      .user_ctx = nullptr,
+  });
+  registerUriHandler(httpd_uri_t{
+      .uri = "/tos.html",
+      .method = HTTP_GET,
+      .handler = TERMS_OF_SERVICE,
       .user_ctx = nullptr,
   });
   registerUriHandler(httpd_uri_t{
@@ -228,6 +235,20 @@ esp_err_t WEBAPP(httpd_req_t *request)
   httpd_resp_set_type(response, "text/html");
   const size_t sz = webappHtml_end - webappHtml_start;
   return httpd_resp_send(response, webappHtml_start, sz);
+}
+
+
+extern "C" const char tosHtml_start[] asm("_binary_tos_html_start");
+extern "C" const char tosHtml_end[] asm("_binary_tos_html_end");
+esp_err_t TERMS_OF_SERVICE(httpd_req_t *request)
+{
+  ESP_LOGD(WebServer::TAG, "got a terms_of_service request");
+
+  auto response = request;
+  httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
+  httpd_resp_set_type(response, "text/html");
+  const size_t sz = tosHtml_end - tosHtml_start;
+  return httpd_resp_send(response, tosHtml_start, sz);
 }
 
 extern "C" const char stylesCss_start[] asm("_binary_styles_css_start");

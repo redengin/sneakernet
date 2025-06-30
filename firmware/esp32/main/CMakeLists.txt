@@ -31,4 +31,5 @@ idf_component_register(
         "../../../webapp/angular/dist/browser/styles.css"
         "../../../webapp/angular/dist/browser/main.js"
         "../../../webapp/angular/dist/browser/polyfills.js"
+        "../../../webapp/angular/dist/browser/tos.html"
 )
