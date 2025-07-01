@@ -2,10 +2,9 @@
 .travis.yml
 README.md
 analysis_options.yaml
+doc/CatalogEntry.md
 doc/DefaultApi.md
-doc/Entry.md
 doc/FileEntry.md
-doc/Folder.md
 doc/FolderEntry.md
 git_push.sh
 lib/api.dart
@@ -18,13 +17,7 @@ lib/auth/authentication.dart
 lib/auth/http_basic_auth.dart
 lib/auth/http_bearer_auth.dart
 lib/auth/oauth.dart
-lib/model/entry.dart
+lib/model/catalog_entry.dart
 lib/model/file_entry.dart
-lib/model/folder.dart
 lib/model/folder_entry.dart
 pubspec.yaml
-test/default_api_test.dart
-test/entry_test.dart
-test/file_entry_test.dart
-test/folder_entry_test.dart
-test/folder_test.dart

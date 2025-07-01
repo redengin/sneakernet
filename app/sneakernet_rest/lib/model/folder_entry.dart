@@ -13,8 +13,21 @@ part of openapi.api;
 class FolderEntry {
   /// Returns a new [FolderEntry] instance.
   FolderEntry({
-    this.isFolder,
+    required this.isFolder,
+    this.isLocked,
+    this.hasIcon,
   });
+
+  bool isFolder;
+
+  /// true if admin controls this folder
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  bool? isLocked;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -22,27 +35,39 @@ class FolderEntry {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  bool? isFolder;
+  bool? hasIcon;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FolderEntry && other.isFolder == isFolder;
+      other is FolderEntry &&
+          other.isFolder == isFolder &&
+          other.isLocked == isLocked &&
+          other.hasIcon == hasIcon;
 
   @override
   int get hashCode =>
       // ignore: unnecessary_parenthesis
-      (isFolder == null ? 0 : isFolder!.hashCode);
+      (isFolder.hashCode) +
+      (isLocked == null ? 0 : isLocked!.hashCode) +
+      (hasIcon == null ? 0 : hasIcon!.hashCode);
 
   @override
-  String toString() => 'FolderEntry[isFolder=$isFolder]';
+  String toString() =>
+      'FolderEntry[isFolder=$isFolder, isLocked=$isLocked, hasIcon=$hasIcon]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (this.isFolder != null) {
-      json[r'isFolder'] = this.isFolder;
+    json[r'isFolder'] = this.isFolder;
+    if (this.isLocked != null) {
+      json[r'isLocked'] = this.isLocked;
     } else {
-      json[r'isFolder'] = null;
+      json[r'isLocked'] = null;
+    }
+    if (this.hasIcon != null) {
+      json[r'hasIcon'] = this.hasIcon;
+    } else {
+      json[r'hasIcon'] = null;
     }
     return json;
   }
@@ -68,7 +93,9 @@ class FolderEntry {
       }());
 
       return FolderEntry(
-        isFolder: mapValueOfType<bool>(json, r'isFolder'),
+        isFolder: mapValueOfType<bool>(json, r'isFolder')!,
+        isLocked: mapValueOfType<bool>(json, r'isLocked'),
+        hasIcon: mapValueOfType<bool>(json, r'hasIcon'),
       );
     }
     return null;
@@ -124,5 +151,7 @@ class FolderEntry {
   }
 
   /// The list of required keys that must be present in a JSON.
-  static const requiredKeys = <String>{};
+  static const requiredKeys = <String>{
+    'isFolder',
+  };
 }

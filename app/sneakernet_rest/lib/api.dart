@@ -30,9 +30,8 @@ part 'auth/http_bearer_auth.dart';
 
 part 'api/default_api.dart';
 
-part 'model/entry.dart';
+part 'model/catalog_entry.dart';
 part 'model/file_entry.dart';
-part 'model/folder.dart';
 part 'model/folder_entry.dart';
 
 /// An [ApiClient] instance that uses the default values obtained from

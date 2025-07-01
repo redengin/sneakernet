@@ -229,12 +229,10 @@ class ApiClient {
           return valueString == 'true' || valueString == '1';
         case 'DateTime':
           return value is DateTime ? value : DateTime.tryParse(value);
-        case 'Entry':
-          return Entry.fromJson(value);
+        case 'CatalogEntry':
+          return CatalogEntry.fromJson(value);
         case 'FileEntry':
           return FileEntry.fromJson(value);
-        case 'Folder':
-          return Folder.fromJson(value);
         case 'FolderEntry':
           return FolderEntry.fromJson(value);
         default:

@@ -10,37 +10,33 @@
 
 part of openapi.api;
 
-class FileEntry {
-  /// Returns a new [FileEntry] instance.
-  FileEntry({
-    this.isFolder,
-    required this.timestamp,
+class CatalogEntry {
+  /// Returns a new [CatalogEntry] instance.
+  CatalogEntry({
+    required this.isFolder,
     required this.size,
-    this.title,
+    required this.timestamp,
+    this.isLocked,
     this.hasIcon,
+    this.title,
   });
 
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
-  bool? isFolder;
+  bool isFolder;
 
-  /// ISO 8601 Z (aka UTC time)
-  String timestamp;
-
-  /// size in bytes
+  /// size of the file in bytes
   int size;
 
+  /// ISO 8601 Z
+  String timestamp;
+
+  /// true if admin controls this folder
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
   /// does not include a default value (using the "default:" property), however, the generated
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  String? title;
+  bool? isLocked;
 
   ///
   /// Please note: This property should have been non-nullable! Since the specification file
@@ -50,55 +46,66 @@ class FileEntry {
   ///
   bool? hasIcon;
 
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  String? title;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FileEntry &&
+      other is CatalogEntry &&
           other.isFolder == isFolder &&
-          other.timestamp == timestamp &&
           other.size == size &&
-          other.title == title &&
-          other.hasIcon == hasIcon;
+          other.timestamp == timestamp &&
+          other.isLocked == isLocked &&
+          other.hasIcon == hasIcon &&
+          other.title == title;
 
   @override
   int get hashCode =>
       // ignore: unnecessary_parenthesis
-      (isFolder == null ? 0 : isFolder!.hashCode) +
-      (timestamp.hashCode) +
+      (isFolder.hashCode) +
       (size.hashCode) +
-      (title == null ? 0 : title!.hashCode) +
-      (hasIcon == null ? 0 : hasIcon!.hashCode);
+      (timestamp.hashCode) +
+      (isLocked == null ? 0 : isLocked!.hashCode) +
+      (hasIcon == null ? 0 : hasIcon!.hashCode) +
+      (title == null ? 0 : title!.hashCode);
 
   @override
   String toString() =>
-      'FileEntry[isFolder=$isFolder, timestamp=$timestamp, size=$size, title=$title, hasIcon=$hasIcon]';
+      'CatalogEntry[isFolder=$isFolder, size=$size, timestamp=$timestamp, isLocked=$isLocked, hasIcon=$hasIcon, title=$title]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (this.isFolder != null) {
-      json[r'isFolder'] = this.isFolder;
-    } else {
-      json[r'isFolder'] = null;
-    }
-    json[r'timestamp'] = this.timestamp;
+    json[r'isFolder'] = this.isFolder;
     json[r'size'] = this.size;
-    if (this.title != null) {
-      json[r'title'] = this.title;
+    json[r'timestamp'] = this.timestamp;
+    if (this.isLocked != null) {
+      json[r'isLocked'] = this.isLocked;
     } else {
-      json[r'title'] = null;
+      json[r'isLocked'] = null;
     }
     if (this.hasIcon != null) {
       json[r'hasIcon'] = this.hasIcon;
     } else {
       json[r'hasIcon'] = null;
     }
+    if (this.title != null) {
+      json[r'title'] = this.title;
+    } else {
+      json[r'title'] = null;
+    }
     return json;
   }
 
-  /// Returns a new [FileEntry] instance and imports its values from
+  /// Returns a new [CatalogEntry] instance and imports its values from
   /// [value] if it's a [Map], null otherwise.
   // ignore: prefer_constructors_over_static_methods
-  static FileEntry? fromJson(dynamic value) {
+  static CatalogEntry? fromJson(dynamic value) {
     if (value is Map) {
       final json = value.cast<String, dynamic>();
 
@@ -108,32 +115,33 @@ class FileEntry {
       assert(() {
         requiredKeys.forEach((key) {
           assert(json.containsKey(key),
-              'Required key "FileEntry[$key]" is missing from JSON.');
+              'Required key "CatalogEntry[$key]" is missing from JSON.');
           assert(json[key] != null,
-              'Required key "FileEntry[$key]" has a null value in JSON.');
+              'Required key "CatalogEntry[$key]" has a null value in JSON.');
         });
         return true;
       }());
 
-      return FileEntry(
-        isFolder: mapValueOfType<bool>(json, r'isFolder'),
-        timestamp: mapValueOfType<String>(json, r'timestamp')!,
+      return CatalogEntry(
+        isFolder: mapValueOfType<bool>(json, r'isFolder')!,
         size: mapValueOfType<int>(json, r'size')!,
-        title: mapValueOfType<String>(json, r'title'),
+        timestamp: mapValueOfType<String>(json, r'timestamp')!,
+        isLocked: mapValueOfType<bool>(json, r'isLocked'),
         hasIcon: mapValueOfType<bool>(json, r'hasIcon'),
+        title: mapValueOfType<String>(json, r'title'),
       );
     }
     return null;
   }
 
-  static List<FileEntry> listFromJson(
+  static List<CatalogEntry> listFromJson(
     dynamic json, {
     bool growable = false,
   }) {
-    final result = <FileEntry>[];
+    final result = <CatalogEntry>[];
     if (json is List && json.isNotEmpty) {
       for (final row in json) {
-        final value = FileEntry.fromJson(row);
+        final value = CatalogEntry.fromJson(row);
         if (value != null) {
           result.add(value);
         }
@@ -142,12 +150,12 @@ class FileEntry {
     return result.toList(growable: growable);
   }
 
-  static Map<String, FileEntry> mapFromJson(dynamic json) {
-    final map = <String, FileEntry>{};
+  static Map<String, CatalogEntry> mapFromJson(dynamic json) {
+    final map = <String, CatalogEntry>{};
     if (json is Map && json.isNotEmpty) {
       json = json.cast<String, dynamic>(); // ignore: parameter_assignments
       for (final entry in json.entries) {
-        final value = FileEntry.fromJson(entry.value);
+        final value = CatalogEntry.fromJson(entry.value);
         if (value != null) {
           map[entry.key] = value;
         }
@@ -156,17 +164,17 @@ class FileEntry {
     return map;
   }
 
-  // maps a json object with a list of FileEntry-objects as value to a dart map
-  static Map<String, List<FileEntry>> mapListFromJson(
+  // maps a json object with a list of CatalogEntry-objects as value to a dart map
+  static Map<String, List<CatalogEntry>> mapListFromJson(
     dynamic json, {
     bool growable = false,
   }) {
-    final map = <String, List<FileEntry>>{};
+    final map = <String, List<CatalogEntry>>{};
     if (json is Map && json.isNotEmpty) {
       // ignore: parameter_assignments
       json = json.cast<String, dynamic>();
       for (final entry in json.entries) {
-        map[entry.key] = FileEntry.listFromJson(
+        map[entry.key] = CatalogEntry.listFromJson(
           entry.value,
           growable: growable,
         );
@@ -177,7 +185,8 @@ class FileEntry {
 
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
-    'timestamp',
+    'isFolder',
     'size',
+    'timestamp',
   };
 }

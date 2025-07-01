@@ -1,17 +1,24 @@
-// Openapi Generator last run: : 2025-06-27T16:35:08.064620
+// Openapi Generator last run: : 2025-07-01T12:49:12.135200
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
+import 'package:sneakernet_rest/api.dart';
 
-@Openapi(
-    // additionalProperties: AdditionalProperties(pubName: 'sneakernet_rest'),
-    inputSpec: InputSpec(path: '../openapi/catalog.yml'),
-    skipSpecValidation: true,   // FIXME
-    generatorName: Generator.dart,
-    outputDirectory: 'lib/rest',
-    skipIfSpecIsUnchanged: false,
-)
-class SneakernetRest {}
-
-/// to generate
+/// generate rest API
 ///```sh
 /// dart run build_runner build --delete-conflicting-outputs
 ///```
+@Openapi(
+    additionalProperties: AdditionalProperties(pubName: 'sneakernet_rest'),
+    inputSpec: InputSpec(path: '../openapi/sneakernet.yml'),
+    // skipSpecValidation: true,
+    generatorName: Generator.dart,
+    outputDirectory: 'sneakernet_rest',
+    skipIfSpecIsUnchanged: false,
+)
+class SneakernetRest{}
+
+class SneakerNet {
+    static synchronize()
+    {
+        final client = DefaultApi();
+    }
+}
