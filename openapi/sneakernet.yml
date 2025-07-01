@@ -9,9 +9,10 @@ servers:
     description: user interface
 
 paths:
-  /catalog_contents:
+  /catalog.contents:
     get:
-      description: used for synchronization - provides a current listing of all folders/files
+      summary: provides a current listing of all folders/files
+      description: used for synchronization
       responses:
         "200":
           description: OK
@@ -26,7 +27,7 @@ paths:
         "429": { description: "Client should try again" }
 
   /catalog/{folder}/:
-    description: access to a catalog folder
+    summary: access to a catalog folder
     parameters:
       - name: folder
         in: path
@@ -34,7 +35,7 @@ paths:
         required: true
         description: an empty value will access the catalog root
     get:
-      description: list folder content (subfolders and files)
+      summary: list folder content (subfolders and files)
       responses:
         "200":
           description: OK
@@ -44,47 +45,21 @@ paths:
         "429": { description: "Client should try again" }
         "404": { description: "Folder Not Found" }
     put:
-      description: create subfolder
+      summary: create subfolder
       responses:
         "200": { description: "OK" }
-        "401": { description: "Unauthorized" }
         "404": { description: "Parent Folder Not Found" }
         "429": { description: "Client should try again" }
-    post:
-      description: change the 'icon' for the folder
-      parameters:
-        - in: query
-          name: icon
-          required: true
-          schema:
-            {
-              type: boolean,
-              description: "if supplied assumes the user is uploading an image",
-            }
-        - in: header
-          name: Content-Length
-          required: true
-          schema: { type: integer, description: "size in bytes of the icon" }
-      requestBody:
-        content:
-          image/*: {}
-      responses:
-        "200": { description: "OK" }
-        "401": { description: "Unauthorized" }
-        "412": { description: "Content-Length not provided" }
-        "413": { description: "Payload Too Large" }
-        "429": { description: "Client should try again" }
     delete:
-      description: remove subfolder
+      summary: remove subfolder
       responses:
         "200": { description: "OK" }
-        "401": { description: "Unauthorized" }
         "404": { description: "Folder Not Found" }
         "409": { description: "Folder Not Empty" }
         "429": { description: "Client should try again" }
 
   /catalog/{folder}/{file}:
-    description: access to catalog content (files)
+    summary: access to catalog content (files)
     parameters:
       - name: folder
         in: path
@@ -95,7 +70,7 @@ paths:
         schema: { type: string }
         required: true
     get:
-      description: download the file
+      summary: download the file
       responses:
         "200":
           description: "OK"
@@ -103,7 +78,7 @@ paths:
         "404": { description: "File Not Found" }
         "429": { description: "Client should try again" }
     put:
-      description: add a file to the catalog
+      summary: add a file to the catalog
       parameters:
         - in: header
           name: Content-Length
@@ -117,20 +92,17 @@ paths:
         content: { application/octet-stream: {} }
       responses:
         "200": { description: "OK" }
-        "401": { description: "Unauthorized" }
         "412": { description: "Content-Length not provided" }
         "413": { description: "Payload Too Large" }
         "429": { description: "Client should try again" }
     delete:
-      description: remove the file
+      summary: remove the file
       responses:
         "200": { description: "OK" }
-        "401": { description: "Unauthorized" }
         "404": { description: "File Not Found" }
         "429": { description: "Client should try again" }
 
-
-  /catalog_title/{folder}/{file}:
+  /catalog.title/{folder}/{file}:
     parameters:
       - name: folder
         in: path
@@ -141,30 +113,30 @@ paths:
         schema: { type: string }
         required: true
     put:
-      description: set the title for the file
+      summary: set the title for the file
       parameters:
         - in: query
           name: title
           schema: { type: string }
       responses:
         "200": { description: "OK" }
-        "401": { description: "Unauthorized" }
+        "404": { description: "File Not Found" }
+        "429": { description: "Client should try again" }
+    delete:
+      summary: remove the title for the file
+      responses:
+        "200": { description: "OK" }
         "404": { description: "File Not Found" }
         "429": { description: "Client should try again" }
 
-
-  /catalog_icon/{folder}/{file}:
+  /catalog.icon/{folder}/:
     parameters:
       - name: folder
         in: path
         schema: { type: string }
         required: true
-      - name: file
-        in: path
-        schema: { type: string }
-        required: true
     put:
-      description: set the icon for the file
+      summary: set the icon for the folder
       parameters:
         - in: header
           name: Content-Length
@@ -174,8 +146,70 @@ paths:
         content: { image/*: {} }
       responses:
         "200": { description: "OK" }
-        "401": { description: "Unauthorized" }
+        "404": { description: "Folder Not Found" }
+        "429": { description: "Client should try again" }
+    delete:
+      summary: remove the icon for the folder
+      responses:
+        "200": { description: "OK" }
+        "404": { description: "Folder Not Found" }
+        "429": { description: "Client should try again" }
+
+  /catalog.icon/{folder}/{file}:
+    parameters:
+      - name: folder
+        in: path
+        schema: { type: string }
+        required: true
+      - name: file
+        in: path
+        schema: { type: string }
+        required: true
+    put:
+      summary: set the icon for the file
+      parameters:
+        - in: header
+          name: Content-Length
+          required: true
+          schema: { type: integer, description: "size in bytes" }
+      requestBody:
+        content: { image/*: {} }
+      responses:
+        "200": { description: "OK" }
         "404": { description: "File Not Found" }
+        "429": { description: "Client should try again" }
+    delete:
+      summary: remove the icon for the file
+      responses:
+        "200": { description: "OK" }
+        "404": { description: "File Not Found" }
+        "429": { description: "Client should try again" }
+
+  /firmware:
+    get:
+      summary: firmware info
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    { type: string, description: "semantic firmware version" }
+                  hardware:
+                    type: string
+                    enum: ["ESP32"]
+                    description: "hardware type"
+        "429": { description: "Client should try again" }
+    put:
+      summary: update firmware
+      description: "new firmware must be new revision than current"
+      requestBody: { content: { application/octet-stream: {} } }
+      responses:
+        "200": { description: "OK, rebooting..." }
+        "403": { description: "update rejected" }
         "429": { description: "Client should try again" }
 
 components:
@@ -197,9 +231,7 @@ components:
         - isFolder
       properties:
         isFolder: { type: boolean }
-        isLocked:
-          { type: boolean, description: "true if admin controls this folder" }
-        hasIcon: { type: boolean, "true if entry has a custom icon" }
+        hasIcon: { type: boolean, "true if folder has a custom icon" }
 
     FileEntry:
       type: object
@@ -210,12 +242,11 @@ components:
       properties:
         isFolder: { type: boolean }
         size: { type: integer, description: "size of the file in bytes" }
-        timestamp: { $ref: '#/components/schemas/timestamp' }
+        timestamp: { $ref: "#/components/schemas/timestamp" }
         title: { type: string }
-        isLocked:
-          { type: boolean, description: "true if admin controls this folder" }
-        hasIcon: { type: boolean, "true if entry has a custom icon" }
+        hasIcon: { type: boolean, "true if file has a custom icon" }
 
     timestamp:
       type: string
       description: "ISO 8601 Z"
+      example: "2025-07-01T15:55:00Z "
