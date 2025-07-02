@@ -300,11 +300,8 @@ esp_err_t icon_handler(httpd_req_t *request)
     auto response = request;
 
     auto path = catalogPath(request->uri, rest::catalog::uri_icon_wildcard);
-    // remove trailing '/' if folder
-    if (path.ends_with('/'))
-        path.pop_back();
     // no icons for the root folder
-    if (path.empty())
+    if (path.empty() || (path == "/"))
         return httpd_resp_send_err(response, HTTPD_404_NOT_FOUND, nullptr);
 
     switch (request->method)
@@ -354,11 +351,8 @@ static esp_err_t PUT_ICON(httpd_req_t *const request)
     }
 
     auto path = catalogPath(request->uri, rest::catalog::uri_icon_wildcard);
-    // remove trailing '/' if folder
-    if (path.ends_with('/'))
-        path.pop_back();
     // no icons for the root folder
-    if (path.empty())
+    if (path.empty() || (path == "/"))
         return httpd_resp_send_err(response, HTTPD_404_NOT_FOUND, nullptr);
 
     auto inwork =
