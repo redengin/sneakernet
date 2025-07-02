@@ -11,6 +11,11 @@ Preferred method
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
+[Install Dependencies]
+```sh
+poetry install
+```
+
 # Usage
 ```sh
 poetry run pytest

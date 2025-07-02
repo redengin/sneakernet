@@ -11,7 +11,6 @@
 extern "C" esp_err_t redirect(httpd_req_t *req, httpd_err_code_t err);
 
 extern "C" esp_err_t CAPPORT(httpd_req_t *);
-extern "C" esp_err_t GENERATE_204(httpd_req_t *);
 extern "C" esp_err_t CONNECT_INSTRUCTIONS(httpd_req_t *);
 
 extern "C" esp_err_t WEBAPP(httpd_req_t *);
@@ -29,15 +28,14 @@ WebServer::WebServer(const size_t max_sockets)
   esp_log_level_set("httpd_txrx", ESP_LOG_NONE);       // hides 404 warnings
   esp_log_level_set("httpd_parse", ESP_LOG_NONE);      // hides parsing messages
 
-  // per httpd_main.c, http uses internal sockets
-  constexpr size_t HTTP_INTERNAL_SOCKET_COUNT = 3;
-  size_t max_http_sockets = max_sockets - HTTP_INTERNAL_SOCKET_COUNT;
+  // per httpd_main.c, http uses internal sockets (one TCP, one UDP)
+  constexpr size_t HTTP_INTERNAL_SOCKET_COUNT = 2;
+  size_t max_http_sockets = max_sockets - (2 * HTTP_INTERNAL_SOCKET_COUNT);
 
   // create HTTPS server
   httpd_ssl_config_t httpsConfig = HTTPD_SSL_CONFIG_DEFAULT();
   // purge oldest connection
   httpsConfig.httpd.lru_purge_enable = true;
-  // only support one admin at at time
   httpsConfig.httpd.max_open_sockets = 1;
   // allow wildcard uris
   httpsConfig.httpd.uri_match_fn = httpd_uri_match_wildcard;
@@ -57,7 +55,7 @@ WebServer::WebServer(const size_t max_sockets)
   ESP_ERROR_CHECK(httpd_ssl_start(&httpsHandle, &httpsConfig));
 
   // redirect non-sneakernet https traffic to web-app
-  httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, redirect);
+  ESP_ERROR_CHECK(httpd_register_err_handler(httpsHandle, HTTPD_404_NOT_FOUND, redirect));
 
   // create HTTP server
   httpd_config_t httpConfig = HTTPD_DEFAULT_CONFIG();
@@ -92,7 +90,6 @@ WebServer::WebServer(const size_t max_sockets)
         .uri = "",
         .method = HTTP_GET,
         .handler = CONNECT_INSTRUCTIONS, // provide connecting instructions
-        // .handler = GENERATE_204, // respond with "204 No Content"
         .user_ctx = nullptr,
     };
     handler.uri = "/gen_204";
@@ -147,7 +144,6 @@ WebServer::WebServer(const size_t max_sockets)
 void WebServer::registerUriHandler(const httpd_uri_t &handler)
 {
   ESP_ERROR_CHECK(httpd_register_uri_handler(httpHandle, &handler));
-  ESP_ERROR_CHECK(httpd_register_uri_handler(httpsHandle, &handler));
 }
 
 /// provides captive portal redirect to webapp
@@ -156,6 +152,7 @@ esp_err_t redirect(httpd_req_t *request, httpd_err_code_t err)
   ESP_LOGD(WebServer::TAG, "Serving 303 redirect for request[%s]", request->uri);
 
   auto response = request;
+  httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
   httpd_resp_set_status(response, "303 See Other");
   httpd_resp_set_hdr(response, "Location", "http://192.168.4.1/");
   // iOS requires content in the response to detect a captive portal
@@ -201,21 +198,11 @@ esp_err_t CAPPORT(httpd_req_t *request)
   }
 }
 
-esp_err_t GENERATE_204(httpd_req_t *request)
-{
-  ESP_LOGD(WebServer::TAG, "got a generate 204 request - providing 204");
-
-  auto response = request;
-  httpd_resp_set_status(response, "204 No Content");
-  httpd_resp_set_type(response, HTTPD_TYPE_TEXT);
-  return httpd_resp_send(response, nullptr, 0);
-}
-
 extern "C" const char captiveportalHtml_start[] asm("_binary_captiveportal_html_start");
 extern "C" const char captiveportalHtml_end[] asm("_binary_captiveportal_html_end");
 esp_err_t CONNECT_INSTRUCTIONS(httpd_req_t *request)
 {
-  ESP_LOGD(WebServer::TAG, "got a generate 204 request - providing page");
+  ESP_LOGD(WebServer::TAG, "providing connection instructions page");
 
   auto response = request;
   httpd_resp_set_hdr(response, "Cache-Control", WebServer::CACHE_CONTROL);
@@ -236,7 +223,6 @@ esp_err_t WEBAPP(httpd_req_t *request)
   const size_t sz = webappHtml_end - webappHtml_start;
   return httpd_resp_send(response, webappHtml_start, sz);
 }
-
 
 extern "C" const char tosHtml_start[] asm("_binary_tos_html_start");
 extern "C" const char tosHtml_end[] asm("_binary_tos_html_end");

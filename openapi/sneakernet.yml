@@ -20,19 +20,18 @@ paths:
             application/json:
               schema:
                 type: object
-                description: key is the path to the folder/file
+                description: keys are the path to the folder/file
                 additionalProperties:
                   $ref: "#/components/schemas/CatalogEntry"
-                  description: each Entry is either a folder or file
         "429": { description: "Client should try again" }
 
   /catalog/{folder}/:
     summary: access to a catalog folder
     parameters:
       - name: folder
+        required: true
         in: path
         schema: { type: string }
-        required: true
         description: an empty value will access the catalog root
     get:
       summary: list folder content (subfolders and files)
@@ -41,17 +40,20 @@ paths:
           description: OK
           content:
             application/json:
-              { schema: { $ref: "#/components/schemas/CatalogEntry" } }
+              schema:
+                type: object
+                description: keys are the name of the subfolder or file
+                additionalProperties:
+                  $ref: "#/components/schemas/CatalogEntry"
         "429": { description: "Client should try again" }
         "404": { description: "Folder Not Found" }
     put:
-      summary: create subfolder
+      summary: create folder
       responses:
         "200": { description: "OK" }
-        "404": { description: "Parent Folder Not Found" }
         "429": { description: "Client should try again" }
     delete:
-      summary: remove subfolder
+      summary: remove folder
       responses:
         "200": { description: "OK" }
         "404": { description: "Folder Not Found" }
@@ -62,13 +64,13 @@ paths:
     summary: access to catalog content (files)
     parameters:
       - name: folder
+        required: true
         in: path
         schema: { type: string }
-        required: true
       - name: file
+        required: true
         in: path
         schema: { type: string }
-        required: true
     get:
       summary: download the file
       responses:
@@ -80,19 +82,23 @@ paths:
     put:
       summary: add a file to the catalog
       parameters:
-        - in: header
-          name: Content-Length
+        - name: Content-Length
           required: true
+          in: header
           schema: { type: integer, description: "size in bytes" }
-        - in: query
-          name: title
+        - name: X-Timestamp
+          required: true
+          in: header
+          schema: { $ref: "#/components/schemas/timestamp" }
+        - name: title
           required: false
+          in: query
           schema: { type: string, description: "pretty title for file" }
       requestBody:
         content: { application/octet-stream: {} }
       responses:
         "200": { description: "OK" }
-        "412": { description: "Content-Length not provided" }
+        "400": { description: "not all required headers provided" }
         "413": { description: "Payload Too Large" }
         "429": { description: "Client should try again" }
     delete:
@@ -105,18 +111,19 @@ paths:
   /catalog.title/{folder}/{file}:
     parameters:
       - name: folder
+        required: true
         in: path
         schema: { type: string }
-        required: true
       - name: file
+        required: true
         in: path
         schema: { type: string }
-        required: true
     put:
       summary: set the title for the file
       parameters:
-        - in: query
-          name: title
+        - name: title
+          required: true 
+          in: query
           schema: { type: string }
       responses:
         "200": { description: "OK" }
@@ -132,15 +139,21 @@ paths:
   /catalog.icon/{folder}/:
     parameters:
       - name: folder
+        required: true
         in: path
         schema: { type: string }
-        required: true
+    get:
+      summary: get the icon for the folder
+      responses:
+        "200": { description: "OK", content: { application/octet-stream: {} } }
+        "404": { description: "Folder Not Found" }
+        "429": { description: "Client should try again" }
     put:
       summary: set the icon for the folder
       parameters:
-        - in: header
-          name: Content-Length
+        - name: Content-Length
           required: true
+          in: header
           schema: { type: integer, description: "size in bytes" }
       requestBody:
         content: { image/*: {} }
@@ -158,22 +171,28 @@ paths:
   /catalog.icon/{folder}/{file}:
     parameters:
       - name: folder
+        required: true
         in: path
         schema: { type: string }
-        required: true
       - name: file
+        required: true
         in: path
         schema: { type: string }
-        required: true
+    get:
+      summary: get the icon for the file
+      responses:
+        "200": { description: "OK", content: { application/octet-stream: {} } }
+        "404": { description: "File Not Found" }
+        "429": { description: "Client should try again" }
     put:
       summary: set the icon for the file
       parameters:
-        - in: header
-          name: Content-Length
+        - name: Content-Length
           required: true
+          in: header
           schema: { type: integer, description: "size in bytes" }
       requestBody:
-        content: { image/*: {} }
+        content: { application/octet-stream: {} }
       responses:
         "200": { description: "OK" }
         "404": { description: "File Not Found" }
@@ -229,6 +248,7 @@ components:
       type: object
       required:
         - isFolder
+        - hasIcon
       properties:
         isFolder: { type: boolean }
         hasIcon: { type: boolean, "true if folder has a custom icon" }
@@ -239,12 +259,13 @@ components:
         - isFolder
         - size
         - timestamp
+        - hasIcon
       properties:
         isFolder: { type: boolean }
         size: { type: integer, description: "size of the file in bytes" }
         timestamp: { $ref: "#/components/schemas/timestamp" }
-        title: { type: string }
         hasIcon: { type: boolean, "true if file has a custom icon" }
+        title: { type: string }
 
     timestamp:
       type: string
