@@ -10,6 +10,8 @@ import { matCreateNewFolderOutline, matFolderDeleteOutline,
 
 import { TimeagoModule } from 'ngx-timeago';
 
+import { BackButtonDisableModule } from 'angular-disable-browser-back-button';
+
 // Change the title here
 export const globals = {
   appTitle:"SneakerNet",
@@ -24,6 +26,6 @@ export const appConfig: ApplicationConfig = {
       matFolderOutline, matFileDownloadOutline, matDeleteOutline,
       matUploadFile
     }),
-    importProvidersFrom(TimeagoModule.forRoot()),
-  ]
+    importProvidersFrom(TimeagoModule.forRoot(), BackButtonDisableModule.forRoot()),
+  ],
 };

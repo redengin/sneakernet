@@ -20,12 +20,12 @@
     "@angular/platform-browser": "^19.1.0",
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
-
     "@ng-icons/core": "latest",
     "@ng-icons/material-icons": "latest",
-    "ngx-timeago": "latest",
+    "angular-disable-browser-back-button": "^2.0.0",
     "filesize": "latest",
     "ngx-filesize": "latest",
+    "ngx-timeago": "latest",
     "rxjs": "latest",
     "tslib": "latest",
     "zone.js": "latest"

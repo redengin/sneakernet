@@ -10,8 +10,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 #currentPath {
-    padding: 10px;
-    font-size: xx-large;
+    padding: 3vw;
+    font-size: large;
+}
+
+#currentPath mat-form-field {
+    width: 94vw;
 }
 
 div.centered {
@@ -33,6 +37,9 @@ div.card {
 div.card .icon {
     position: relative;
     width: 10vw;
+    transform: scale(2.5);
+    padding: 1vw;
+    display: inline-block;
 }
 
 div.card a {

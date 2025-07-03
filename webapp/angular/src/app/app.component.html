@@ -2,7 +2,7 @@
 
 <main>
     <div id="currentPath">
-        <span>{{httpDecode(currentPath)}}/</span>
+        <div>{{httpDecode(currentPath)}}/</div>
         <mat-form-field>
             <mat-label>
                 <ng-icon name="MatCreateNewFolderOutline" size="10vw"/>
@@ -15,7 +15,7 @@
 <!-- provide link to parent folder -->
 @if(currentPath) {
         <div class="card" (click)="chooseParentFolder()">
-            <ng-icon name="MatFolderOutline"/>
+            <ng-icon class="icon" name="MatFolderOutline"/>
             ..
         </div>
 }
@@ -34,10 +34,10 @@
     @for(entry of (folderData | keyvalue); track entry) {
         @if(! entry.value.isFolder) {
             <div class="card">
-                <a download href="api/catalog/{{currentPath}}/{{entry.key}}"><div>
+                <a download href="api/catalog/{{currentPath}}/{{entry.key}}">
                     <ng-icon class="icon" name="MatFileDownloadOutline"/>
                     {{entry.value.title || httpDecode(entry.key)}}
-                </div></a>
+                </a>
                 <div class="info">
                     <span>{{entry.value.timestamp! | timeago:true}}</span>
                     <span>{{entry.value.size! | filesize:{standard:'jedec'} }}</span>
