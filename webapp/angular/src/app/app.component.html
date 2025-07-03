@@ -20,9 +20,9 @@
         </div>
 }
 
-@if(folderData.entries) {
+@if(folderData) {
 <!-- provide links to subfolders -->
-    @for(entry of (folderData.entries | keyvalue); track entry) {
+    @for(entry of (folderData | keyvalue); track entry) {
         @if(entry.value.isFolder) {
         <div class="card" (click)="chooseSubfolder(entry.key)">
             <ng-icon class="icon" name="MatFolderOutline"/>
@@ -31,7 +31,7 @@
         }
     }
 <!-- provide links to files -->
-    @for(entry of (folderData.entries | keyvalue); track entry) {
+    @for(entry of (folderData | keyvalue); track entry) {
         @if(! entry.value.isFolder) {
             <div class="card">
                 <a download href="api/catalog/{{currentPath}}/{{entry.key}}"><div>
@@ -50,6 +50,7 @@
     }
 }
 @else {
+<!-- no files or folders -->
             <div class="card">
                 <div class="title"> This folder is empty </div>
                 <div> Share some files to get it started </div>

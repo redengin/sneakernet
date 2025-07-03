@@ -22,19 +22,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 //==============================================================================
 type Entry = {
   isFolder: boolean;
+  hasIcon?: boolean;
   // following only for file entries (i.e. isFolder = false)
   size?: number;
   timestamp?: string;
   title?: string;
-  hasIcon?: boolean;
 }
-
-type Folder = {
-  readonly locked?: boolean;
-  readonly entries?: {
-    [key: string]: Entry;
-  }
-};
 
 @Component({
   selector: 'app-root',
@@ -51,13 +44,12 @@ export class AppComponent {
   constructor(private http: HttpClient, private dialog: MatDialog) { }
   ngOnInit() { this.getFolderData(); }
 
-  currentPath = '';
-  folderData: Folder = {};
+  currentPath: string = '';
+  folderData: Map<string, Entry> = new Map(); 
 
   getFolderData(): void {
     const dialogRef = this.dialog.open(SpinnerDialog, { disableClose: true });
-    this.folderData = {};
-    this.http.get<Folder>(`api/catalog/${this.currentPath}/`)
+    this.http.get<Map<string,Entry>>(`api/catalog/${this.currentPath}/`)
       .subscribe({
         next: (data) => { this.folderData = data; },
         error: (response) => { dialogRef.close(); alert('Failed to retrieve catalog'); },

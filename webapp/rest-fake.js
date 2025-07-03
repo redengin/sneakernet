@@ -5,21 +5,20 @@ const app = express();
 
 // fake catalog
 catalog = {
-    "locked" : false,
-    "entries" : {
-        "short" : { isFolder: true },
-        "long%20directory" : { isFolder: true },
-        "file%201": { isFolder: false,
-            size: 1,
-            timestamp : "2025-02-12T19:26:24Z",
-            hasIcon: false,
-        },
-        "file 2": { isFolder: false,
-            size: 2,
-            timestamp : "2025-02-12T19:26:24Z",
-            title: "This is File 2 with a really long name that should wrap",
-            hasIcon: false,
-        },
+    "short": { isFolder: true },
+    "long%20directory": { isFolder: true },
+    "file%201": {
+        isFolder: false,
+        size: 1,
+        timestamp: "2025-02-12T19:26:24Z",
+        hasIcon: false,
+    },
+    "file 2": {
+        isFolder: false,
+        size: 2,
+        timestamp: "2025-02-12T19:26:24Z",
+        title: "This is File 2 with a really long name that should wrap",
+        hasIcon: false,
     },
 };
 
@@ -51,8 +50,8 @@ const http = require('http');
 const restServer = http.createServer(app);
 restServer.on('error', (err) => {
     console.error('Server error:', err);
-  });
-restServer.listen(PORT, () => { console.log("fake rest server started on port "+PORT); });
+});
+restServer.listen(PORT, () => { console.log("fake rest server started on port " + PORT); });
 
 
 
