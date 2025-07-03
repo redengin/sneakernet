@@ -1,5 +1,6 @@
 import pytest
 import requests
+import time
 
 
 def test_catalog(sneakernet):
@@ -77,6 +78,22 @@ def test_catalog(sneakernet):
     # test sync api
     (status_code, content) = sync()
     assert (200 == status_code)
+
+    # bandwidth
+    FILEDATA = b'0' * 1024 * 1024 * 2
+    start = time.perf_counter()
+    assert (200 == createPath(FILENAME, FILEDATA))
+    stop = time.perf_counter()
+    elapsed = stop - start
+    MB = len(FILEDATA) / 1024 / 1024
+    Mbps = 8 * MB / elapsed
+    print(f"upload {MB:.2f} MB @ {Mbps:.2f} Mbps")
+    start = time.perf_counter()
+    (status_code, content) = getFile(FILENAME)
+    stop = time.perf_counter()
+    Mbps = 8 * MB / elapsed
+    print(f"download {MB:.2f} MB @ {Mbps:.2f} Mbps")
+    deletePath(FILENAME)
 
 
 # test utilities
