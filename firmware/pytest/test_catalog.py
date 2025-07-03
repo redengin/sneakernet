@@ -84,14 +84,13 @@ def test_catalog(sneakernet):
     start = time.perf_counter()
     assert (200 == createPath(FILENAME, FILEDATA))
     stop = time.perf_counter()
-    elapsed = stop - start
     MB = len(FILEDATA) / 1024 / 1024
-    Mbps = 8 * MB / elapsed
+    Mbps = 8 * MB / (stop - start)
     print(f"upload {MB:.2f} MB @ {Mbps:.2f} Mbps")
     start = time.perf_counter()
     (status_code, content) = getFile(FILENAME)
     stop = time.perf_counter()
-    Mbps = 8 * MB / elapsed
+    Mbps = 8 * MB / (stop - start)
     print(f"download {MB:.2f} MB @ {Mbps:.2f} Mbps")
     deletePath(FILENAME)
 

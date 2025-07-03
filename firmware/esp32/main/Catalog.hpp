@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+// #include <cstdio>
 #include <optional>
 #include <vector>
 
@@ -116,7 +117,8 @@ public:
         const std::filesystem::path &, const size_t) const;
 
   public:
-    std::ofstream open();
+    // returns file descriptor
+    int open();
 
     /// @brief swaps original file (if exists) with new file
     /// @pre ofstream should be closed to flush writes

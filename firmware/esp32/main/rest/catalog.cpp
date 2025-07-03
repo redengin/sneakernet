@@ -277,11 +277,11 @@ static esp_err_t PUT_FILE(httpd_req_t *const request)
         return httpd_resp_send_err(response, HTTPD_404_NOT_FOUND, nullptr);
 
     // receive the file
-    auto ofs = inwork.value().open();
-    if (rest::receiveOctetStream(request, ofs))
+    auto fid = inwork.value().open();
+    if (rest::receiveOctetStream(request, fid))
     {
         // rename the temporary to the actual file
-        ofs.close();
+        ::close(fid);
         inwork.value().done();
     }
 
@@ -394,11 +394,11 @@ static esp_err_t PUT_ICON(httpd_req_t *const request)
         return httpd_resp_send_err(response, HTTPD_404_NOT_FOUND, nullptr);
 
     // receive the file
-    auto ofs = inwork.value().open();
-    if (rest::receiveOctetStream(request, ofs))
+    auto fid = inwork.value().open();
+    if (rest::receiveOctetStream(request, fid))
     {
         // rename the temporary to the actual file
-        ofs.close();
+        close(fid);
         inwork.value().done();
     }
 

@@ -340,10 +340,10 @@ Catalog::InWorkContent::InWorkContent(
   inwork_filepath = filepath.parent_path() / inworkfile;
 }
 
-std::ofstream Catalog::InWorkContent::open()
+#include <fcntl.h>
+int Catalog::InWorkContent::open()
 {
-  return std::ofstream(inwork_filepath,
-                       std::ios_base::out | std::ios_base::binary);
+  return ::open(inwork_filepath.c_str(), (O_CREAT | O_WRONLY));
 }
 
 void Catalog::InWorkContent::done()

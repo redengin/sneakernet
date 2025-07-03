@@ -36,6 +36,6 @@ bool sendOctetStream(httpd_req_t* const request, std::ifstream& fis);
 
 /// @brief receive chunked HTTP stream
 /// @post set's request's response HTTPD status
-bool receiveOctetStream(httpd_req_t* const request, std::ofstream& fos);
+bool receiveOctetStream(httpd_req_t* const request, const int& fid);
 
 };  // namespace rest
