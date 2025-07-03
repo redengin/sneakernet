@@ -68,12 +68,15 @@ def test_catalog(sneakernet):
     deletePath(FOLDER)
 
     # test folder icon removed when folder removed
-    (status_code, content) = contents(FOLDER)
     assert (200 == createPath(FOLDER))
     assert (200 == setIcon(FOLDER, ICONDATA))
     assert (200 == deletePath(FOLDER))
     (status_code, content)=getIcon(FOLDER)
     assert (404 == status_code)
+
+    # test sync api
+    (status_code, content) = sync()
+    assert (200 == status_code)
 
 
 # test utilities
@@ -83,6 +86,11 @@ uri_sync = "/api/catalog.content"
 uri_content = "/api/catalog/"
 uri_icon = "/api/catalog.icon/"
 uri_title = "/api/catalog.title/"
+
+def sync():
+    req = requests.get(base_url + uri_sync)
+    data = req.json() if (200 == req.status_code) else req.content
+    return (req.status_code, data)
 
 
 def contents(filepath: str = "/"):

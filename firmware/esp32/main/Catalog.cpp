@@ -53,6 +53,26 @@ bool Catalog::hasFolder(const std::filesystem::path &folderpath) const
   return ret;
 }
 
+std::optional<Catalog::FolderInfo> Catalog::getFiles() const
+{
+  Catalog::FolderInfo ret;
+
+  for (const auto &entry :
+       std::filesystem::recursive_directory_iterator(root))
+  {
+    // skip hidden files
+    if (isHidden(entry.path()))
+      continue;
+
+    if (entry.is_regular_file())
+      ret.emplace_back(entry.path().filename(), hasIcon(entry.path()),
+                       entry.last_write_time(),
+                       entry.file_size(), getTitle(entry.path()));
+  }
+
+  return ret;
+}
+
 std::optional<Catalog::FolderInfo> Catalog::getFolder(
     const std::filesystem::path &folderpath) const
 {

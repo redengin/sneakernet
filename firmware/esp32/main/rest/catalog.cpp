@@ -54,8 +54,41 @@ void rest::catalog::registerHandlers(WebServer &webserver, Catalog &catalog)
 
 esp_err_t sync_handler(httpd_req_t *request)
 {
-    // TODO implement
-    return ESP_FAIL;
+    auto context = reinterpret_cast<Context *>(request->user_ctx);
+    auto response = request;
+
+    auto folderInfo = context->catalog.getFiles();
+
+    // turn the folderInfo into JSON
+    auto response_json = cJSON_CreateObject();
+    for (auto &entry : folderInfo.value())
+    {
+        auto e = cJSON_CreateObject();
+        cJSON_AddBoolToObject(e, "isFolder", false);
+        cJSON_AddNumberToObject(e, "size", entry.fileInfo.size);
+        cJSON_AddStringToObject(
+            e, "timestamp", rest::timestamp(entry.fileInfo.timestamp).c_str());
+        cJSON_AddBoolToObject(e, "hasIcon", entry.hasIcon);
+        if (entry.fileInfo.title.has_value())
+            cJSON_AddStringToObject(e, "title",
+                                    entry.fileInfo.title.value().c_str());
+
+        cJSON_AddItemToObject(response_json, entry.name.c_str(), e);
+    }
+    char *const data = cJSON_PrintUnformatted(response_json);
+    cJSON_Delete(response_json);
+
+    // handle out of memory condition
+    if (data == nullptr)
+        return httpd_resp_send_custom_err(response, rest::TOO_MANY_REQUESTS, nullptr);
+
+    // return the data
+    httpd_resp_set_type(response, "application/json");
+    ESP_LOGD(rest::catalog::TAG, "sync json [%s]", data);
+    auto ret = httpd_resp_send(response, data, strlen(data));
+    // cleanup json allocations
+    cJSON_free(data);
+    return ret;
 }
 
 static std::string catalogPath(const char *const uri, const std::string_view uri_wildcard)

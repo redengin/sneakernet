@@ -14,8 +14,6 @@ public:
 
   // Folder support
   //------------------------------------------------------------------------------
-  bool hasFolder(const std::filesystem::path &) const;
-
   struct FolderEntry
   {
     /// file and folder information
@@ -47,8 +45,13 @@ public:
     {
     }
   };
-
   typedef std::vector<FolderEntry> FolderInfo;
+
+  bool hasFolder(const std::filesystem::path &) const;
+
+  /// get a list of all files (for sync)
+  std::optional<FolderInfo> getFiles() const;
+
   std::optional<FolderInfo> getFolder(const std::filesystem::path &) const;
 
   /// returns true if folder exists (whether new or not)
