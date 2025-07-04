@@ -29,3 +29,11 @@ A few resources to acquaint you with Flutter.
 
 For help Flutter development, view the [online documentation](https://docs.flutter.dev/),
 which offers tutorials, samples, guidance on mobile development, and a full API reference.
+
+
+### Generating the sneakernet_rest dart package
+(see [openapi-generator](https://github.com/OpenAPITools/openapi-generator))
+```sh
+wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.14.0/openapi-generator-cli-7.14.0.jar -O openapi-generator-cli.jar
+java -jar openapi-generator-cli-7.14.0.jar generate -g dart -i ../openapi/sneakernet.yml -o sneakernet_rest --additional-properties pubName=sneakernet_rest
+```
