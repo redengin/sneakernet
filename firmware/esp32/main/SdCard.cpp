@@ -13,6 +13,7 @@
 #include <driver/sdmmc_host.h>
 #include <sdmmc_cmd.h>
 #include <esp_vfs_fat.h>
+#include <soc/spi_pins.h>
 
 SdCard::SdCard() {
   // tune down log chatter
@@ -20,12 +21,17 @@ SdCard::SdCard() {
 
   sdmmc_host_t host = SDSPI_HOST_DEFAULT();
   // specialize host config
-  host.max_freq_khz = SDMMC_FREQ_26M;   // max rate currently possible under idf
+  host.max_freq_khz = SDMMC_FREQ_26M;   // max rate currently possible under non-IOMUX SPI
+//   host.max_freq_khz = 80000;   // max rate currently possible under IOMUX SPI
   const spi_bus_config_t spi_bus_config{
       // pins configured for straight-thru to mmc peripheral
       .mosi_io_num = GPIO_NUM_15,
       .miso_io_num = GPIO_NUM_4,
       .sclk_io_num = GPIO_NUM_2,
+    // HSPI IOMUX pins (but not per function, so doesn't appear to work)
+    //   .mosi_io_num = GPIO_NUM_13,
+    //   .miso_io_num = GPIO_NUM_14,
+    //   .sclk_io_num = GPIO_NUM_12,
       .quadwp_io_num = GPIO_NUM_NC, // not used
       .quadhd_io_num = GPIO_NUM_NC, // not used
       .data4_io_num = GPIO_NUM_NC,  // not used
@@ -43,8 +49,6 @@ SdCard::SdCard() {
 
 
   sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
-  // specialize slot_config
-  slot_config.host_id = static_cast<spi_host_device_t>(host.slot);
   const esp_vfs_fat_sdmmc_mount_config_t mount_config = {
       .format_if_mount_failed = true,
       .max_files = 10,                                  // TODO maximize to support users
