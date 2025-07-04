@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'sneakernet_rest.dart';
 
 void main() {
   runApp(const MyApp());
